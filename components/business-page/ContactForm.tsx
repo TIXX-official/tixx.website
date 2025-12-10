@@ -1,133 +1,68 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
+import { Copy, Check, Mail } from 'lucide-react';
 
 export default function ContactForm() {
-  const [company, setCompany] = useState('');
-  const [person, setPerson] = useState('');
-  const [contact, setContact] = useState('');
-  const [inquiryType, setInquiryType] = useState('입점 문의 (Club/Lounge)');
-  const [message, setMessage] = useState('');
+  const [copied, setCopied] = useState(false);
+  const email = 'tixxofficial@tixx.im';
 
-  const mailtoHref = useMemo(() => {
-    const subject = `[TIXX] ${inquiryType} 문의`;
-    const bodyTemplate = [
-      `Company Name: ${company || '업체명'}`,
-      `Contact Person: ${person || '담당자 성함'}`,
-      `Email / Phone: ${contact || '연락처'}`,
-      `Inquiry Type: ${inquiryType}`,
-      '',
-      'Message:',
-      message || '문의 내용을 자유롭게 적어주세요.',
-    ].join('\n');
-
-    return `mailto:tixxofficial@tixx.im?subject=${encodeURIComponent(
-      subject
-    )}&body=${encodeURIComponent(bodyTemplate)}`;
-  }, [company, contact, inquiryType, message, person]);
+  const handleCopy = () => {
+    navigator.clipboard.writeText(email);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
     <section
       id='contact'
       className='py-32 bg-zinc-950 border-t border-zinc-900'
     >
-      <div className='container mx-auto max-w-3xl px-6'>
-        <div className='text-center mb-16'>
-          <h2 className='text-4xl md:text-5xl font-black font-display text-white mb-4'>
-            Contact Us
-          </h2>
-          <p className='text-zinc-400 font-kr'>
-            TIXX와 함께 씬을 만들어갈 파트너를 기다립니다.
-          </p>
-        </div>
-
-        <motion.form
+      <div className='container mx-auto max-w-3xl px-6 text-center'>
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className='space-y-6'
-          onSubmit={(e) => e.preventDefault()}
+          className='mb-16'
         >
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-            <div className='space-y-2'>
-              <label className='text-sm font-bold text-zinc-500 uppercase tracking-wider'>
-                Company Name
-              </label>
-              <input
-                type='text'
-                className='w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-neon-lime transition-colors'
-                placeholder='업체명'
-                value={company}
-                onChange={(e) => setCompany(e.target.value)}
-              />
-            </div>
-            <div className='space-y-2'>
-              <label className='text-sm font-bold text-zinc-500 uppercase tracking-wider'>
-                Contact Person
-              </label>
-              <input
-                type='text'
-                className='w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-neon-lime transition-colors'
-                placeholder='담당자 성함'
-                value={person}
-                onChange={(e) => setPerson(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className='space-y-2'>
-            <label className='text-sm font-bold text-zinc-500 uppercase tracking-wider'>
-              Email / Phone
-            </label>
-            <input
-              type='text'
-              className='w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-neon-lime transition-colors'
-              placeholder='연락처'
-              value={contact}
-              onChange={(e) => setContact(e.target.value)}
-            />
-          </div>
-
-          <div className='space-y-2'>
-            <label className='text-sm font-bold text-zinc-500 uppercase tracking-wider'>
-              Inquiry Type
-            </label>
-            <select
-              className='w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-neon-lime transition-colors appearance-none'
-              value={inquiryType}
-              onChange={(e) => setInquiryType(e.target.value)}
-            >
-              <option>입점 문의 (Club/Lounge)</option>
-              <option>기획 대행 문의 (Agency)</option>
-              <option>제작 문의 (Creative)</option>
-              <option>기타 제휴</option>
-            </select>
-          </div>
-
-          <div className='space-y-2'>
-            <label className='text-sm font-bold text-zinc-500 uppercase tracking-wider'>
-              Message
-            </label>
-            <textarea
-              rows={4}
-              className='w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-neon-lime transition-colors'
-              placeholder='문의 내용을 자유롭게 적어주세요.'
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-            />
-          </div>
-
-          <a
-            className='block w-full bg-neon-lime text-black text-center font-bold text-lg py-4 rounded-xl hover:bg-[#eef540] transition-colors mt-8'
-            href={mailtoHref}
-          >
-            기본 메일 앱으로 보내기
-          </a>
-          <p className='text-xs text-zinc-500 text-center'>
-            메일 앱에서 현재 입력된 정보가 템플릿으로 채워집니다.
+          <h2 className='text-neon-lime font-bold text-sm md:text-base tracking-[0.3em] mb-4 uppercase'>
+            Contact
+          </h2>
+          <h3 className='text-4xl md:text-6xl font-black font-display text-white mb-6'>
+            Be the Next <br />
+            Culture Trend.
+          </h3>
+          <p className='text-xl text-zinc-400 font-kr mb-12'>
+            TIXX와 함께 귀사의 브랜드를 하나의 문화로 만드세요. <br />
+            업체명, 담당자 성함, 연락처를 포함하여 메일을 보내주시면 빠른 확인이 가능합니다.
           </p>
-        </motion.form>
+
+          <div className="flex flex-col items-center gap-6">
+
+            {/* Email Display & Copy Box */}
+            <div className="flex items-center gap-4 bg-zinc-900 border border-zinc-800 rounded-full pl-8 pr-2 py-2">
+              <span className="text-xl md:text-2xl font-bold text-white tracking-wide">{email}</span>
+              <button
+                onClick={handleCopy}
+                className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-white px-5 py-3 rounded-full transition-colors font-bold text-sm"
+              >
+                {copied ? <Check className="w-4 h-4 text-neon-lime" /> : <Copy className="w-4 h-4" />}
+                {copied ? "Copied!" : "주소 복사하기"}
+              </button>
+            </div>
+
+            {/* Direct Mail Button */}
+            <a
+              href={`mailto:${email}`}
+              className="inline-flex items-center gap-2 text-zinc-400 hover:text-neon-lime transition-colors mt-4"
+            >
+              <Mail className="w-5 h-5" />
+              <span>메일 앱으로 바로 보내기</span>
+            </a>
+
+          </div>
+        </motion.div>
       </div>
     </section>
   );
