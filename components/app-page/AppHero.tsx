@@ -51,37 +51,24 @@ export default function AppHero() {
                         className="absolute -bottom-10 -left-10 w-32 h-32 bg-gradient-to-tr from-neon-lime to-transparent opacity-20 rounded-full blur-xl z-0"
                     />
 
-                    {/* iPhone Frame */}
-                    <div className="relative w-[300px] h-[600px] bg-black rounded-[50px] border-[8px] border-zinc-800 shadow-2xl mx-auto overflow-hidden z-10">
-                        {/* Notch */}
-                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-7 bg-black rounded-b-2xl z-20" />
-
-                        {/* Screen Content */}
-                        <div className="w-full h-full bg-zinc-900 flex flex-col relative">
-                            {/* App Header */}
-                            <div className="h-24 bg-gradient-to-b from-black/80 to-transparent p-6 pt-12 flex justify-between items-center">
-                                <div className="w-8 h-8 bg-zinc-800 rounded-full" />
-                                <div className="text-white font-bold text-sm">TIXX</div>
-                                <div className="w-8 h-8 bg-zinc-800 rounded-full" />
-                            </div>
-
-                            {/* App Content Placeholder */}
-                            <div className="flex-1 p-4 space-y-4 overflow-hidden">
-                                <div className="w-full h-48 bg-zinc-800 rounded-2xl animate-pulse" />
-                                <div className="flex gap-4">
-                                    <div className="w-1/2 h-32 bg-zinc-800 rounded-2xl animate-pulse delay-100" />
-                                    <div className="w-1/2 h-32 bg-zinc-800 rounded-2xl animate-pulse delay-200" />
-                                </div>
-                                <div className="w-full h-24 bg-zinc-800 rounded-2xl animate-pulse delay-300" />
-                            </div>
-
-                            {/* Bottom Nav */}
-                            <div className="h-20 bg-black/90 backdrop-blur-md flex justify-around items-center px-6 pb-4 border-t border-white/5">
-                                <div className="w-6 h-6 bg-neon-lime rounded-full" />
-                                <div className="w-6 h-6 bg-zinc-700 rounded-full" />
-                                <div className="w-6 h-6 bg-zinc-700 rounded-full" />
-                            </div>
-                        </div>
+                    {/* iPhone Images */}
+                    <div className="relative flex justify-center items-center gap-4 z-10 min-h-[900px]">
+                        <motion.img
+                            src="/images/archive/tixx-iPhone2.png"
+                            alt="TIXX App Interface 2"
+                            className="w-[85vw] md:w-[500px] h-auto rounded-[50px] shadow-2xl z-10"
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 0.4, duration: 0.8 }}
+                        />
+                        <motion.img
+                            src="/images/archive/tixx-iPhone.png"
+                            alt="TIXX App Interface"
+                            className="w-[85vw] md:w-[500px] h-auto rounded-[50px] shadow-2xl -ml-24 md:-ml-40 mt-24 md:mt-48 z-20"
+                            initial={{ y: 40, opacity: 0 }}
+                            animate={{ y: 20, opacity: 1 }}
+                            transition={{ delay: 0.6, duration: 0.8 }}
+                        />
                     </div>
                 </motion.div>
             </div>
