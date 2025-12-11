@@ -17,7 +17,7 @@ export default function Mission() {
                 >
                     <div className="relative aspect-[4/5] rounded-2xl overflow-hidden grayscale hover:grayscale-0 transition-all duration-700">
                         <img
-                            src="/images/connect-scene.png"
+                            src="/images/mission-visual-clean.png"
                             alt="Crowd Connection"
                             className="w-full h-full object-cover"
                         />

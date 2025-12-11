@@ -1,6 +1,7 @@
 import Hero from "@/components/Hero";
 import Features from "@/components/Features";
 import SceneGallery from "@/components/SceneGallery";
+import PastEventsTeaser from "@/components/PastEventsTeaser";
 import BusinessTeaser from "@/components/BusinessTeaser";
 
 export default function Home() {
@@ -9,6 +10,7 @@ export default function Home() {
       <Hero />
       <Features />
       <SceneGallery />
+      <PastEventsTeaser />
       <BusinessTeaser />
     </main>
   );
