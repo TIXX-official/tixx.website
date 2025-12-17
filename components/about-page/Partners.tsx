@@ -1,8 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useLanguage } from "@/lib/LanguageContext";
+import { dictionary } from "@/lib/dictionary";
 
 export default function Partners() {
+    const { language } = useLanguage();
+    const t = dictionary[language].aboutPage.partners;
+
     const partners = [
         "TIMES", "Jagermeister", "BOLERO", "THE HENZ", "FRAME SEOUL", "Orgasm Valley 2",
         "BUBBLE PLAYLIST", "AMBIENCE SEOUL", "PGMNT", "THE CLIFF JEJU", "BEACH CLIFF"
@@ -18,10 +23,10 @@ export default function Partners() {
                     className="mb-16"
                 >
                     <h2 className="text-3xl md:text-4xl font-black font-display text-white mb-4">
-                        Trusted Partners
+                        {t.title}
                     </h2>
                     <p className="text-zinc-500 font-kr">
-                        우리는 최고의 파트너들과 함께 문화를 만들어갑니다.
+                        {t.description}
                     </p>
                 </motion.div>
 

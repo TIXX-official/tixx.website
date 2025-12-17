@@ -2,13 +2,18 @@
 
 import { motion } from "framer-motion";
 import { Search, Ticket, DoorOpen, Share2 } from "lucide-react";
+import { useLanguage } from "@/lib/LanguageContext";
+import { dictionary } from "@/lib/dictionary";
 
 export default function BusinessSolution() {
+    const { language } = useLanguage();
+    const t = dictionary[language].businessPage.solution;
+
     const steps = [
-        { icon: Search, label: "트렌드 탐색" },
-        { icon: Ticket, label: "원터치 예매" },
-        { icon: DoorOpen, label: "프리패스 입장" },
-        { icon: Share2, label: "커뮤니티 공유" },
+        { icon: Search, label: t.steps.trend },
+        { icon: Ticket, label: t.steps.ticket },
+        { icon: DoorOpen, label: t.steps.entry },
+        { icon: Share2, label: t.steps.community },
     ];
 
     return (
@@ -21,13 +26,13 @@ export default function BusinessSolution() {
                     className="text-center mb-16"
                 >
                     <h2 className="text-neon-lime font-bold text-sm md:text-base tracking-[0.3em] mb-4 uppercase">
-                        The Solution
+                        {t.preTitle}
                     </h2>
                     <h3 className="text-4xl md:text-6xl font-black font-display mb-6">
-                        All Experience in One App.
+                        {t.title}
                     </h3>
                     <p className="text-xl text-zinc-400 font-kr">
-                        파편화된 오프라인 경험을 하나의 플랫폼으로 매끄럽게 연결했습니다.
+                        {t.description}
                     </p>
                 </motion.div>
 

@@ -1,0 +1,456 @@
+export const dictionary = {
+    KO: {
+        navbar: {
+            app: 'APP',
+            business: 'BUSINESS',
+            about: 'ABOUT',
+            download: 'App Download',
+        },
+        hero: {
+            pretitle: 'THE VIBE CURATOR',
+            title1: 'Your',
+            title2: 'Offline',
+            title3: 'Playlist.',
+            description: '클럽, 파티, 라운지부터 전시까지.<br />도시의 가장 트렌디한 경험을 큐레이션합니다.',
+            scroll: 'Scroll',
+        },
+        features: {
+            items: [
+                {
+                    title: 'DISCOVER',
+                    desc: '뻔한 정보는 없습니다. <br>전문가가 엄선한 씬의 흐름을 확인하세요.'
+                },
+                {
+                    title: 'ACCESS',
+                    desc: '줄 서지 마세요. <br>QR 티켓 하나로 3초 만에 입장합니다.'
+                },
+                {
+                    title: 'CONNECT',
+                    desc: '경험 그 이상의 가치. <br>같은 취향을 가진 사람들과 연결됩니다.'
+                }
+            ]
+        },
+        sceneGallery: {
+            pretitle: 'Our Scene',
+            title: 'WHERE WE PLAY.',
+            scrollText: 'Scroll horizontally',
+            items: [
+                {
+                    title: "CLUB & PARTY",
+                    subtitle: "Techno / House / Hip-hop",
+                },
+                {
+                    title: "LOUNGE & PUB",
+                    subtitle: "Cocktail / Vinyl / Chill",
+                },
+                {
+                    title: "POP-UP",
+                    subtitle: "Brand / Store / Limited",
+                },
+                {
+                    title: "EXHIBITION",
+                    subtitle: "Art / Gallery / Culture",
+                },
+                {
+                    title: "PERFORMANCE",
+                    subtitle: "Live / Concert / Stage",
+                },
+            ]
+        },
+        pastEvents: {
+            pretitle: 'Archive',
+            title: 'MOMENTS.',
+            viewAll: 'View All Archive',
+            viewAllCard: 'View All'
+        },
+        businessTeaser: {
+            title1: 'TIXX is',
+            title2: 'more than',
+            title3: 'an App.',
+            description: '플랫폼을 넘어, 문화를 직접 만듭니다.',
+            subDescription: 'TIXX Agency & Planning',
+            linkText: 'Business & Partnership Inquiry',
+            cardTitle: 'Total Solution',
+            cardDesc: 'Ticketing • Operation • Marketing • Agency'
+        },
+        footer: {
+            marquee: 'Trusted by the Scene',
+            companyName: 'TIXX',
+            description1: 'The Vibe Curator.',
+            description2: 'Connecting the dots of city nightlife.',
+            terms: 'Privacy & Terms',
+            contact: 'Contact',
+            copyright: '© 2024 TIXX Corp. All rights reserved.',
+            companyInfo: '상호 : 주식회사 틱스 | 대표 : 김휘진<br>주소 : 서울특별시 중구 다산로38길 66-47, 4층 1호<br>사업자 등록번호 : 446-81-03634 | 통신판매신고번호 : 제 2025-서울중구-1579 호<br>대표번호 : 070-8065-3197 | 이메일 주소 : tixxofficial@tixx.im'
+        },
+        appPage: {
+            hero: {
+                preTitle: "The Guide for TIXX",
+                title1: "Your Play,",
+                title2: "Curated.",
+                description: "복잡한 검색은 끝. <br />틱스 하나로 발견하고, 예매하고, 입장하세요.",
+            },
+            discovery: {
+                title: "Digging the Vibe.",
+                description: "클럽부터 팝업까지. 뻔한 곳 말고, 진짜 힙한 곳만 담았습니다.",
+                labels: {
+                    club: "Techno / House / EDM",
+                    party: "Lounge / Social / Pub",
+                    popup: "Brand / Store / Limited",
+                    exhibition: "Art / Culture / Gallery",
+                    performance: "Live / Concert / Stage"
+                }
+            },
+            easyAccess: {
+                title1: "3 Seconds",
+                title2: "Entry.",
+                description: "줄 서지 마세요. <br />TIXX 티켓 하나로 프리패스."
+            },
+            benefits: {
+                title: "Exclusive Benefits.",
+                description: "매주 쏟아지는 무료 게스트 기회와 얼리버드 혜택.",
+                card1: {
+                    badge: "FREE GUEST",
+                    title: "Weekly Guest",
+                    description: "매주 업데이트되는 클럽 무료 입장 혜택을 놓치지 마세요."
+                },
+                card2: {
+                    badge: "UP TO 50% OFF",
+                    title: "Early Bird",
+                    description: "남들보다 빠르게 예매하고 최대 50% 할인된 가격으로 즐기세요."
+                }
+            }
+        },
+        businessPage: {
+            intro: {
+                preTitle: "Partner with TIXX",
+                title: "We Make \nthe Scene.",
+                description: "플랫폼 솔루션부터 파티 기획, 크리에이티브 제작까지. <br />틱스는 씬(Scene)을 위한 올인원 파트너입니다.",
+                button: "View Brand Deck"
+            },
+            marketGap: {
+                preTitle: "The Market Gap",
+                title: "Where is your \nTarget Audience?",
+                leftBox: "온라인 광고 효율은 떨어지고, <br />오프라인 팝업은 경쟁이 치열합니다.",
+                rightBox: "지금 2030 세대는 <br /><span class='text-neon-lime'>'물건'</span>이 아닌 <span class='text-neon-lime'>'경험'</span>이 있는 곳에 모입니다. <br />그들을 어디서 만나시겠습니까?"
+            },
+            solution: {
+                preTitle: "The Solution",
+                title: "All Experience in One App.",
+                description: "파편화된 오프라인 경험을 하나의 플랫폼으로 매끄럽게 연결했습니다.",
+                steps: {
+                    trend: "트렌드 탐색",
+                    ticket: "원터치 예매",
+                    entry: "프리패스 입장",
+                    community: "커뮤니티 공유"
+                }
+            },
+            audience: {
+                preTitle: "The Audience",
+                title: "Meet the \nTrend Setters.",
+                active2030: {
+                    title: "Active 2030",
+                    description: "낮에는 전시와 팝업을, <br />밤에는 라운지와 공연을 즐기는 핵심 소비층"
+                },
+                influencer: {
+                    title: "Micro-Influencer",
+                    description: "단순 관람객이 아닌, <br />경험을 SNS로 주도적으로 확산시키는 파워 유저"
+                }
+            },
+            category: {
+                preTitle: "The Category",
+                title: "Day to Night, We Cover All.",
+                description: "브랜드의 톤앤매너에 맞는 시간대와 장소를 선택할 수 있습니다.",
+                dayTags: ["팝업스토어", "전시회", "플리마켓", "브랜드 런칭"],
+                nightTags: ["뮤직 페스티벌", "루프탑 파티", "DJ 공연", "네트워킹"]
+            },
+            partnership: {
+                preTitle: "Partnership Model",
+                title: "How to Collaborate.",
+                options: [
+                    { title: "Brand Activation", desc: "TIXX가 기획하는 파티/전시에 <br/>브랜드 부스 및 체험존 운영" },
+                    { title: "Traffic Booster", desc: "TIXX 앱 내 메인 배너 및 <br/>푸시 알림으로 브랜드 팝업/행사 모객" },
+                    { title: "Sponsored Content", desc: "브랜드 이미지를 반영한 <br/>오리지널 파티/이벤트 기획 (Naming Rights)" }
+                ]
+            },
+            tech: {
+                preTitle: "The Tech & Data",
+                title: "Data-Driven \nPerformance.",
+                description: "감으로 하는 마케팅이 아닌, <br />숫자로 증명되는 오프라인 마케팅.",
+                list1: "실시간 티켓팅 현황 및 입장 관리 (QR) 대시보드",
+                list2: "참가자 데모그라피 (성별/연령) 및 관심사 데이터 리포트"
+            },
+            strategy: {
+                preTitle: "Success Strategy",
+                title: "We Make \nthe Queue.",
+                card1: {
+                    title: "Curated Vibe",
+                    description: "아무거나 올리지 않습니다. <br />TIXX의 '힙한' 필터를 거친 행사는 반드시 뜹니다."
+                },
+                card2: {
+                    title: "Community Effect",
+                    description: "<span class='text-neon-lime font-bold'>\"누구랑 가지?\"</span> <br />혼자 망설이던 잠재 고객을 현장으로 이끕니다."
+                }
+            },
+            contact: {
+                preTitle: "Contact",
+                title: "Be the Next \nCulture Trend.",
+                description: "TIXX와 함께 귀사의 브랜드를 하나의 문화로 만드세요. <br />업체명, 담당자 성함, 연락처를 포함하여 메일을 보내주시면 빠른 확인이 가능합니다.",
+                copyButton: {
+                    default: "주소 복사하기",
+                    copied: "Copied!"
+                },
+                mailLink: "메일 앱으로 바로 보내기"
+            }
+        },
+        aboutPage: {
+            philosophy: {
+                preTitle: "The Vibe Curator",
+                title: "Your Offline \nPlaylist.",
+                description1: "우리는 도시를 하나의 거대한 앨범으로 봅니다.",
+                description2: "오늘 밤, 당신이 경험할 공간과 음악, 그리고 사람.<br />틱스는 그 완벽한 순간을 위해 <br />도시의 바이브를 선곡(Curation)합니다."
+            },
+            mission: {
+                preTitle: "Our Mission",
+                title: "Connect \nthe Scene.",
+                description: "음지에 머물던 문화를 양지로, <br />아날로그를 디지털로. <br /><br />틱스는 기술을 통해 <br />더 많은 사람이 씬을 즐기게 합니다."
+            },
+            pastEvents: {
+                preTitle: "Archive",
+                title: "Past Events",
+                description: "TIXX가 만들어온 뜨거웠던 현장의 기록들. <br />PGMNTIXX, NASTIXX, DIRTIXX, GETIXX ..."
+            },
+            partners: {
+                title: "Trusted Partners",
+                description: "우리는 최고의 파트너들과 함께 문화를 만들어갑니다."
+            }
+        },
+    },
+    EN: {
+        navbar: {
+            app: 'APP',
+            business: 'BUSINESS',
+            about: 'ABOUT',
+            download: 'Download App',
+        },
+        hero: {
+            pretitle: 'THE VIBE CURATOR',
+            title1: 'Your',
+            title2: 'Offline',
+            title3: 'Playlist.',
+            description: 'From clubs, parties, lounges to exhibitions.<br />We curate the trendiest experiences in the city.',
+            scroll: 'Scroll',
+        },
+        features: {
+            items: [
+                {
+                    title: 'DISCOVER',
+                    desc: 'No more generic info. <br>Discover the flow of the scene curated by experts.'
+                },
+                {
+                    title: 'ACCESS',
+                    desc: 'Skip the line. <br>Enter in 3 seconds with a single QR ticket.'
+                },
+                {
+                    title: 'CONNECT',
+                    desc: 'More than just an experience. <br>Connect with people who share your vibe.'
+                }
+            ]
+        },
+        sceneGallery: {
+            pretitle: 'Our Scene',
+            title: 'WHERE WE PLAY.',
+            scrollText: 'Scroll horizontally',
+            items: [
+                {
+                    title: "CLUB & PARTY",
+                    subtitle: "Techno / House / Hip-hop",
+                },
+                {
+                    title: "LOUNGE & PUB",
+                    subtitle: "Cocktail / Vinyl / Chill",
+                },
+                {
+                    title: "POP-UP",
+                    subtitle: "Brand / Store / Limited",
+                },
+                {
+                    title: "EXHIBITION",
+                    subtitle: "Art / Gallery / Culture",
+                },
+                {
+                    title: "PERFORMANCE",
+                    subtitle: "Live / Concert / Stage",
+                },
+            ]
+        },
+        pastEvents: {
+            pretitle: 'Archive',
+            title: 'MOMENTS.',
+            viewAll: 'View All Archive',
+            viewAllCard: 'View All'
+        },
+        businessTeaser: {
+            title1: 'TIXX is',
+            title2: 'more than',
+            title3: 'an App.',
+            description: 'Beyond a platform, we create culture.',
+            subDescription: 'TIXX Agency & Planning',
+            linkText: 'Business & Partnership Inquiry',
+            cardTitle: 'Total Solution',
+            cardDesc: 'Ticketing • Operation • Marketing • Agency'
+        },
+        footer: {
+            marquee: 'Trusted by the Scene',
+            companyName: 'TIXX',
+            description1: 'The Vibe Curator.',
+            description2: 'Connecting the dots of city nightlife.',
+            terms: 'Privacy & Terms',
+            contact: 'Contact',
+            copyright: '© 2024 TIXX Corp. All rights reserved.',
+            companyInfo: 'Company Name: TIXX Inc. | CEO: Hwijin Kim<br>Address: 4F-1, 66-47, Dasan-ro 38-gil, Jung-gu, Seoul, Republic of Korea<br>Business Registration Number: 446-81-03634 | E-commerce Permit: 2025-SeoulJungGu-1579<br>Contact: 070-8065-3197 | Email: tixxofficial@tixx.im'
+        },
+        appPage: {
+            hero: {
+                preTitle: "The Guide for TIXX",
+                title1: "Your Play,",
+                title2: "Curated.",
+                description: "No more complex searches.\nDiscover, book, and enter with just TIXX.",
+            },
+            discovery: {
+                title: "Digging the Vibe.",
+                description: "From clubs to pop-ups. We curate only the real vibes, not the clichés.",
+                labels: {
+                    club: "Techno / House / EDM",
+                    party: "Lounge / Social / Pub",
+                    popup: "Brand / Store / Limited",
+                    exhibition: "Art / Culture / Gallery",
+                    performance: "Live / Concert / Stage"
+                }
+            },
+            easyAccess: {
+                title1: "3 Seconds",
+                title2: "Entry.",
+                description: "Skip the line.\nFree pass with just one TIXX ticket."
+            },
+            benefits: {
+                title: "Exclusive Benefits.",
+                description: "Weekly free guest spots and early bird benefits.",
+                card1: {
+                    badge: "FREE GUEST",
+                    title: "Weekly Guest",
+                    description: "Don't miss the weekly updated free club entry benefits."
+                },
+                card2: {
+                    badge: "UP TO 50% OFF",
+                    title: "Early Bird",
+                    description: "Book faster than others and enjoy up to 50% off."
+                }
+            }
+        },
+        businessPage: {
+            intro: {
+                preTitle: "Partner with TIXX",
+                title: "We Make \nthe Scene.",
+                description: "From platform solutions to party planning and creative production. <br />TIXX is an all-in-one partner for the scene.",
+                button: "View Brand Deck"
+            },
+            marketGap: {
+                preTitle: "The Market Gap",
+                title: "Where is your \nTarget Audience?",
+                leftBox: "Online ad efficiency is dropping, <br />and offline pop-ups are fiercely competitive.",
+                rightBox: "The 2030 generation gathers where there is <br /><span class='text-neon-lime'>'Experience'</span>, not just <span class='text-neon-lime'>'Goods'</span>.<br />Where will you meet them?"
+            },
+            solution: {
+                preTitle: "The Solution",
+                title: "All Experience in One App.",
+                description: "Seamlessly connecting fragmented offline experiences into one platform.",
+                steps: {
+                    trend: "Trend Search",
+                    ticket: "One-Touch Booking",
+                    entry: "Free-Pass Entry",
+                    community: "Community Sharing"
+                }
+            },
+            audience: {
+                preTitle: "The Audience",
+                title: "Meet the \nTrend Setters.",
+                active2030: {
+                    title: "Active 2030",
+                    description: "Core consumers enjoying exhibitions and pop-ups by day, <br />and lounges and performances by night."
+                },
+                influencer: {
+                    title: "Micro-Influencer",
+                    description: "Power users who are not just visitors, <br />but actively spread experiences via SNS."
+                }
+            },
+            category: {
+                preTitle: "The Category",
+                title: "Day to Night, We Cover All.",
+                description: "Choose the time and place that fits your brand tone and manner.",
+                dayTags: ["Pop-up Store", "Exhibition", "Flea Market", "Brand Launch"],
+                nightTags: ["Music Festival", "Rooftop Party", "DJ Performance", "Networking"]
+            },
+            partnership: {
+                preTitle: "Partnership Model",
+                title: "How to Collaborate.",
+                options: [
+                    { title: "Brand Activation", desc: "Operate brand booths and experience zones <br/>at TIXX-planned parties/exhibitions" },
+                    { title: "Traffic Booster", desc: "Attract audiences to brand pop-ups/events <br/>via TIXX app main banners and push notifications" },
+                    { title: "Sponsored Content", desc: "Plan original parties/events reflecting <br/>brand image (Naming Rights)" }
+                ]
+            },
+            tech: {
+                preTitle: "The Tech & Data",
+                title: "Data-Driven \nPerformance.",
+                description: "Not marketing by gut feeling, <br />but offline marketing proven by numbers.",
+                list1: "Real-time ticketing status and entry management (QR) dashboard",
+                list2: "Participant demography (gender/age) and interest data report"
+            },
+            strategy: {
+                preTitle: "Success Strategy",
+                title: "We Make \nthe Queue.",
+                card1: {
+                    title: "Curated Vibe",
+                    description: "We don't just post anything. <br />Events filtered by TIXX's 'Hip' standard are bound to succeed."
+                },
+                card2: {
+                    title: "Community Effect",
+                    description: "<span class='text-neon-lime font-bold'>\"Who to go with?\"</span> <br />We lead hesitating potential customers to the scene."
+                }
+            },
+            contact: {
+                preTitle: "Contact",
+                title: "Be the Next \nCulture Trend.",
+                description: "Turn your brand into a culture with TIXX. <br />Send us an email including your company name, contact person, and phone number for a quick response.",
+                copyButton: {
+                    default: "Copy Address",
+                    copied: "Copied!"
+                },
+                mailLink: "Send via Mail App"
+            }
+        },
+        aboutPage: {
+            philosophy: {
+                preTitle: "The Vibe Curator",
+                title: "Your Offline \nPlaylist.",
+                description1: "We see the city as one massive album.",
+                description2: "The space, the music, and the people you'll experience tonight.<br />TIXX curates the vibe of the city <br />for that perfect moment."
+            },
+            mission: {
+                preTitle: "Our Mission",
+                title: "Connect \nthe Scene.",
+                description: "Bringing the underground to the spotlight, <br />analog to digital. <br /><br />TIXX enables more people to <br />enjoy the scene through technology."
+            },
+            pastEvents: {
+                preTitle: "Archive",
+                title: "Past Events",
+                description: "Records of the hottest scenes created by TIXX. <br />PGMNTIXX, NASTIXX, DIRTIXX, GETIXX ..."
+            },
+            partners: {
+                title: "Trusted Partners",
+                description: "We create culture together with the best partners."
+            }
+        },
+    },
+};

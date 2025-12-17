@@ -1,8 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useLanguage } from "@/lib/LanguageContext";
+import { dictionary } from "@/lib/dictionary";
 
 export default function BusinessIntro() {
+    const { language } = useLanguage();
+    const t = dictionary[language].businessPage.intro;
+
     return (
         <section className="relative h-screen flex items-center justify-center overflow-hidden bg-black">
             {/* Background Image with Overlay */}
@@ -22,16 +27,15 @@ export default function BusinessIntro() {
                     className="flex-1 text-center md:text-left"
                 >
                     <h2 className="text-neon-lime font-bold text-sm md:text-base tracking-[0.3em] mb-6 uppercase">
-                        Partner with TIXX
+                        {t.preTitle}
                     </h2>
-                    <h1 className="text-5xl md:text-8xl font-black font-display text-white leading-[0.9] mb-8">
-                        We Make <br />
-                        the Scene.
+                    <h1 className="text-5xl md:text-8xl font-black font-display text-white leading-[0.9] mb-8 whitespace-pre-line">
+                        {t.title}
                     </h1>
-                    <p className="text-lg md:text-2xl text-zinc-300 font-kr font-light leading-relaxed max-w-xl mx-auto md:mx-0">
-                        플랫폼 솔루션부터 파티 기획, 크리에이티브 제작까지. <br />
-                        틱스는 씬(Scene)을 위한 올인원 파트너입니다.
-                    </p>
+                    <p
+                        className="text-lg md:text-2xl text-zinc-300 font-kr font-light leading-relaxed max-w-xl mx-auto md:mx-0"
+                        dangerouslySetInnerHTML={{ __html: t.description }}
+                    />
                     <div className="mt-10 flex justify-center md:justify-start">
                         <a
                             href="https://www.canva.com/design/DAGklZt3hzo/8DjhUedYPzWNYJY93fdRQg/view?utm_content=DAGklZt3hzo&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hdc9de392ef"
@@ -39,7 +43,7 @@ export default function BusinessIntro() {
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-2 px-8 py-4 bg-neon-lime text-black font-bold text-lg rounded-full hover:bg-white transition-colors duration-300"
                         >
-                            View Brand Deck
+                            {t.button}
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17l9.2-9.2M17 17V7H7" /></svg>
                         </a>
                     </div>

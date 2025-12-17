@@ -1,8 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useLanguage } from "@/lib/LanguageContext";
+import { dictionary } from "@/lib/dictionary";
 
 export default function Philosophy() {
+    const { language } = useLanguage();
+    const t = dictionary[language].aboutPage.philosophy;
+
     return (
         <section className="relative h-screen flex items-center justify-center overflow-hidden bg-black">
             {/* Background Image */}
@@ -19,24 +24,19 @@ export default function Philosophy() {
                     transition={{ duration: 1 }}
                 >
                     <h2 className="text-neon-lime font-bold text-sm md:text-base tracking-[0.3em] mb-8 uppercase">
-                        The Vibe Curator
+                        {t.preTitle}
                     </h2>
-                    <h1 className="text-5xl md:text-8xl font-black font-display text-white mb-12 leading-tight">
-                        Your Offline <br />
-                        Playlist.
+                    <h1 className="text-5xl md:text-8xl font-black font-display text-white mb-12 leading-tight whitespace-pre-line">
+                        {t.title}
                     </h1>
                     <div className="space-y-6 text-lg md:text-2xl text-zinc-300 font-kr font-light leading-relaxed max-w-2xl mx-auto">
                         <p>
-                            우리는 도시를 하나의 거대한 앨범으로 봅니다.
+                            {t.description1}
                         </p>
-                        <p>
-                            오늘 밤, 당신이 경험할 공간과 음악, 그리고 사람.<br />
-                            틱스는 그 완벽한 순간을 위해 <br />
-                            도시의 바이브를 선곡(Curation)합니다.
-                        </p>
+                        <p dangerouslySetInnerHTML={{ __html: t.description2 }} />
                     </div>
                 </motion.div>
             </div>
-        </section>
+        </section >
     );
 }

@@ -1,8 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useLanguage } from "@/lib/LanguageContext";
+import { dictionary } from "@/lib/dictionary";
 
 export default function BusinessTech() {
+    const { language } = useLanguage();
+    const t = dictionary[language].businessPage.tech;
+
     return (
         <section className="py-24 bg-zinc-950 text-white">
             <div className="container mx-auto max-w-7xl px-6">
@@ -58,24 +63,23 @@ export default function BusinessTech() {
                         className="flex-1"
                     >
                         <h2 className="text-neon-lime font-bold text-sm md:text-base tracking-[0.3em] mb-4 uppercase">
-                            The Tech & Data
+                            {t.preTitle}
                         </h2>
-                        <h3 className="text-4xl md:text-6xl font-black font-display mb-8">
-                            Data-Driven <br />
-                            Performance.
+                        <h3 className="text-4xl md:text-6xl font-black font-display mb-8 whitespace-pre-line">
+                            {t.title}
                         </h3>
-                        <p className="text-xl text-zinc-400 font-kr mb-8 leading-relaxed">
-                            감으로 하는 마케팅이 아닌, <br />
-                            숫자로 증명되는 오프라인 마케팅.
-                        </p>
+                        <p
+                            className="text-xl text-zinc-400 font-kr mb-8 leading-relaxed"
+                            dangerouslySetInnerHTML={{ __html: t.description }}
+                        />
                         <ul className="space-y-4">
                             <li className="flex items-start gap-3 text-zinc-300 font-kr">
                                 <span className="text-neon-lime mt-1">✔</span>
-                                실시간 티켓팅 현황 및 입장 관리 (QR) 대시보드
+                                {t.list1}
                             </li>
                             <li className="flex items-start gap-3 text-zinc-300 font-kr">
                                 <span className="text-neon-lime mt-1">✔</span>
-                                참가자 데모그라피 (성별/연령) 및 관심사 데이터 리포트
+                                {t.list2}
                             </li>
                         </ul>
                     </motion.div>

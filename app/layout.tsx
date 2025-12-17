@@ -3,6 +3,7 @@ import { Outfit, Inter, Noto_Sans_KR } from 'next/font/google';
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { LanguageProvider } from '@/lib/LanguageContext';
 
 const outfit = Outfit({
   subsets: ['latin'],
@@ -127,9 +128,11 @@ export default function RootLayout({
       <body
         className={`${outfit.variable} ${inter.variable} ${notoSansKr.variable} antialiased bg-black text-white`}
       >
-        <Navbar />
-        {children}
-        <Footer />
+        <LanguageProvider>
+          <Navbar />
+          {children}
+          <Footer />
+        </LanguageProvider>
       </body>
     </html>
   );

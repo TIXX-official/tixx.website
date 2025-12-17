@@ -1,8 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useLanguage } from "@/lib/LanguageContext";
+import { dictionary } from "@/lib/dictionary";
 
 export default function AppHero() {
+    const { language } = useLanguage();
+    const t = dictionary[language].appPage.hero;
+
     return (
         <section className="relative min-h-screen flex flex-col md:flex-row items-center justify-center overflow-hidden px-6 py-20 bg-black">
             {/* Background Elements */}
@@ -20,16 +25,16 @@ export default function AppHero() {
                     className="flex-1 text-center md:text-left"
                 >
                     <h2 className="text-neon-lime font-bold text-sm md:text-base tracking-[0.3em] mb-6 uppercase">
-                        The Guide for TIXX
+                        {t.preTitle}
                     </h2>
                     <h1 className="text-5xl md:text-8xl font-black font-display text-white leading-[0.9] mb-8">
-                        Your Play, <br />
-                        <span className="text-zinc-500">Curated.</span>
+                        {t.title1} <br />
+                        <span className="text-zinc-500">{t.title2}</span>
                     </h1>
-                    <p className="text-lg md:text-2xl text-zinc-400 font-kr font-light leading-relaxed max-w-xl mx-auto md:mx-0">
-                        복잡한 검색은 끝. <br />
-                        틱스 하나로 발견하고, 예매하고, 입장하세요.
-                    </p>
+                    <p
+                        className="text-lg md:text-2xl text-zinc-400 font-kr font-light leading-relaxed max-w-xl mx-auto md:mx-0"
+                        dangerouslySetInnerHTML={{ __html: t.description }}
+                    />
                 </motion.div>
 
                 {/* iPhone Mockup Visual */}

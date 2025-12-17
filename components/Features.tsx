@@ -2,23 +2,28 @@
 
 import { motion } from "framer-motion";
 import { Search, QrCode, Zap } from "lucide-react";
+import { useLanguage } from "@/lib/LanguageContext";
+import { dictionary } from "@/lib/dictionary";
 
 export default function Features() {
+    const { language } = useLanguage();
+    const t = dictionary[language].features;
+
     const features = [
         {
             icon: Search,
-            title: "DISCOVER",
-            desc: "뻔한 정보는 없습니다. <br>전문가가 엄선한 씬의 흐름을 확인하세요.",
+            title: t.items[0].title,
+            desc: t.items[0].desc,
         },
         {
             icon: QrCode,
-            title: "ACCESS",
-            desc: "줄 서지 마세요. <br>QR 티켓 하나로 3초 만에 입장합니다.",
+            title: t.items[1].title,
+            desc: t.items[1].desc,
         },
         {
             icon: Zap,
-            title: "CONNECT",
-            desc: "경험 그 이상의 가치. <br>같은 취향을 가진 사람들과 연결됩니다.",
+            title: t.items[2].title,
+            desc: t.items[2].desc,
         },
     ];
 

@@ -2,8 +2,13 @@
 
 import { motion } from "framer-motion";
 import { QrCode } from "lucide-react";
+import { useLanguage } from "@/lib/LanguageContext";
+import { dictionary } from "@/lib/dictionary";
 
 export default function EasyAccess() {
+    const { language } = useLanguage();
+    const t = dictionary[language].appPage.easyAccess;
+
     return (
         <section className="py-32 bg-black relative overflow-hidden">
             <div className="container mx-auto max-w-7xl px-6 flex flex-col md:flex-row items-center justify-between gap-16">
@@ -33,13 +38,13 @@ export default function EasyAccess() {
                     className="flex-1 text-center md:text-right"
                 >
                     <h2 className="text-5xl md:text-7xl font-black font-display text-white mb-6">
-                        3 Seconds <br />
-                        <span className="text-neon-lime">Entry.</span>
+                        {t.title1} <br />
+                        <span className="text-neon-lime">{t.title2}</span>
                     </h2>
-                    <p className="text-xl md:text-2xl text-zinc-400 font-kr leading-relaxed">
-                        줄 서지 마세요. <br />
-                        TIXX 티켓 하나로 프리패스.
-                    </p>
+                    <p
+                        className="text-xl md:text-2xl text-zinc-400 font-kr leading-relaxed"
+                        dangerouslySetInnerHTML={{ __html: t.description }}
+                    />
                 </motion.div>
 
             </div>

@@ -1,17 +1,22 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useLanguage } from "@/lib/LanguageContext";
+import { dictionary } from "@/lib/dictionary";
 
 export default function BusinessStrategy() {
+    const { language } = useLanguage();
+    const t = dictionary[language].businessPage.strategy;
+
     return (
         <section className="py-24 bg-black text-white">
             <div className="container mx-auto max-w-7xl px-6">
                 <div className="text-center mb-16">
                     <h2 className="text-neon-lime font-bold text-sm md:text-base tracking-[0.3em] mb-4 uppercase">
-                        Success Strategy
+                        {t.preTitle}
                     </h2>
-                    <h3 className="text-4xl md:text-6xl font-black font-display mb-6">
-                        We Make <br className="md:hidden" /> the Queue.
+                    <h3 className="text-4xl md:text-6xl font-black font-display mb-6 whitespace-pre-line">
+                        {t.title}
                     </h3>
                 </div>
 
@@ -26,11 +31,11 @@ export default function BusinessStrategy() {
                         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
 
                         <div className="absolute bottom-0 left-0 p-8 md:p-10 w-full">
-                            <h4 className="text-3xl font-black font-display mb-4 text-white">Curated Vibe</h4>
-                            <p className="text-zinc-300 font-kr leading-relaxed">
-                                아무거나 올리지 않습니다. <br />
-                                TIXX의 '힙한' 필터를 거친 행사는 반드시 뜹니다.
-                            </p>
+                            <h4 className="text-3xl font-black font-display mb-4 text-white">{t.card1.title}</h4>
+                            <p
+                                className="text-zinc-300 font-kr leading-relaxed"
+                                dangerouslySetInnerHTML={{ __html: t.card1.description }}
+                            />
                         </div>
                     </motion.div>
 
@@ -44,11 +49,11 @@ export default function BusinessStrategy() {
                         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
 
                         <div className="absolute bottom-0 left-0 p-8 md:p-10 w-full">
-                            <h4 className="text-3xl font-black font-display mb-4 text-white">Community Effect</h4>
-                            <p className="text-zinc-300 font-kr leading-relaxed">
-                                <span className="text-neon-lime font-bold">"누구랑 가지?"</span> <br />
-                                혼자 망설이던 잠재 고객을 현장으로 이끕니다.
-                            </p>
+                            <h4 className="text-3xl font-black font-display mb-4 text-white">{t.card2.title}</h4>
+                            <p
+                                className="text-zinc-300 font-kr leading-relaxed"
+                                dangerouslySetInnerHTML={{ __html: t.card2.description }}
+                            />
                         </div>
                     </motion.div>
                 </div>

@@ -4,17 +4,22 @@ import { motion } from "framer-motion";
 import { ArrowRight, Play } from "lucide-react";
 import Link from "next/link";
 import { PAST_EVENTS } from "@/data/past-events";
+import { useLanguage } from "@/lib/LanguageContext";
+import { dictionary } from "@/lib/dictionary";
 
 export default function PastEventsTeaser() {
+    const { language } = useLanguage();
+    const t = dictionary[language].pastEvents;
+
     return (
         <section className="py-24 bg-black border-t border-zinc-900 overflow-hidden">
             <div className="container mx-auto px-6 mb-10 flex items-end justify-between">
                 <div>
                     <span className="text-neon-lime text-xs font-bold tracking-widest uppercase mb-2 block">
-                        Archive
+                        {t.pretitle}
                     </span>
                     <h2 className="text-4xl md:text-5xl font-black text-white font-display">
-                        MOMENTS.
+                        {t.title}
                     </h2>
                 </div>
 
@@ -22,7 +27,7 @@ export default function PastEventsTeaser() {
                     href="/about"
                     className="hidden md:flex items-center text-white hover:text-neon-lime transition-colors text-sm font-bold uppercase tracking-wider group"
                 >
-                    View All Archive
+                    {t.viewAll}
                     <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
             </div>
@@ -99,7 +104,7 @@ export default function PastEventsTeaser() {
                     <div className="w-12 h-12 rounded-full border border-zinc-700 flex items-center justify-center mb-4 group-hover:bg-neon-lime group-hover:border-neon-lime group-hover:text-black transition-all">
                         <ArrowRight className="w-5 h-5" />
                     </div>
-                    <span className="text-white font-bold text-sm uppercase tracking-widest">View All</span>
+                    <span className="text-white font-bold text-sm uppercase tracking-widest">{t.viewAllCard}</span>
                 </Link>
             </div>
         </section>

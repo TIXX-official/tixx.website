@@ -2,20 +2,25 @@
 
 import { motion } from "framer-motion";
 import { Sun, Moon } from "lucide-react";
+import { useLanguage } from "@/lib/LanguageContext";
+import { dictionary } from "@/lib/dictionary";
 
 export default function BusinessCategory() {
+    const { language } = useLanguage();
+    const t = dictionary[language].businessPage.category;
+
     return (
         <section className="py-24 bg-zinc-950 text-white">
             <div className="container mx-auto max-w-7xl px-6">
                 <div className="text-center mb-16">
                     <h2 className="text-neon-lime font-bold text-sm md:text-base tracking-[0.3em] mb-4 uppercase">
-                        The Category
+                        {t.preTitle}
                     </h2>
                     <h3 className="text-4xl md:text-6xl font-black font-display mb-6">
-                        Day to Night, We Cover All.
+                        {t.title}
                     </h3>
                     <p className="text-xl text-zinc-400 font-kr">
-                        브랜드의 톤앤매너에 맞는 시간대와 장소를 선택할 수 있습니다.
+                        {t.description}
                     </p>
                 </div>
 
@@ -32,7 +37,7 @@ export default function BusinessCategory() {
                         </div>
                         <h4 className="text-3xl font-black font-display mb-4">DAY</h4>
                         <div className="flex flex-wrap gap-2">
-                            {["팝업스토어", "전시회", "플리마켓", "브랜드 런칭"].map(item => (
+                            {t.dayTags.map((item: string) => (
                                 <span key={item} className="px-4 py-2 bg-white/10 rounded-full text-sm font-kr border border-white/10">
                                     {item}
                                 </span>
@@ -52,7 +57,7 @@ export default function BusinessCategory() {
                         </div>
                         <h4 className="text-3xl font-black font-display mb-4">NIGHT</h4>
                         <div className="flex flex-wrap gap-2">
-                            {["뮤직 페스티벌", "루프탑 파티", "DJ 공연", "네트워킹"].map(item => (
+                            {t.nightTags.map((item: string) => (
                                 <span key={item} className="px-4 py-2 bg-zinc-900 rounded-full text-sm font-kr text-zinc-300 border border-zinc-800">
                                     {item}
                                 </span>

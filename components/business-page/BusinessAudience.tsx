@@ -1,8 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useLanguage } from "@/lib/LanguageContext";
+import { dictionary } from "@/lib/dictionary";
 
 export default function BusinessAudience() {
+    const { language } = useLanguage();
+    const t = dictionary[language].businessPage.audience;
+
     return (
         <section className="py-24 bg-black text-white overflow-hidden relative">
             <div className="absolute inset-0 bg-gradient-to-r from-neon-purple/20 to-neon-blue/20 blur-[100px] opacity-20" />
@@ -16,27 +21,26 @@ export default function BusinessAudience() {
                         className="flex-1"
                     >
                         <h2 className="text-neon-lime font-bold text-sm md:text-base tracking-[0.3em] mb-4 uppercase">
-                            The Audience
+                            {t.preTitle}
                         </h2>
                         <h3 className="text-4xl md:text-6xl font-black font-display mb-8">
-                            Meet the <br />
-                            Trend Setters.
+                            {t.title}
                         </h3>
 
                         <div className="space-y-8">
                             <div>
-                                <h4 className="text-2xl font-bold font-display mb-2 text-white">Active 2030</h4>
-                                <p className="text-lg text-zinc-400 font-kr">
-                                    낮에는 전시와 팝업을, <br />
-                                    밤에는 라운지와 공연을 즐기는 핵심 소비층
-                                </p>
+                                <h4 className="text-2xl font-bold font-display mb-2 text-white">{t.active2030.title}</h4>
+                                <p
+                                    className="text-lg text-zinc-400 font-kr"
+                                    dangerouslySetInnerHTML={{ __html: t.active2030.description }}
+                                />
                             </div>
                             <div>
-                                <h4 className="text-2xl font-bold font-display mb-2 text-white">Micro-Influencer</h4>
-                                <p className="text-lg text-zinc-400 font-kr">
-                                    단순 관람객이 아닌, <br />
-                                    경험을 SNS로 주도적으로 확산시키는 파워 유저
-                                </p>
+                                <h4 className="text-2xl font-bold font-display mb-2 text-white">{t.influencer.title}</h4>
+                                <p
+                                    className="text-lg text-zinc-400 font-kr"
+                                    dangerouslySetInnerHTML={{ __html: t.influencer.description }}
+                                />
                             </div>
                         </div>
                     </motion.div>

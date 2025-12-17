@@ -2,34 +2,38 @@
 
 import { motion } from "framer-motion";
 import { useRef } from "react";
+import { useLanguage } from "@/lib/LanguageContext";
+import { dictionary } from "@/lib/dictionary";
 
 export default function DiscoveryFlow() {
     const scrollRef = useRef(null);
+    const { language } = useLanguage();
+    const t = dictionary[language].appPage.discovery;
 
     const posters = [
         {
             src: "https://images.unsplash.com/photo-1566737236500-c8ac43014a67?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80",
-            label: "Techno / House / EDM",
+            label: t.labels.club,
             title: "CLUB"
         },
         {
             src: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80",
-            label: "Lounge / Social / Pub",
+            label: t.labels.party,
             title: "PARTY"
         },
         {
             src: "/images/popup-store.png",
-            label: "Brand / Store / Limited",
+            label: t.labels.popup,
             title: "POP-UP"
         },
         {
             src: "https://images.unsplash.com/photo-1570876050997-2fdefb00c004?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80",
-            label: "Art / Culture / Gallery",
+            label: t.labels.exhibition,
             title: "EXHIBITION"
         },
         {
             src: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80",
-            label: "Live / Concert / Stage",
+            label: t.labels.performance,
             title: "PERFORMANCE"
         }
     ];
@@ -44,10 +48,10 @@ export default function DiscoveryFlow() {
                     transition={{ duration: 0.8 }}
                 >
                     <h2 className="text-4xl md:text-6xl font-black font-display text-white mb-4">
-                        Digging the Vibe.
+                        {t.title}
                     </h2>
                     <p className="text-xl text-zinc-400 font-kr">
-                        클럽부터 팝업까지. 뻔한 곳 말고, 진짜 힙한 곳만 담았습니다.
+                        {t.description}
                     </p>
                 </motion.div>
             </div>

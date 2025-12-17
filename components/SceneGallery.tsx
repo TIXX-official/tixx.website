@@ -2,35 +2,25 @@
 
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import { useLanguage } from "@/lib/LanguageContext";
+import { dictionary } from "@/lib/dictionary";
 
 export default function SceneGallery() {
-    const scenes = [
-        {
-            title: "CLUB & PARTY",
-            subtitle: "Techno / House / Hip-hop",
-            image: "https://images.unsplash.com/photo-1566737236500-c8ac43014a67?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-        },
-        {
-            title: "LOUNGE & PUB",
-            subtitle: "Cocktail / Vinyl / Chill",
-            image: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-        },
-        {
-            title: "POP-UP",
-            subtitle: "Brand / Store / Limited",
-            image: "/images/popup-store.png",
-        },
-        {
-            title: "EXHIBITION",
-            subtitle: "Art / Gallery / Culture",
-            image: "https://images.unsplash.com/photo-1570876050997-2fdefb00c004?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-        },
-        {
-            title: "PERFORMANCE",
-            subtitle: "Live / Concert / Stage",
-            image: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-        },
+    const { language } = useLanguage();
+    const t = dictionary[language].sceneGallery;
+
+    const sceneImages = [
+        "https://images.unsplash.com/photo-1566737236500-c8ac43014a67?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+        "/images/popup-store.png",
+        "https://images.unsplash.com/photo-1570876050997-2fdefb00c004?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
     ];
+
+    const scenes = t.items.map((item, index) => ({
+        ...item,
+        image: sceneImages[index]
+    }));
 
     return (
         <section className="py-24 bg-[#0a0a0a] overflow-hidden">
@@ -43,14 +33,14 @@ export default function SceneGallery() {
             >
                 <div>
                     <span className="text-neon-lime text-xs font-bold tracking-widest uppercase mb-2 block">
-                        Our Scene
+                        {t.pretitle}
                     </span>
                     <h2 className="text-4xl md:text-6xl font-black text-white font-display">
-                        WHERE WE PLAY.
+                        {t.title}
                     </h2>
                 </div>
                 <div className="hidden md:flex items-center text-zinc-500 text-sm">
-                    <ArrowRight className="mr-2 w-4 h-4" /> Scroll horizontally
+                    <ArrowRight className="mr-2 w-4 h-4" /> {t.scrollText}
                 </div>
             </motion.div>
 

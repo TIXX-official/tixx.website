@@ -1,37 +1,27 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useLanguage } from "@/lib/LanguageContext";
+import { dictionary } from "@/lib/dictionary";
 
 export default function BusinessPartnership() {
-    const options = [
-        {
-            title: "Brand Activation",
-            desc: "TIXX가 기획하는 파티/전시에 <br/> 브랜드 부스 및 체험존 운영",
-        },
-        {
-            title: "Traffic Booster",
-            desc: "TIXX 앱 내 메인 배너 및 <br/> 푸시 알림으로 브랜드 팝업/행사 모객",
-        },
-        {
-            title: "Sponsored Content",
-            desc: "브랜드 이미지를 반영한 <br/> 오리지널 파티/이벤트 기획 (Naming Rights)",
-        },
-    ];
+    const { language } = useLanguage();
+    const t = dictionary[language].businessPage.partnership;
 
     return (
         <section className="py-24 bg-black text-white">
             <div className="container mx-auto max-w-7xl px-6">
                 <div className="mb-16">
                     <h2 className="text-neon-lime font-bold text-sm md:text-base tracking-[0.3em] mb-4 uppercase">
-                        Partnership Model
+                        {t.preTitle}
                     </h2>
                     <h3 className="text-4xl md:text-6xl font-black font-display">
-                        How to Collaborate.
+                        {t.title}
                     </h3>
                 </div>
 
                 <div className="space-y-6">
-                    {options.map((opt, index) => (
+                    {t.options.map((opt: any, index: number) => (
                         <motion.div
                             key={index}
                             initial={{ opacity: 0, y: 20 }}

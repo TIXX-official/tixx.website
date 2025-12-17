@@ -2,10 +2,15 @@
 
 import { motion } from "framer-motion";
 import { Play } from "lucide-react";
+import { useLanguage } from "@/lib/LanguageContext";
+import { dictionary } from "@/lib/dictionary";
 
 import { PAST_EVENTS } from "@/data/past-events";
 
 export default function PastEvents() {
+    const { language } = useLanguage();
+    const t = dictionary[language].aboutPage.pastEvents;
+
     return (
         <section className="py-24 bg-black relative">
             <div className="container mx-auto max-w-7xl px-6">
@@ -16,15 +21,15 @@ export default function PastEvents() {
                     className="mb-16 text-center"
                 >
                     <h2 className="text-neon-lime font-bold text-sm md:text-base tracking-[0.3em] mb-6 uppercase">
-                        Archive
+                        {t.preTitle}
                     </h2>
                     <h1 className="text-4xl md:text-6xl font-black font-display text-white mb-6">
-                        Past Events
+                        {t.title}
                     </h1>
-                    <p className="text-lg text-zinc-400 font-kr max-w-2xl mx-auto">
-                        TIXX가 만들어온 뜨거웠던 현장의 기록들. <br />
-                        PGMNTIXX, NASTIXX, DIRTIXX, GETIXX ...
-                    </p>
+                    <p
+                        className="text-lg text-zinc-400 font-kr max-w-2xl mx-auto"
+                        dangerouslySetInnerHTML={{ __html: t.description }}
+                    />
                 </motion.div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[300px] grid-flow-dense">

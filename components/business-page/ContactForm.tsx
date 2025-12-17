@@ -3,10 +3,14 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { Copy, Check, Mail } from 'lucide-react';
+import { useLanguage } from "@/lib/LanguageContext";
+import { dictionary } from "@/lib/dictionary";
 
 export default function ContactForm() {
   const [copied, setCopied] = useState(false);
   const email = 'tixxofficial@tixx.im';
+  const { language } = useLanguage();
+  const t = dictionary[language].businessPage.contact;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(email);
@@ -27,16 +31,15 @@ export default function ContactForm() {
           className='mb-16'
         >
           <h2 className='text-neon-lime font-bold text-sm md:text-base tracking-[0.3em] mb-4 uppercase'>
-            Contact
+            {t.preTitle}
           </h2>
-          <h3 className='text-4xl md:text-6xl font-black font-display text-white mb-6'>
-            Be the Next <br />
-            Culture Trend.
+          <h3 className='text-4xl md:text-6xl font-black font-display text-white mb-6 whitespace-pre-line'>
+            {t.title}
           </h3>
-          <p className='text-xl text-zinc-400 font-kr mb-12'>
-            TIXX와 함께 귀사의 브랜드를 하나의 문화로 만드세요. <br />
-            업체명, 담당자 성함, 연락처를 포함하여 메일을 보내주시면 빠른 확인이 가능합니다.
-          </p>
+          <p
+            className='text-xl text-zinc-400 font-kr mb-12'
+            dangerouslySetInnerHTML={{ __html: t.description }}
+          />
 
           <div className="flex flex-col items-center gap-6">
 
@@ -48,7 +51,7 @@ export default function ContactForm() {
                 className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-white px-5 py-3 rounded-full transition-colors font-bold text-sm"
               >
                 {copied ? <Check className="w-4 h-4 text-neon-lime" /> : <Copy className="w-4 h-4" />}
-                {copied ? "Copied!" : "주소 복사하기"}
+                {copied ? t.copyButton.copied : t.copyButton.default}
               </button>
             </div>
 
@@ -58,9 +61,8 @@ export default function ContactForm() {
               className="inline-flex items-center gap-2 text-zinc-400 hover:text-neon-lime transition-colors mt-4"
             >
               <Mail className="w-5 h-5" />
-              <span>메일 앱으로 바로 보내기</span>
+              <span>{t.mailLink}</span>
             </a>
-
           </div>
         </motion.div>
       </div>

@@ -1,8 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useLanguage } from "@/lib/LanguageContext";
+import { dictionary } from "@/lib/dictionary";
 
 export default function Mission() {
+    const { language } = useLanguage();
+    const t = dictionary[language].aboutPage.mission;
+
     return (
         <section className="py-32 bg-zinc-950 relative overflow-hidden">
             <div className="container mx-auto max-w-7xl px-6 flex flex-col md:flex-row items-center gap-16">
@@ -34,18 +39,15 @@ export default function Mission() {
                     className="flex-1"
                 >
                     <h2 className="text-neon-lime font-bold text-sm md:text-base tracking-[0.3em] mb-6 uppercase">
-                        Our Mission
+                        {t.preTitle}
                     </h2>
-                    <h1 className="text-5xl md:text-7xl font-black font-display text-white mb-8 leading-tight">
-                        Connect <br />
-                        the Scene.
+                    <h1 className="text-5xl md:text-7xl font-black font-display text-white mb-8 leading-tight whitespace-pre-line">
+                        {t.title}
                     </h1>
-                    <p className="text-xl md:text-2xl text-zinc-400 font-kr leading-relaxed">
-                        음지에 머물던 문화를 양지로, <br />
-                        아날로그를 디지털로. <br /><br />
-                        틱스는 기술을 통해 <br />
-                        더 많은 사람이 씬을 즐기게 합니다.
-                    </p>
+                    <p
+                        className="text-xl md:text-2xl text-zinc-400 font-kr leading-relaxed"
+                        dangerouslySetInnerHTML={{ __html: t.description }}
+                    />
                 </motion.div>
 
             </div>
