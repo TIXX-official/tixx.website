@@ -23,9 +23,51 @@ const notoSansKr = Noto_Sans_KR({
 });
 
 export const metadata: Metadata = {
-  title: 'TIX - Nightlife, Reimagined.',
+  title: 'TIXX (틱스) - 2030 컬처 라이프스타일 플랫폼 | 파티·팝업·행사 대행',
   description:
-    'Nightlife operating solution. Data-driven nightlife revolution.',
+    '서울 핫한 클럽 파티, 성수 팝업스토어, 전시회 예약은 틱스(TIXX)에서! 기업 행사 대행, 브랜드 런칭 파티 기획, DJ 섭외부터 티켓팅/QR 입장 관리 솔루션까지 제공하는 올인원 이벤트 플랫폼입니다.',
+  keywords: [
+    '틱스',
+    'TIXX',
+    '틱스 파티',
+    '틱스 앱',
+    '주식회사 틱스',
+    '파티 앱',
+    '클럽 게스트',
+    '페스티벌 예매',
+    '놀거리 추천',
+    '기업 행사 대행',
+    '파티 기획사',
+    '팝업스토어 운영 대행',
+    '행사 대행사',
+    '이벤트 대행',
+    'DJ 섭외',
+    '행사 음향 렌탈',
+    '공연 기획',
+    '티켓팅 시스템',
+    '입장 관리 솔루션',
+    '브랜드 런칭 파티 기획',
+    '팝업',
+    '팝업스토어',
+    '서울 팝업',
+    '파티',
+    '클럽',
+    'DJ',
+    '전시',
+    '예약',
+    '공연',
+    '연극',
+    '이벤트',
+    '이벤트 예약',
+  ],
+  openGraph: {
+    title: 'TIXX (틱스) - 2030 컬처 라이프스타일 플랫폼 | 파티·팝업·행사 대행',
+    description:
+      '서울 핫한 클럽 파티, 성수 팝업스토어, 전시회 예약은 틱스(TIXX)에서! 기업 행사 대행, 브랜드 런칭 파티 기획, DJ 섭외부터 티켓팅/QR 입장 관리 솔루션까지 제공하는 올인원 이벤트 플랫폼입니다.',
+    type: 'website',
+    locale: 'ko_KR',
+    siteName: 'TIXX',
+  },
   icons: {
     icon: [
       { url: '/favicon.ico' },
@@ -55,6 +97,7 @@ export const metadata: Metadata = {
   },
   manifest: '/manifest.json',
   other: {
+    'naver-site-verification': 'ab83712eddcfcbb154353ca17156e709d7d37c09',
     'msapplication-config': '/browserconfig.xml',
     'msapplication-TileImage': '/ms-icon-144x144.png',
     'msapplication-TileColor': '#ffffff',
