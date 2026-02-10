@@ -85,7 +85,7 @@ export const dictionary = {
             description2: 'Connecting the dots of city nightlife.',
             terms: 'Privacy & Terms',
             contact: 'Contact',
-            copyright: '© 2024 TIXX Corp. All rights reserved.',
+            copyright: '© 2025 TIXX Corp. All rights reserved.',
             companyInfo: '상호 : 주식회사 틱스 | 대표 : 김휘진<br>주소 : 서울특별시 중구 다산로38길 66-47, 4층 1호<br>사업자 등록번호 : 446-81-03634 | 통신판매신고번호 : 제 2025-서울중구-1579 호<br>대표번호 : 070-8065-3197 | 이메일 주소 : tixxofficial@tixx.im'
         },
         appPage: {
@@ -317,7 +317,7 @@ export const dictionary = {
             description2: 'Connecting the dots of city nightlife.',
             terms: 'Privacy & Terms',
             contact: 'Contact',
-            copyright: '© 2024 TIXX Corp. All rights reserved.',
+            copyright: '© 2025 TIXX Corp. All rights reserved.',
             companyInfo: 'Company Name: TIXX Inc. | CEO: Hwijin Kim<br>Address: 4F-1, 66-47, Dasan-ro 38-gil, Jung-gu, Seoul, Republic of Korea<br>Business Registration Number: 446-81-03634 | E-commerce Permit: 2025-SeoulJungGu-1579<br>Contact: 070-8065-3197 | Email: tixxofficial@tixx.im'
         },
         appPage: {
