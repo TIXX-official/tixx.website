@@ -3,6 +3,7 @@ import Features from "@/components/Features";
 import SceneGallery from "@/components/SceneGallery";
 import PastEventsTeaser from "@/components/PastEventsTeaser";
 import BusinessTeaser from "@/components/BusinessTeaser";
+import ConnectTeaser from "@/components/ConnectTeaser";
 
 export default function Home() {
   return (
@@ -12,6 +13,7 @@ export default function Home() {
       <SceneGallery />
       <PastEventsTeaser />
       <BusinessTeaser />
+      <ConnectTeaser />
     </main>
   );
 }

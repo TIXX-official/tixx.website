@@ -9,7 +9,7 @@ export default function Partners() {
     const t = dictionary[language].aboutPage.partners;
 
     const partners = [
-        "TIMES", "Jagermeister", "BOLERO", "THE HENZ", "FRAME SEOUL", "Orgasm Valley 2",
+        "HURRA", "TIMES", "Jagermeister", "BOLERO", "THE HENZ", "FRAME SEOUL", "Orgasm Valley 2",
         "BUBBLE PLAYLIST", "AMBIENCE SEOUL", "PGMNT", "THE CLIFF JEJU", "BEACH CLIFF"
     ];
 

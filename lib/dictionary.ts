@@ -73,6 +73,11 @@ export const dictionary = {
             cardTitle: 'Total Solution',
             cardDesc: 'Ticketing • Operation • Marketing • Agency'
         },
+        connectTeaser: {
+            title: "TIXX CONNECT: 오프라인의 열기를 온라인의 데이터로.",
+            description: "HURRA, 예거마이스터 등 글로벌 브랜드와 협업하는 개발자, 디렉터, 마케터가 제안하는 올인원 에이전시 솔루션.",
+            button: "TIXX CONNECT 바로가기"
+        },
         footer: {
             marquee: 'Trusted by the Scene',
             companyName: 'TIXX',
@@ -299,6 +304,11 @@ export const dictionary = {
             linkText: 'Business & Partnership Inquiry',
             cardTitle: 'Total Solution',
             cardDesc: 'Ticketing • Operation • Marketing • Agency'
+        },
+        connectTeaser: {
+            title: "TIXX CONNECT: Connecting Offline Heat to Online Data.",
+            description: "All-in-one agency solutions proposed by developers, directors, and marketers collaborating with global brands like HURRA and Jägermeister.",
+            button: "Go to TIXX CONNECT"
         },
         footer: {
             marquee: 'Trusted by the Scene',
