@@ -22,7 +22,7 @@ export default function DownloadPage() {
 
                     <div className="flex flex-col md:flex-row gap-6 justify-center">
                         <a
-                            href="#"
+                            href="https://apps.apple.com/us/app/tixx/id6737306169"
                             className="flex items-center justify-center gap-4 px-8 py-6 bg-zinc-900 rounded-2xl border border-zinc-800 hover:border-neon-lime hover:bg-zinc-800 transition-all group w-full md:w-64"
                         >
                             <Apple className="w-8 h-8 text-white group-hover:text-neon-lime transition-colors" />
@@ -33,7 +33,7 @@ export default function DownloadPage() {
                         </a>
 
                         <a
-                            href="#"
+                            href="https://play.google.com/store/apps/details?id=com.tixx.mobile"
                             className="flex items-center justify-center gap-4 px-8 py-6 bg-zinc-900 rounded-2xl border border-zinc-800 hover:border-neon-lime hover:bg-zinc-800 transition-all group w-full md:w-64"
                         >
                             <Smartphone className="w-8 h-8 text-white group-hover:text-neon-lime transition-colors" />
