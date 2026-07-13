@@ -7,7 +7,11 @@ export class ApiNotFoundError extends Error {}
 
 export async function apiGet<T>(
   path: string,
-  searchParams?: Record<string, string | number | boolean | undefined>
+  searchParams?: Record<string, string | number | boolean | undefined>,
+  // Event/host data (ticket stock, gallery, follower counts) changes often,
+  // so 60s is the default. Callers with looser freshness needs (e.g. the
+  // sitemap, which just needs id lists) can pass a longer value.
+  revalidate = 60
 ): Promise<T> {
   const url = new URL(path, API_BASE_URL);
   if (searchParams) {
@@ -16,11 +20,7 @@ export async function apiGet<T>(
     }
   }
 
-  const res = await fetch(url, {
-    // Revalidate frequently rather than caching indefinitely — event/host
-    // data (ticket stock, gallery, follower counts) changes often.
-    next: { revalidate: 60 },
-  });
+  const res = await fetch(url, { next: { revalidate } });
 
   if (res.status === 404) {
     throw new ApiNotFoundError(`${path} not found`);
