@@ -3,10 +3,15 @@
 import { Share2 } from 'lucide-react';
 import { useState } from 'react';
 
-export function ShareButton({ title, url }: { title: string; url: string }) {
+export function ShareButton({ title }: { title: string }) {
   const [copied, setCopied] = useState(false);
 
   const handleClick = async () => {
+    // Read the URL at click-time from the browser itself rather than a
+    // server-configured SITE_URL — always correct regardless of domain,
+    // no env var to keep in sync.
+    const url = window.location.href;
+
     if (navigator.share) {
       try {
         await navigator.share({ title, url });

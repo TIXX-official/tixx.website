@@ -23,7 +23,6 @@ import {
   resolveDisplayEndDateTime,
 } from '@/lib/format/eventDateTime';
 import { resolveEventCtaState } from '@/lib/format/ticket';
-import { absoluteUrl } from '@/lib/siteUrl';
 
 export function EventDetailContent({ event }: { event: EventDetail }) {
   const { language } = useLanguage();
@@ -60,8 +59,6 @@ export function EventDetailContent({ event }: { event: EventDetail }) {
     (ticket) => ticket.type !== 'guest'
   );
 
-  const eventUrl = absoluteUrl(`/events/${event.id}`);
-
   return (
     <div className="mx-auto max-w-6xl px-0 pb-28 lg:px-6 lg:pb-16 lg:pt-8">
       <div className="lg:grid lg:grid-cols-[1.5fr_1fr] lg:gap-10 lg:items-start">
@@ -77,7 +74,7 @@ export function EventDetailContent({ event }: { event: EventDetail }) {
               className="object-cover"
             />
             <div className="absolute right-3 top-3">
-              <ShareButton title={event.name} url={eventUrl} />
+              <ShareButton title={event.name} />
             </div>
           </div>
 

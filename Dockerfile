@@ -12,8 +12,14 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-# TIXX_API_BASE_URL / NEXT_PUBLIC_SITE_URL are read at request time (SSR),
-# not needed at build time — no --build-arg wiring required here.
+# TIXX_API_BASE_URL / SITE_URL are read at runtime for /events/[id] and
+# /hosts/[id] (SSR, re-read on every request) and for /sitemap.xml's hourly
+# ISR revalidation — no --build-arg needed for those. The one exception is
+# /sitemap.xml's *first* prerendered snapshot, generated right now during
+# `next build`: since neither env var is set in this build stage, it falls
+# back to the real api.tixx.im default in lib/api/client.ts, which is fine
+# for the real API but means a local override wouldn't apply until the
+# first revalidation after the container starts.
 RUN npm run build
 
 FROM base AS runner

@@ -4,4 +4,5 @@ node_modules
 .github
 out
 npm-debug.log*
-.env*.local
+.env*
+!.env.example
