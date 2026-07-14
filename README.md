@@ -27,26 +27,52 @@ npm run start
 
 ## Deploying (Cloud Run)
 
-Build and run the container:
+Build and run the container locally:
 
 ```bash
 docker build -t tixx-web .
 docker run -p 8080:8080 \
   -e TIXX_API_BASE_URL=https://api.tixx.im \
-  -e SITE_URL=https://<your-domain> \
+  -e SITE_URL=https://tixx.im \
   tixx-web
 ```
 
-Deploy target is **Cloud Run**. Both env vars above are read server-side only, at request time — not baked into the image at build time — so the same image can be pushed to `gcloud run deploy` for any environment (dev/staging/prod) without rebuilding:
+Deploy target is **Cloud Run**, region **`asia-northeast3`** (Seoul), service name **`tixx-web`**, custom domain **`tixx.im`**. Both env vars above are read server-side only, at request time — not baked into the image at build time — so the same image can be reused across environments without rebuilding.
+
+Deploys use `gcloud run deploy --source .`, which builds the image via **Cloud Build** (needs `cloudbuild.googleapis.com` enabled on the project, and the default Compute service account needs `roles/cloudbuild.builds.builder` — grant once per project with `gcloud projects add-iam-policy-binding <project-id> --member=serviceAccount:<project-number>-compute@developer.gserviceaccount.com --role=roles/cloudbuild.builds.builder`):
 
 ```bash
 gcloud run deploy tixx-web \
   --source . \
-  --region <region> \
-  --set-env-vars TIXX_API_BASE_URL=https://api.tixx.im,SITE_URL=https://<your-domain> \
-  --allow-unauthenticated
+  --region asia-northeast3 \
+  --allow-unauthenticated \
+  --min-instances=0 \
+  --max-instances=2 \
+  --cpu=1 \
+  --memory=512Mi \
+  --set-env-vars TIXX_API_BASE_URL=https://api.tixx.im,SITE_URL=https://tixx.im
 ```
+
+Cost-minimizing choices, in case they need revisiting as traffic grows:
+- `--min-instances=0`: scale-to-zero, no idle billing (trade-off: ~1-2s cold start on the first request after idle)
+- `--max-instances=2`: hard cap on cost exposure from traffic spikes/abuse; raise if legitimate traffic needs more headroom
+- `--cpu=1 --memory=512Mi`: minimum sane allocation for the standalone Next.js server; watch actual memory usage in the Cloud Run console before tuning down further
+- CPU is billed "only while handling requests" by default (don't pass `--no-cpu-throttling`, which switches to always-on billing)
 
 `TIXX_API_BASE_URL` calls happen server-side only (SSR), so the API's CORS allowlist is never involved. If the API server is reachable over an internal GCP network from the Cloud Run service, pointing `TIXX_API_BASE_URL` at that internal address instead of the public `api.tixx.im` avoids the public network hop entirely.
 
-The GitHub Actions workflow (`.github/workflows/nextjs.yml`) currently only runs lint + build as a CI check — it doesn't deploy. Wiring an actual `gcloud run deploy` step into CI needs the target project/region/service name plus a service account or Workload Identity Federation setup, none of which is configured yet.
+### Custom domain (`tixx.im`)
+
+Mapped via Cloud Run's native domain mapping (`gcloud run domain-mappings create`), not a Global External Load Balancer + Serverless NEG — the LB path adds a fixed forwarding-rule cost (~$18-25/month) that isn't worth it at this traffic level; native mapping has no extra fixed cost and still gets a Google-managed TLS cert.
+
+1. Verify domain ownership once per Google account: `gcloud domains verify tixx.im` (opens a browser flow / Search Console)
+2. `gcloud beta run domain-mappings create --service tixx-web --domain tixx.im --region asia-northeast3` — prints the DNS records to add
+3. Add those records at whatever registrar manages `tixx.im` (not automatable via `gcloud`)
+
+### Budget alert
+
+A monthly budget alert (Billing → Budgets & alerts in the GCP console) is the recommended safety net against unexpected cost — set one for a few dollars over the expected baseline. Creating it via `gcloud billing budgets create` requires a Billing Account Administrator/User role on the billing account itself (project Owner isn't sufficient); the console works with whatever access the logged-in user already has there.
+
+### CI/CD
+
+The GitHub Actions workflow (`.github/workflows/nextjs.yml`) currently only runs lint + build as a CI check — it doesn't deploy. Deploys are manual (`gcloud run deploy`, above) for now, by design: wiring in auto-deploy-on-push needs Workload Identity Federation (or a service account key) set up first, deferred until the manual path has proven stable.
