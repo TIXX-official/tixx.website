@@ -248,11 +248,8 @@ export const dictionary = {
             sns: 'SNS',
             notice: '상세 정보',
             noticeInfo: '공지사항',
-            price: '가격',
-            free: '무료',
             share: '공유하기',
             copied: '복사됨',
-            krw: '원',
             snsLinks: {
                 instagram: 'Instagram',
                 tiktok: 'TikTok',
@@ -524,11 +521,8 @@ export const dictionary = {
             sns: 'SNS',
             notice: 'Details',
             noticeInfo: 'Notice',
-            price: 'Price',
-            free: 'Free',
             share: 'Share',
             copied: 'Copied',
-            krw: 'KRW',
             snsLinks: {
                 instagram: 'Instagram',
                 tiktok: 'TikTok',

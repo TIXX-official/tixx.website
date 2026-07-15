@@ -12,7 +12,6 @@ import { HashtagList } from '@/components/detail/HashtagList';
 import { Lightbox } from '@/components/detail/Lightbox';
 import { Tabs } from '@/components/detail/Tabs';
 import { Text } from '@/components/detail/Text';
-import { TicketList } from '@/components/detail/TicketList';
 import { dictionary } from '@/lib/dictionary';
 import { useLanguage } from '@/lib/LanguageContext';
 import type { EventListItemDto, HostDetail } from '@/lib/api/types';
@@ -78,8 +77,7 @@ export function HostDetailContent({
         ? eventDict.claimTicket
         : null;
 
-  const purchasableTickets = host.tickets.filter((ticket) => ticket.type !== 'guest');
-  const hasSidebar = purchasableTickets.length > 0 || Boolean(ctaLabel);
+  const hasSidebar = Boolean(ctaLabel);
 
   return (
     <div className="mx-auto max-w-6xl pb-28 pt-24 lg:pb-16">
@@ -148,18 +146,6 @@ export function HostDetailContent({
           <Divider className="mx-4 my-6 lg:mx-0" />
         </div>
 
-        <div className="px-4 lg:hidden">
-          {purchasableTickets.length > 0 && (
-            <TicketList
-              tickets={purchasableTickets}
-              priceLabel={eventDict.price}
-              freeLabel={eventDict.free}
-              language={language}
-              krwLabel={eventDict.krw}
-            />
-          )}
-        </div>
-
         <div
           className={cn(
             'mt-4 px-4 lg:col-start-1 lg:mt-0 lg:px-0',
@@ -193,20 +179,7 @@ export function HostDetailContent({
 
         {hasSidebar && (
           <div className="mt-6 hidden px-4 lg:col-start-2 lg:row-start-2 lg:mt-0 lg:block lg:px-0 lg:sticky lg:top-8">
-            {purchasableTickets.length > 0 && (
-              <TicketList
-                tickets={purchasableTickets}
-                priceLabel={eventDict.price}
-                freeLabel={eventDict.free}
-                language={language}
-                krwLabel={eventDict.krw}
-              />
-            )}
-            {ctaLabel && (
-              <div className="mt-4">
-                <AppCTA label={ctaLabel} />
-              </div>
-            )}
+            {ctaLabel && <AppCTA label={ctaLabel} />}
           </div>
         )}
       </div>

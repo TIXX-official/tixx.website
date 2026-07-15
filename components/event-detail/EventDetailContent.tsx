@@ -13,7 +13,6 @@ import { LocationSection } from '@/components/detail/LocationSection';
 import { ShareButton } from '@/components/detail/ShareButton';
 import { SnsLinks } from '@/components/detail/SnsLinks';
 import { Text } from '@/components/detail/Text';
-import { TicketList } from '@/components/detail/TicketList';
 import { dictionary } from '@/lib/dictionary';
 import { useLanguage } from '@/lib/LanguageContext';
 import type { EventDetail } from '@/lib/api/types';
@@ -54,10 +53,6 @@ export function EventDetailContent({ event }: { event: EventDetail }) {
         : cta.kind === 'waitlist'
           ? t.joinWaitlist
           : null;
-
-  const purchasableOrFreeTickets = event.tickets.filter(
-    (ticket) => ticket.type !== 'guest'
-  );
 
   return (
     <div className="mx-auto max-w-6xl px-0 pb-28 pt-24 lg:px-6 lg:pb-16">
@@ -165,22 +160,11 @@ export function EventDetailContent({ event }: { event: EventDetail }) {
         </div>
 
         {/* Right column: purchase-intent sidebar */}
-        <div className="mt-6 flex flex-col gap-4 px-4 lg:col-start-2 lg:row-start-2 lg:mt-0 lg:px-0 lg:sticky lg:top-8">
-          {purchasableOrFreeTickets.length > 0 && (
-            <TicketList
-              tickets={purchasableOrFreeTickets}
-              priceLabel={t.price}
-              freeLabel={t.free}
-              language={language}
-              krwLabel={t.krw}
-            />
-          )}
-          {ctaLabel && (
-            <div className="hidden lg:block">
-              <AppCTA label={ctaLabel} />
-            </div>
-          )}
-        </div>
+        {ctaLabel && (
+          <div className="mt-6 hidden px-4 lg:col-start-2 lg:row-start-2 lg:mt-0 lg:block lg:px-0 lg:sticky lg:top-8">
+            <AppCTA label={ctaLabel} />
+          </div>
+        )}
       </div>
 
       {ctaLabel && (
