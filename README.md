@@ -30,14 +30,14 @@ npm run start
 Build and run the container locally:
 
 ```bash
-docker build --build-arg NEXT_PUBLIC_NAVER_MAP_CLIENT_ID=aj6lau7hx3 -t tixx-web .
+docker build --build-arg NEXT_PUBLIC_NAVER_MAP_CLIENT_ID=aj6lau7hx3 --build-arg SITE_URL=https://tixx.im -t tixx-web .
 docker run -p 8080:8080 \
   -e TIXX_API_BASE_URL=https://api.tixx.im \
   -e SITE_URL=https://tixx.im \
   tixx-web
 ```
 
-Deploy target is **Cloud Run**, region **`asia-northeast1`** (Tokyo), service name **`tixx-web`**, custom domain **`tixx.im`**. `TIXX_API_BASE_URL`/`SITE_URL` are read server-side only, at request time — not baked into the image at build time — so the same image can be reused across environments without rebuilding. `NEXT_PUBLIC_NAVER_MAP_CLIENT_ID` is different: Next.js inlines `NEXT_PUBLIC_*` vars into the client bundle at build time, so it's a Docker **build arg**, not a runtime env var — changing it means rebuilding the image (see the Dockerfile comment on this).
+Deploy target is **Cloud Run**, region **`asia-northeast1`** (Tokyo), service name **`tixx-web`**, custom domain **`tixx.im`**. `TIXX_API_BASE_URL` is read server-side only, at request time — not baked into the image at build time — so the same image can be reused across environments without rebuilding it. `SITE_URL` is also read at request time for per-request work (`/events/[id]`, `/hosts/[id]` SSR), but it's *additionally* passed as a Docker build arg: `sitemap.ts`/`robots.ts` need it to emit absolute URLs, and Cloud Run's `--min-instances=0` means containers are frequently recycled before ISR ever gets to revalidate a build-time snapshot that baked in a missing value — see the Dockerfile comment on this. `NEXT_PUBLIC_NAVER_MAP_CLIENT_ID` is different again: Next.js inlines `NEXT_PUBLIC_*` vars into the client bundle at build time, so it's a Docker **build arg only**, not a runtime env var — changing it means rebuilding the image (see the Dockerfile comment on this).
 
 > **Region note**: the service was originally in `asia-northeast3` (Seoul) and was moved to `asia-northeast1` (Tokyo) because Cloud Run domain mappings (custom domains) aren't supported in `asia-northeast3` — see "Custom domain" below. Tokyo adds negligible latency for Korean traffic.
 
@@ -46,7 +46,7 @@ Deploy target is **Cloud Run**, region **`asia-northeast1`** (Tokyo), service na
 ```bash
 gcloud auth configure-docker asia-northeast3-docker.pkg.dev
 
-docker build --build-arg NEXT_PUBLIC_NAVER_MAP_CLIENT_ID=aj6lau7hx3 -t asia-northeast3-docker.pkg.dev/tixx-449502/cloud-run-source-deploy/tixx-web:latest .
+docker build --build-arg NEXT_PUBLIC_NAVER_MAP_CLIENT_ID=aj6lau7hx3 --build-arg SITE_URL=https://tixx.im -t asia-northeast3-docker.pkg.dev/tixx-449502/cloud-run-source-deploy/tixx-web:latest .
 docker push asia-northeast3-docker.pkg.dev/tixx-449502/cloud-run-source-deploy/tixx-web:latest
 
 gcloud run deploy tixx-web \
@@ -89,8 +89,7 @@ A monthly budget alert (Billing → Budgets & alerts in the GCP console) is the 
 
 ### CI/CD
 
-- `.github/workflows/nextjs.yml` (**Build check**) — runs lint + build on every push/PR. Doesn't deploy.
-- `.github/workflows/deploy.yml` (**Deploy**) — on push to `main`, builds the Docker image, pushes it to the `asia-northeast3` Artifact Registry repo (see the region note above), and deploys it to the `tixx-web` Cloud Run service in `asia-northeast1`.
+- `.github/workflows/deploy.yml` (**Deploy**) — on push to `main`, builds the Docker image, pushes it to the `asia-northeast3` Artifact Registry repo (see the region note above), and deploys it to the `tixx-web` Cloud Run service in `asia-northeast1`. This is also the only build/lint check in the pipeline — there's no separate PR-time CI check.
 
 Deploy auth uses Workload Identity Federation, not a service account key:
 - Service account: `gha-deployer-tixx-web@tixx-449502.iam.gserviceaccount.com`, scoped to just `roles/run.developer` (project), `roles/artifactregistry.writer` (on the `cloud-run-source-deploy` repo in `asia-northeast3` only), and `roles/iam.serviceAccountUser` (on the Cloud Run runtime service account `98342760010-compute@developer.gserviceaccount.com`) — deliberately kept separate from the pre-existing `github-actions-deployer` service account, which has `roles/compute.instanceAdmin.v1` for unrelated VM deploys; sharing it would let either pipeline's compromise reach the other's infrastructure.
