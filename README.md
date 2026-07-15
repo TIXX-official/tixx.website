@@ -86,4 +86,11 @@ A monthly budget alert (Billing → Budgets & alerts in the GCP console) is the 
 
 ### CI/CD
 
-The GitHub Actions workflow (`.github/workflows/nextjs.yml`) currently only runs lint + build as a CI check — it doesn't deploy. Deploys are manual (`gcloud run deploy`, above) for now, by design: wiring in auto-deploy-on-push needs Workload Identity Federation (or a service account key) set up first, deferred until the manual path has proven stable.
+- `.github/workflows/nextjs.yml` (**Build check**) — runs lint + build on every push/PR. Doesn't deploy.
+- `.github/workflows/deploy.yml` (**Deploy**) — on push to `main`, builds the Docker image, pushes it to the `asia-northeast3` Artifact Registry repo (see the region note above), and deploys it to the `tixx-web` Cloud Run service in `asia-northeast1`.
+
+Deploy auth uses Workload Identity Federation, not a service account key:
+- Service account: `gha-deployer-tixx-web@tixx-449502.iam.gserviceaccount.com`, scoped to just `roles/run.developer` (project), `roles/artifactregistry.writer` (on the `cloud-run-source-deploy` repo in `asia-northeast3` only), and `roles/iam.serviceAccountUser` (on the Cloud Run runtime service account `98342760010-compute@developer.gserviceaccount.com`) — deliberately kept separate from the pre-existing `github-actions-deployer` service account, which has `roles/compute.instanceAdmin.v1` for unrelated VM deploys; sharing it would let either pipeline's compromise reach the other's infrastructure.
+- Workload Identity Pool `github-pool` / provider `github-provider`, with an attribute condition restricting it to `assertion.repository == 'TIXX-official/tixx.website'` — no other repo can impersonate this service account.
+
+The manual deploy path (`gcloud run deploy` / `gcloud builds submit`, above) still works and is useful for one-off deploys or debugging the pipeline itself.
