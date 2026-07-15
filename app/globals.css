@@ -4,10 +4,59 @@
   --font-sans: var(--font-inter);
   --font-display: var(--font-outfit);
   --font-kr: var(--font-noto-sans-kr);
+  --font-pretendard: 'Pretendard', var(--font-noto-sans-kr), sans-serif;
 
   --color-neon-lime: #f2f862;
   --color-deep-black: #000000;
   --color-dark-gray: #111111;
+
+  /* TIXX app design tokens (apps/mobile/src/theme/colors.js) — used only by
+     the /events/[id] and /hosts/[id] detail pages, which mirror the app's
+     screens rather than the marketing site's own visual language. */
+  --color-grayscale-0: #ffffff;
+  --color-grayscale-100: #ededed;
+  --color-grayscale-200: #dcdcdc;
+  --color-grayscale-300: #c1c1c2;
+  --color-grayscale-400: #a0a2a2;
+  --color-grayscale-500: #7e7d7d;
+  --color-grayscale-600: #585858;
+  --color-grayscale-700: #2f2f30;
+  --color-grayscale-800: #1b1b1b;
+  --color-grayscale-900: #000000;
+
+  --color-point-100: #fefff4;
+  --color-point-200: #fcfddc;
+  --color-point-300: #fafcc4;
+  --color-point-400: #f6fa93;
+  --color-point-500: #f2f862;
+  --color-point-600: #eef631;
+  --color-point-700: #e1ea0a;
+  --color-point-800: #c9d109;
+  --color-point-900: #b2b908;
+}
+
+@font-face {
+  font-family: 'Pretendard';
+  src: url('/fonts/Pretendard-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Pretendard';
+  src: url('/fonts/Pretendard-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Pretendard';
+  src: url('/fonts/Pretendard-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
 }
 
 /* Custom Utilities */

@@ -230,6 +230,50 @@ export const dictionary = {
                 description: "우리는 최고의 파트너들과 함께 문화를 만들어갑니다."
             }
         },
+        eventDetail: {
+            openApp: '앱에서 자세히 보기',
+            buyTicket: '앱에서 티켓 구매하기',
+            claimTicket: '앱에서 게스트 티켓 받기',
+            joinWaitlist: '앱에서 웨이트리스트 등록하기',
+            follow: '앱에서 팔로우하기',
+            chat: '앱에서 채팅 참여하기',
+            location: '행사 장소',
+            openInApp: '앱에서 열기',
+            viewOnMap: '지도에서 보기',
+            guestList: '게스트 리스트',
+            guestListEmpty: '아직 참여 예정인 게스트가 없어요',
+            album: '앨범',
+            albumEmpty: '아직 등록된 사진/영상이 없어요',
+            video: '동영상',
+            sns: 'SNS',
+            notice: '상세 정보',
+            noticeInfo: '공지사항',
+            price: '가격',
+            free: '무료',
+            share: '공유하기',
+            copied: '복사됨',
+            krw: '원',
+            snsLinks: {
+                instagram: 'Instagram',
+                tiktok: 'TikTok',
+                youtube: 'YouTube',
+                blog: '블로그',
+                homepage: '홈페이지',
+            },
+            categories: {
+                party: '파티', venue: '베뉴', meetup: '모임', gig: '공연', popup: '팝업',
+                exhibition: '전시', festival: '페스티벌', concert: '콘서트', class: '클래스', other: '기타'
+            }
+        },
+        hostDetail: {
+            followers: '팔로워',
+            hostedEventsList: '개최한 이벤트',
+            address: '주소',
+            contact: '연락처',
+            description: '베뉴 소개',
+            tabs: { all: '전체', before: '예정', ongoing: '진행중', past: '종료' },
+            categories: { Brand: '브랜드', Promote: '프로모터', Venue: '베뉴', Host: '호스트' }
+        },
     },
     EN: {
         navbar: {
@@ -461,6 +505,50 @@ export const dictionary = {
                 title: "Trusted Partners",
                 description: "We create culture together with the best partners."
             }
+        },
+        eventDetail: {
+            openApp: 'View details in the app',
+            buyTicket: 'Buy ticket in the app',
+            claimTicket: 'Claim guest ticket in the app',
+            joinWaitlist: 'Join waitlist in the app',
+            follow: 'Follow in the app',
+            chat: 'Join chat in the app',
+            location: 'Event Location',
+            openInApp: 'Open in app',
+            viewOnMap: 'View on map',
+            guestList: 'Guest List',
+            guestListEmpty: 'No guests yet',
+            album: 'Album',
+            albumEmpty: 'No photos or videos yet',
+            video: 'Video',
+            sns: 'SNS',
+            notice: 'Details',
+            noticeInfo: 'Notice',
+            price: 'Price',
+            free: 'Free',
+            share: 'Share',
+            copied: 'Copied',
+            krw: 'KRW',
+            snsLinks: {
+                instagram: 'Instagram',
+                tiktok: 'TikTok',
+                youtube: 'YouTube',
+                blog: 'Blog',
+                homepage: 'Homepage',
+            },
+            categories: {
+                party: 'Party', venue: 'Venue', meetup: 'Meetup', gig: 'Gig', popup: 'Pop-up',
+                exhibition: 'Exhibition', festival: 'Festival', concert: 'Concert', class: 'Class', other: 'Other'
+            }
+        },
+        hostDetail: {
+            followers: 'Followers',
+            hostedEventsList: 'Hosted Events',
+            address: 'Address',
+            contact: 'Contact',
+            description: 'About the Venue',
+            tabs: { all: 'All', before: 'Upcoming', ongoing: 'Ongoing', past: 'Past' },
+            categories: { Brand: 'Brand', Promote: 'Promoter', Venue: 'Venue', Host: 'Host' }
         },
     },
 };

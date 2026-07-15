@@ -1,0 +1,51 @@
+'use client';
+
+import { Share2 } from 'lucide-react';
+import { useState } from 'react';
+
+export function ShareButton({
+  title,
+  shareLabel,
+  copiedLabel,
+}: {
+  title: string;
+  shareLabel: string;
+  copiedLabel: string;
+}) {
+  const [copied, setCopied] = useState(false);
+
+  const handleClick = async () => {
+    // Read the URL at click-time from the browser itself rather than a
+    // server-configured SITE_URL — always correct regardless of domain,
+    // no env var to keep in sync.
+    const url = window.location.href;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title, url });
+        return;
+      } catch {
+        // user cancelled or share failed — fall through to clipboard copy
+      }
+    }
+    await navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      className="flex h-8 w-8 items-center justify-center rounded-full bg-black/45 text-white"
+      aria-label={shareLabel}
+    >
+      <Share2 size={16} />
+      {copied && (
+        <span className="absolute -bottom-7 right-0 whitespace-nowrap rounded bg-black/80 px-2 py-1 text-xs text-white">
+          {copiedLabel}
+        </span>
+      )}
+    </button>
+  );
+}

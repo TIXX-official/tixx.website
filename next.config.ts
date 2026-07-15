@@ -1,16 +1,20 @@
 import type { NextConfig } from 'next';
 
-const isProd = process.env.NODE_ENV === 'production';
-
 const nextConfig: NextConfig = {
   /* config options here */
-  output: 'export',
+  // Standalone output for containerized deployment (Docker/Cloud Run).
+  // NOTE: switched off static `output: 'export'` because /events/[id] and
+  // /hosts/[id] need per-request SSR against the live API (real-time data +
+  // correct OG tags for link sharing) — see docs/event-host-detail-pages.md.
+  output: 'standalone',
   images: {
-    unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**.r2.dev',
+      },
+    ],
   },
-  // github pages 배포 시 repository 이름을 base path로 사용
-  basePath: isProd ? '/tixx.website' : '',
-  assetPrefix: isProd ? '/tixx.website' : '',
 };
 
 export default nextConfig;

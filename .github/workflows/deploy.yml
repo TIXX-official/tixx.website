@@ -1,0 +1,67 @@
+# Builds and deploys tixx-web to Cloud Run on every push to main, after
+# lint/build passes in the Build check workflow (nextjs.yml).
+#
+# Auth is via Workload Identity Federation (no service account key stored in
+# GitHub) — see docs/cloud-run-deployment-todo.md history for how the pool /
+# provider / service account were set up.
+#
+# Pushes the image to the asia-northeast3 (Seoul) Artifact Registry repo, not
+# asia-northeast1 (Tokyo, where the service actually runs): the Tokyo repo
+# that `gcloud run deploy --source` would auto-create has a reproducible
+# "Container import failed" bug, so builds go to the known-good Seoul repo
+# and get deployed cross-region into the Tokyo service instead. See
+# README.md "Deploying (Cloud Run)" for details.
+name: Deploy
+
+on:
+  push:
+    branches: ['main']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  PROJECT_ID: tixx-449502
+  IMAGE: asia-northeast3-docker.pkg.dev/tixx-449502/cloud-run-source-deploy/tixx-web
+  SERVICE: tixx-web
+  REGION: asia-northeast1
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/98342760010/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+          service_account: gha-deployer-tixx-web@tixx-449502.iam.gserviceaccount.com
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker asia-northeast3-docker.pkg.dev --quiet
+
+      - name: Build image
+        run: docker build -t "${IMAGE}:${{ github.sha }}" -t "${IMAGE}:latest" .
+
+      - name: Push image
+        run: docker push "${IMAGE}" --all-tags
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy "$SERVICE" \
+            --image "${IMAGE}:${{ github.sha }}" \
+            --region "$REGION" \
+            --project "$PROJECT_ID" \
+            --allow-unauthenticated \
+            --min-instances=0 \
+            --max-instances=2 \
+            --cpu=1 \
+            --memory=512Mi \
+            --set-env-vars TIXX_API_BASE_URL=https://api.tixx.im,SITE_URL=https://tixx.im
