@@ -4,6 +4,7 @@ import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { LanguageProvider } from '@/lib/LanguageContext';
+import { absoluteUrl, SITE_URL } from '@/lib/siteUrl';
 
 const outfit = Outfit({
   subsets: ['latin'],
@@ -24,6 +25,7 @@ const notoSansKr = Noto_Sans_KR({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL || 'http://localhost:3000'),
   title: 'TIXX (틱스) - 2030 컬처 라이프스타일 플랫폼 | 파티·팝업·행사 대행',
   description:
     '서울 핫한 클럽 파티, 성수 팝업스토어, 전시회 예약은 틱스(TIXX)에서! 기업 행사 대행, 브랜드 런칭 파티 기획, DJ 섭외부터 티켓팅/QR 입장 관리 솔루션까지 제공하는 올인원 이벤트 플랫폼입니다.',
@@ -80,6 +82,7 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'ko_KR',
     siteName: 'TIXX',
+    images: [{ url: absoluteUrl('/tixx-logo.png'), width: 1024, height: 1024 }],
   },
   icons: {
     icon: [
@@ -124,7 +127,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='en' className='dark'>
+    <html lang='ko' className='dark'>
       <body
         className={`${outfit.variable} ${inter.variable} ${notoSansKr.variable} antialiased bg-black text-white`}
       >
