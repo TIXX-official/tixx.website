@@ -51,11 +51,8 @@ export function NaverMap({ place, className }: { place: Place; className?: strin
 
   return (
     <>
-      {/* VERIFY BEFORE SHIPPING: confirm ncpClientId vs ncpKeyId against
-          current Naver Cloud Platform docs — this query param name has
-          changed across NCP Maps API plan tiers/SDK versions. */}
       <Script
-        src={`https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${NAVER_MAP_CLIENT_ID}`}
+        src={`https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${NAVER_MAP_CLIENT_ID}`}
         strategy="afterInteractive"
         onLoad={() => setSdkReady(true)}
       />

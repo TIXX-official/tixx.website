@@ -30,14 +30,14 @@ npm run start
 Build and run the container locally:
 
 ```bash
-docker build -t tixx-web .
+docker build --build-arg NEXT_PUBLIC_NAVER_MAP_CLIENT_ID=aj6lau7hx3 -t tixx-web .
 docker run -p 8080:8080 \
   -e TIXX_API_BASE_URL=https://api.tixx.im \
   -e SITE_URL=https://tixx.im \
   tixx-web
 ```
 
-Deploy target is **Cloud Run**, region **`asia-northeast1`** (Tokyo), service name **`tixx-web`**, custom domain **`tixx.im`**. Both env vars above are read server-side only, at request time — not baked into the image at build time — so the same image can be reused across environments without rebuilding.
+Deploy target is **Cloud Run**, region **`asia-northeast1`** (Tokyo), service name **`tixx-web`**, custom domain **`tixx.im`**. `TIXX_API_BASE_URL`/`SITE_URL` are read server-side only, at request time — not baked into the image at build time — so the same image can be reused across environments without rebuilding. `NEXT_PUBLIC_NAVER_MAP_CLIENT_ID` is different: Next.js inlines `NEXT_PUBLIC_*` vars into the client bundle at build time, so it's a Docker **build arg**, not a runtime env var — changing it means rebuilding the image (see the Dockerfile comment on this).
 
 > **Region note**: the service was originally in `asia-northeast3` (Seoul) and was moved to `asia-northeast1` (Tokyo) because Cloud Run domain mappings (custom domains) aren't supported in `asia-northeast3` — see "Custom domain" below. Tokyo adds negligible latency for Korean traffic.
 
@@ -46,7 +46,7 @@ Deploy target is **Cloud Run**, region **`asia-northeast1`** (Tokyo), service na
 ```bash
 gcloud auth configure-docker asia-northeast3-docker.pkg.dev
 
-docker build -t asia-northeast3-docker.pkg.dev/tixx-449502/cloud-run-source-deploy/tixx-web:latest .
+docker build --build-arg NEXT_PUBLIC_NAVER_MAP_CLIENT_ID=aj6lau7hx3 -t asia-northeast3-docker.pkg.dev/tixx-449502/cloud-run-source-deploy/tixx-web:latest .
 docker push asia-northeast3-docker.pkg.dev/tixx-449502/cloud-run-source-deploy/tixx-web:latest
 
 gcloud run deploy tixx-web \

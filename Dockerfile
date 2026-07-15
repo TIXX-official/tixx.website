@@ -20,6 +20,16 @@ COPY . .
 # back to the real api.tixx.im default in lib/api/client.ts, which is fine
 # for the real API but means a local override wouldn't apply until the
 # first revalidation after the container starts.
+#
+# NEXT_PUBLIC_NAVER_MAP_CLIENT_ID is different: Next.js inlines NEXT_PUBLIC_*
+# vars into the client bundle at build time, so — unlike the two above — it
+# MUST be supplied as a --build-arg here, not as a runtime env var. A missing
+# value bakes in `undefined`, which NaverMap.tsx treats as "unset" and falls
+# back to the keyless OSM embed; it doesn't error, but the map silently stays
+# static. Since it's compiled in, one image can no longer be reused with a
+# different value — a real value change needs a rebuild.
+ARG NEXT_PUBLIC_NAVER_MAP_CLIENT_ID
+ENV NEXT_PUBLIC_NAVER_MAP_CLIENT_ID=$NEXT_PUBLIC_NAVER_MAP_CLIENT_ID
 RUN npm run build
 
 FROM base AS runner
