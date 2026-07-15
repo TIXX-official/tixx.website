@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.tixx.mobile",
+      "sha256_cert_fingerprints": [
+        "BF:96:F3:82:BE:23:E7:CD:6B:30:94:09:2E:EC:6E:65:A4:E3:8D:68:1C:76:6E:3E:0F:EE:F4:BF:E8:E0:CC:E1"
+      ]
+    }
+  }
+]
