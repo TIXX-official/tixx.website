@@ -1,7 +1,8 @@
 'use client';
 
+import useEmblaCarousel from 'embla-carousel-react';
 import Image from 'next/image';
-import { useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 
 export function Carousel({
@@ -13,45 +14,43 @@ export function Carousel({
   aspectClassName?: string;
   onImageClick?: (index: number) => void;
 }) {
+  const [emblaRef, emblaApi] = useEmblaCarousel({ align: 'start' });
   const [activeIndex, setActiveIndex] = useState(0);
-  const trackRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    const onSelect = () => setActiveIndex(emblaApi.selectedScrollSnap());
+    onSelect();
+    emblaApi.on('select', onSelect);
+    return () => {
+      emblaApi.off('select', onSelect);
+    };
+  }, [emblaApi]);
 
   if (images.length === 0) return null;
 
-  const handleScroll = () => {
-    const track = trackRef.current;
-    if (!track) return;
-    const index = Math.round(track.scrollLeft / track.clientWidth);
-    setActiveIndex(index);
-  };
-
   return (
     <div className="relative w-full">
-      <div
-        ref={trackRef}
-        onScroll={handleScroll}
-        className={cn(
-          'flex w-full snap-x snap-mandatory overflow-x-auto scroll-smooth bg-grayscale-800',
-          aspectClassName
-        )}
-        style={{ scrollbarWidth: 'none' }}
-      >
-        {images.map((image, index) => (
-          <button
-            key={image.url + index}
-            type="button"
-            onClick={() => onImageClick?.(index)}
-            className="relative h-full w-full flex-shrink-0 snap-center"
-          >
-            <Image
-              src={image.url}
-              alt={image.alt ?? ''}
-              fill
-              sizes="(min-width: 1024px) 640px, 100vw"
-              className="object-cover"
-            />
-          </button>
-        ))}
+      <div ref={emblaRef} className={cn('overflow-hidden bg-grayscale-800', aspectClassName)}>
+        <div className="flex h-full">
+          {images.map((image, index) => (
+            <button
+              key={image.url + index}
+              type="button"
+              onClick={() => onImageClick?.(index)}
+              className="relative h-full w-full flex-shrink-0"
+            >
+              <Image
+                src={image.url}
+                alt={image.alt ?? ''}
+                fill
+                sizes="(min-width: 1024px) 640px, 100vw"
+                className="object-cover"
+                draggable={false}
+              />
+            </button>
+          ))}
+        </div>
       </div>
       {images.length > 1 && (
         <div className="mt-2 flex justify-center gap-1">
