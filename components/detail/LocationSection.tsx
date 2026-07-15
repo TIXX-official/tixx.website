@@ -2,7 +2,8 @@ import { MapPin } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Place, VenueSummary } from '@/lib/api/types';
-import { buildMapEmbedUrl, buildMapUrl } from '@/lib/format/map';
+import { buildMapUrl } from '@/lib/format/map';
+import { NaverMap } from './NaverMap';
 import { Text } from './Text';
 
 export function LocationSection({
@@ -18,9 +19,19 @@ export function LocationSection({
 }) {
   return (
     <div>
-      <Text variant="headline2Medium" className="mb-3">
-        {title}
-      </Text>
+      <div className="mb-3 flex flex-row items-center justify-between">
+        <Text variant="headline2Medium">{title}</Text>
+        <a
+          href={buildMapUrl(place)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="rounded-full bg-grayscale-800 px-3 py-1"
+        >
+          <Text as="span" variant="caption1Regular" className="text-grayscale-300">
+            {viewOnMapLabel}
+          </Text>
+        </a>
+      </div>
       <div className="flex flex-row items-center gap-1">
         <MapPin size={16} className="flex-shrink-0 text-grayscale-300" />
         <Text variant="body3Regular" className="text-grayscale-300">
@@ -40,22 +51,7 @@ export function LocationSection({
         </Link>
       )}
       <div className="relative mt-4 h-[160px] w-full overflow-hidden rounded-xl bg-grayscale-800">
-        <iframe
-          src={buildMapEmbedUrl(place)}
-          title={place.name}
-          className="h-full w-full border-0 pointer-events-none"
-          loading="lazy"
-        />
-        <a
-          href={buildMapUrl(place)}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="absolute bottom-2 right-2 rounded-full bg-black/60 px-3 py-1"
-        >
-          <Text as="span" variant="caption1Regular" className="text-white">
-            {viewOnMapLabel}
-          </Text>
-        </a>
+        <NaverMap place={place} className="h-full w-full" />
       </div>
     </div>
   );

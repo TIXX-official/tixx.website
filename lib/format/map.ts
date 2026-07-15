@@ -1,11 +1,14 @@
 import type { Place } from '@/lib/api/types';
 
 // Static/read-only equivalent of apps/mobile's native map-app deep link
-// picker — links out to Kakao Map (Korean audience) with a Google Maps
-// fallback query embedded via the address text.
+// picker — links out to Naver Map for provider consistency with the
+// embedded interactive map (see components/detail/NaverMap.tsx). Keyless,
+// same zero-cost property as the previous Kakao Map link.
+// VERIFY BEFORE SHIPPING: Naver's public map-search URL scheme has shifted
+// across versions (e.g. /v5/search/, /p/search/) — confirm the current one.
 export function buildMapUrl(place: Place): string {
   const query = encodeURIComponent(`${place.name} ${place.address}`);
-  return `https://map.kakao.com/link/search/${query}`;
+  return `https://map.naver.com/p/search/${query}`;
 }
 
 export function buildMapEmbedUrl(place: Place): string {

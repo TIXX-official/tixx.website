@@ -237,7 +237,7 @@ export const dictionary = {
             joinWaitlist: '앱에서 웨이트리스트 등록하기',
             follow: '앱에서 팔로우하기',
             chat: '앱에서 채팅 참여하기',
-            location: '위치',
+            location: '행사 장소',
             openInApp: '앱에서 열기',
             viewOnMap: '지도에서 보기',
             guestList: '게스트 리스트',
@@ -250,6 +250,16 @@ export const dictionary = {
             noticeInfo: '공지사항',
             price: '가격',
             free: '무료',
+            share: '공유하기',
+            copied: '복사됨',
+            krw: '원',
+            snsLinks: {
+                instagram: 'Instagram',
+                tiktok: 'TikTok',
+                youtube: 'YouTube',
+                blog: '블로그',
+                homepage: '홈페이지',
+            },
             categories: {
                 party: '파티', venue: '베뉴', meetup: '모임', gig: '공연', popup: '팝업',
                 exhibition: '전시', festival: '페스티벌', concert: '콘서트', class: '클래스', other: '기타'
@@ -260,7 +270,7 @@ export const dictionary = {
             hostedEventsList: '개최한 이벤트',
             address: '주소',
             contact: '연락처',
-            description: '소개',
+            description: '베뉴 소개',
             tabs: { all: '전체', before: '예정', ongoing: '진행중', past: '종료' },
             categories: { Brand: '브랜드', Promote: '프로모터', Venue: '베뉴', Host: '호스트' }
         },
@@ -503,7 +513,7 @@ export const dictionary = {
             joinWaitlist: 'Join waitlist in the app',
             follow: 'Follow in the app',
             chat: 'Join chat in the app',
-            location: 'Location',
+            location: 'Event Location',
             openInApp: 'Open in app',
             viewOnMap: 'View on map',
             guestList: 'Guest List',
@@ -516,6 +526,16 @@ export const dictionary = {
             noticeInfo: 'Notice',
             price: 'Price',
             free: 'Free',
+            share: 'Share',
+            copied: 'Copied',
+            krw: 'KRW',
+            snsLinks: {
+                instagram: 'Instagram',
+                tiktok: 'TikTok',
+                youtube: 'YouTube',
+                blog: 'Blog',
+                homepage: 'Homepage',
+            },
             categories: {
                 party: 'Party', venue: 'Venue', meetup: 'Meetup', gig: 'Gig', popup: 'Pop-up',
                 exhibition: 'Exhibition', festival: 'Festival', concert: 'Concert', class: 'Class', other: 'Other'
@@ -526,7 +546,7 @@ export const dictionary = {
             hostedEventsList: 'Hosted Events',
             address: 'Address',
             contact: 'Contact',
-            description: 'Description',
+            description: 'About the Venue',
             tabs: { all: 'All', before: 'Upcoming', ongoing: 'Ongoing', past: 'Past' },
             categories: { Brand: 'Brand', Promote: 'Promoter', Venue: 'Venue', Host: 'Host' }
         },

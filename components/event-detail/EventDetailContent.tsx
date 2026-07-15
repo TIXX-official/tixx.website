@@ -60,25 +60,25 @@ export function EventDetailContent({ event }: { event: EventDetail }) {
   );
 
   return (
-    <div className="mx-auto max-w-6xl px-0 pb-28 lg:px-6 lg:pb-16 lg:pt-8">
+    <div className="mx-auto max-w-6xl px-0 pb-28 pt-24 lg:px-6 lg:pb-16">
       <div className="lg:grid lg:grid-cols-[1.5fr_1fr] lg:gap-10 lg:items-start">
         {/* Hero + header block (full width on both breakpoints) */}
-        <div className="lg:col-span-2">
-          <div className="relative aspect-[4/5] w-full sm:aspect-video lg:aspect-[21/9] lg:rounded-2xl lg:overflow-hidden">
+        <div className="lg:col-span-2 lg:flex lg:flex-row lg:items-start lg:gap-8">
+          <div className="relative aspect-[4/5] w-full sm:aspect-video lg:aspect-[4/5] lg:w-full lg:max-w-[460px] lg:flex-shrink-0 lg:rounded-2xl lg:overflow-hidden">
             <Image
               src={event.imageUrl}
               alt={event.name}
               fill
               priority
-              sizes="(min-width: 1024px) 1152px, 100vw"
+              sizes="(min-width: 1024px) 460px, 100vw"
               className="object-cover"
             />
             <div className="absolute right-3 top-3">
-              <ShareButton title={event.name} />
+              <ShareButton title={event.name} shareLabel={t.share} copiedLabel={t.copied} />
             </div>
           </div>
 
-          <div className="px-4 pt-4 lg:px-0">
+          <div className="px-4 pt-4 lg:flex-1 lg:min-w-0 lg:px-0 lg:pt-0">
             <div className="flex flex-row items-center gap-4">
               <div className="flex flex-row items-center gap-1">
                 <Eye size={16} className="text-grayscale-300" />
@@ -151,6 +151,7 @@ export function EventDetailContent({ event }: { event: EventDetail }) {
               youtubeUrl: event.youtubeUrl,
               homepageUrl: event.homepageUrl,
             }}
+            labels={t.snsLinks}
           />
 
           {event.eventGallery.length > 0 && (
@@ -170,6 +171,8 @@ export function EventDetailContent({ event }: { event: EventDetail }) {
               tickets={purchasableOrFreeTickets}
               priceLabel={t.price}
               freeLabel={t.free}
+              language={language}
+              krwLabel={t.krw}
             />
           )}
           {ctaLabel && (

@@ -3,7 +3,15 @@
 import { Share2 } from 'lucide-react';
 import { useState } from 'react';
 
-export function ShareButton({ title }: { title: string }) {
+export function ShareButton({
+  title,
+  shareLabel,
+  copiedLabel,
+}: {
+  title: string;
+  shareLabel: string;
+  copiedLabel: string;
+}) {
   const [copied, setCopied] = useState(false);
 
   const handleClick = async () => {
@@ -30,12 +38,12 @@ export function ShareButton({ title }: { title: string }) {
       type="button"
       onClick={handleClick}
       className="flex h-8 w-8 items-center justify-center rounded-full bg-black/45 text-white"
-      aria-label="Share"
+      aria-label={shareLabel}
     >
       <Share2 size={16} />
       {copied && (
         <span className="absolute -bottom-7 right-0 whitespace-nowrap rounded bg-black/80 px-2 py-1 text-xs text-white">
-          Copied
+          {copiedLabel}
         </span>
       )}
     </button>

@@ -20,11 +20,7 @@ export function ExpandableCard({
       <Text variant="headline2Medium" className="mb-3">
         {title}
       </Text>
-      <button
-        type="button"
-        onClick={() => setExpanded((prev) => !prev)}
-        className="w-full rounded-xl border border-grayscale-700 px-4 py-4 text-left"
-      >
+      <div className="w-full rounded-xl border border-grayscale-700 px-4 py-4 text-left">
         <Text
           variant="body3RegularLarge"
           className="whitespace-pre-line text-grayscale-300"
@@ -41,10 +37,15 @@ export function ExpandableCard({
         >
           {content}
         </Text>
-        <div className="mt-2 flex justify-center text-grayscale-400">
+        <button
+          type="button"
+          onClick={() => setExpanded((prev) => !prev)}
+          aria-expanded={expanded}
+          className="mt-2 flex w-full justify-center text-grayscale-400"
+        >
           {expanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-        </div>
-      </button>
+        </button>
+      </div>
     </div>
   );
 }

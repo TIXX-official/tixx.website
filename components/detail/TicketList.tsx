@@ -5,10 +5,14 @@ export function TicketList({
   tickets,
   priceLabel,
   freeLabel,
+  language,
+  krwLabel,
 }: {
   tickets: Ticket[];
   priceLabel: string;
   freeLabel: string;
+  language: 'KO' | 'EN';
+  krwLabel: string;
 }) {
   if (tickets.length === 0) return null;
 
@@ -23,7 +27,9 @@ export function TicketList({
             {ticket.name}
           </Text>
           <Text variant="body1Medium" className="text-grayscale-0">
-            {ticket.price ? `${ticket.price.toLocaleString('ko-KR')}원` : freeLabel}
+            {ticket.price
+              ? `${ticket.price.toLocaleString(language === 'KO' ? 'ko-KR' : 'en-US')}${language === 'KO' ? '' : ' '}${krwLabel}`
+              : freeLabel}
           </Text>
         </div>
       ))}

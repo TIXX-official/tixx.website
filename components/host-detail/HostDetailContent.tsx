@@ -82,7 +82,7 @@ export function HostDetailContent({
   const hasSidebar = purchasableTickets.length > 0 || Boolean(ctaLabel);
 
   return (
-    <div className="mx-auto max-w-6xl pb-28 lg:pb-16 lg:pt-8">
+    <div className="mx-auto max-w-6xl pb-28 pt-24 lg:pb-16">
       <div className="lg:grid lg:grid-cols-[1.5fr_1fr] lg:gap-10 lg:items-start">
         <div className="lg:col-span-2">
           {isVenue && venueMedias.length > 0 && (
@@ -154,6 +154,8 @@ export function HostDetailContent({
               tickets={purchasableTickets}
               priceLabel={eventDict.price}
               freeLabel={eventDict.free}
+              language={language}
+              krwLabel={eventDict.krw}
             />
           )}
         </div>
@@ -196,6 +198,8 @@ export function HostDetailContent({
                 tickets={purchasableTickets}
                 priceLabel={eventDict.price}
                 freeLabel={eventDict.free}
+                language={language}
+                krwLabel={eventDict.krw}
               />
             )}
             {ctaLabel && (

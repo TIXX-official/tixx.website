@@ -4,6 +4,7 @@ import { Text } from './Text';
 export function SnsLinks({
   title,
   links,
+  labels,
 }: {
   title: string;
   links: {
@@ -13,13 +14,20 @@ export function SnsLinks({
     youtubeUrl?: string | null;
     homepageUrl?: string | null;
   };
+  labels: {
+    instagram: string;
+    tiktok: string;
+    youtube: string;
+    blog: string;
+    homepage: string;
+  };
 }) {
   const items = [
-    { url: links.instagramUrl, icon: Instagram, label: 'Instagram' },
-    { url: links.tiktokUrl, icon: Music2, label: 'TikTok' },
-    { url: links.youtubeUrl, icon: Youtube, label: 'YouTube' },
-    { url: links.blogUrl, icon: Globe, label: 'Blog' },
-    { url: links.homepageUrl, icon: Globe, label: 'Homepage' },
+    { url: links.instagramUrl, icon: Instagram, label: labels.instagram },
+    { url: links.tiktokUrl, icon: Music2, label: labels.tiktok },
+    { url: links.youtubeUrl, icon: Youtube, label: labels.youtube },
+    { url: links.blogUrl, icon: Globe, label: labels.blog },
+    { url: links.homepageUrl, icon: Globe, label: labels.homepage },
   ].filter((item): item is typeof item & { url: string } => Boolean(item.url));
 
   if (items.length === 0) return null;

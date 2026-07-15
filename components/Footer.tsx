@@ -1,12 +1,15 @@
 "use client";
 
 import { Instagram, Youtube } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { useLanguage } from "@/lib/LanguageContext";
 import { dictionary } from "@/lib/dictionary";
 
 export default function Footer() {
     const { language } = useLanguage();
     const t = dictionary[language].footer;
+    const pathname = usePathname();
+    const isLandingPage = pathname === "/";
 
     const partners = [
         "TIMES", "Jagermeister", "BOLERO", "THE HENZ", "FRAME SEOUL", "Orgasm Valley 2",
@@ -18,20 +21,22 @@ export default function Footer() {
     return (
         <footer id="about" className="bg-black border-t border-zinc-900 pt-20 pb-10 overflow-hidden">
             {/* Partner Logo Marquee */}
-            <div className="mb-20 opacity-40 hover:opacity-100 transition-opacity duration-500">
-                <p className="text-center text-xs font-bold text-zinc-600 uppercase tracking-widest mb-8">
-                    {t.marquee}
-                </p>
-                <div className="w-full overflow-hidden relative">
-                    <div className="flex whitespace-nowrap animate-[marquee_20s_linear_infinite]">
-                        {partners.map((partner, index) => (
-                            <span key={index} className="mx-8 text-2xl font-black text-zinc-500 font-sans">
-                                {partner}
-                            </span>
-                        ))}
+            {isLandingPage && (
+                <div className="mb-20 opacity-40 hover:opacity-100 transition-opacity duration-500">
+                    <p className="text-center text-xs font-bold text-zinc-600 uppercase tracking-widest mb-8">
+                        {t.marquee}
+                    </p>
+                    <div className="w-full overflow-hidden relative">
+                        <div className="flex whitespace-nowrap animate-[marquee_20s_linear_infinite]">
+                            {partners.map((partner, index) => (
+                                <span key={index} className="mx-8 text-2xl font-black text-zinc-500 font-sans">
+                                    {partner}
+                                </span>
+                            ))}
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
 
             <div className="px-6 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-end gap-8">
                 <div>
