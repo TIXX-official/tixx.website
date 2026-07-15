@@ -41,10 +41,13 @@ Deploy target is **Cloud Run**, region **`asia-northeast1`** (Tokyo), service na
 
 > **Region note**: the service was originally in `asia-northeast3` (Seoul) and was moved to `asia-northeast1` (Tokyo) because Cloud Run domain mappings (custom domains) aren't supported in `asia-northeast3` — see "Custom domain" below. Tokyo adds negligible latency for Korean traffic.
 
-> **Known issue**: `gcloud run deploy --source . --region asia-northeast1` reliably fails with `ERROR: ... Container import failed` (`ContainerImageImportFailed`) — this looks like a bug specific to the auto-created `asia-northeast1-docker.pkg.dev/.../cloud-run-source-deploy` Artifact Registry repo (confirmed: the identical image pulled from the pre-existing `asia-northeast3` repo deploys to `asia-northeast1` without issue). Until that's resolved upstream, build via `gcloud builds submit` into the Seoul repo, then deploy that image to the Tokyo service:
+> **Known issue**: `gcloud run deploy --source . --region asia-northeast1` reliably fails with `ERROR: ... Container import failed` (`ContainerImageImportFailed`) — this looks like a bug specific to the auto-created `asia-northeast1-docker.pkg.dev/.../cloud-run-source-deploy` Artifact Registry repo (confirmed: the identical image pulled from the pre-existing `asia-northeast3` repo deploys to `asia-northeast1` without issue). Until that's resolved upstream, build locally with `docker build` and push straight to the Seoul repo (same as `.github/workflows/deploy.yml` does — no Cloud Build involved anywhere in this project), then deploy that image to the Tokyo service:
 
 ```bash
-gcloud builds submit --tag asia-northeast3-docker.pkg.dev/tixx-449502/cloud-run-source-deploy/tixx-web:latest
+gcloud auth configure-docker asia-northeast3-docker.pkg.dev
+
+docker build -t asia-northeast3-docker.pkg.dev/tixx-449502/cloud-run-source-deploy/tixx-web:latest .
+docker push asia-northeast3-docker.pkg.dev/tixx-449502/cloud-run-source-deploy/tixx-web:latest
 
 gcloud run deploy tixx-web \
   --image asia-northeast3-docker.pkg.dev/tixx-449502/cloud-run-source-deploy/tixx-web:latest \
@@ -57,7 +60,7 @@ gcloud run deploy tixx-web \
   --set-env-vars TIXX_API_BASE_URL=https://api.tixx.im,SITE_URL=https://tixx.im
 ```
 
-(`gcloud builds submit` needs `cloudbuild.googleapis.com` enabled on the project, and the default Compute service account needs `roles/cloudbuild.builds.builder` — grant once per project with `gcloud projects add-iam-policy-binding <project-id> --member=serviceAccount:<project-number>-compute@developer.gserviceaccount.com --role=roles/cloudbuild.builds.builder`. If a future `gcloud` release fixes the Tokyo repo import bug, `gcloud run deploy --source . --region asia-northeast1 ...` should work directly again — worth retrying periodically.)
+(If a future `gcloud`/Artifact Registry fix resolves the Tokyo repo import bug, `gcloud run deploy --source . --region asia-northeast1 ...` should work directly again — worth retrying periodically.)
 
 Cost-minimizing choices, in case they need revisiting as traffic grows:
 - `--min-instances=0`: scale-to-zero, no idle billing (trade-off: ~1-2s cold start on the first request after idle)
@@ -93,4 +96,4 @@ Deploy auth uses Workload Identity Federation, not a service account key:
 - Service account: `gha-deployer-tixx-web@tixx-449502.iam.gserviceaccount.com`, scoped to just `roles/run.developer` (project), `roles/artifactregistry.writer` (on the `cloud-run-source-deploy` repo in `asia-northeast3` only), and `roles/iam.serviceAccountUser` (on the Cloud Run runtime service account `98342760010-compute@developer.gserviceaccount.com`) — deliberately kept separate from the pre-existing `github-actions-deployer` service account, which has `roles/compute.instanceAdmin.v1` for unrelated VM deploys; sharing it would let either pipeline's compromise reach the other's infrastructure.
 - Workload Identity Pool `github-pool` / provider `github-provider`, with an attribute condition restricting it to `assertion.repository == 'TIXX-official/tixx.website'` — no other repo can impersonate this service account.
 
-The manual deploy path (`gcloud run deploy` / `gcloud builds submit`, above) still works and is useful for one-off deploys or debugging the pipeline itself.
+The manual deploy path (`docker build` + `docker push` + `gcloud run deploy`, above) still works and is useful for one-off deploys or debugging the pipeline itself. Nothing in this project uses Cloud Build.
