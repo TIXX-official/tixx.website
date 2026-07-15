@@ -37,14 +37,18 @@ docker run -p 8080:8080 \
   tixx-web
 ```
 
-Deploy target is **Cloud Run**, region **`asia-northeast3`** (Seoul), service name **`tixx-web`**, custom domain **`tixx.im`**. Both env vars above are read server-side only, at request time — not baked into the image at build time — so the same image can be reused across environments without rebuilding.
+Deploy target is **Cloud Run**, region **`asia-northeast1`** (Tokyo), service name **`tixx-web`**, custom domain **`tixx.im`**. Both env vars above are read server-side only, at request time — not baked into the image at build time — so the same image can be reused across environments without rebuilding.
 
-Deploys use `gcloud run deploy --source .`, which builds the image via **Cloud Build** (needs `cloudbuild.googleapis.com` enabled on the project, and the default Compute service account needs `roles/cloudbuild.builds.builder` — grant once per project with `gcloud projects add-iam-policy-binding <project-id> --member=serviceAccount:<project-number>-compute@developer.gserviceaccount.com --role=roles/cloudbuild.builds.builder`):
+> **Region note**: the service was originally in `asia-northeast3` (Seoul) and was moved to `asia-northeast1` (Tokyo) because Cloud Run domain mappings (custom domains) aren't supported in `asia-northeast3` — see "Custom domain" below. Tokyo adds negligible latency for Korean traffic.
+
+> **Known issue**: `gcloud run deploy --source . --region asia-northeast1` reliably fails with `ERROR: ... Container import failed` (`ContainerImageImportFailed`) — this looks like a bug specific to the auto-created `asia-northeast1-docker.pkg.dev/.../cloud-run-source-deploy` Artifact Registry repo (confirmed: the identical image pulled from the pre-existing `asia-northeast3` repo deploys to `asia-northeast1` without issue). Until that's resolved upstream, build via `gcloud builds submit` into the Seoul repo, then deploy that image to the Tokyo service:
 
 ```bash
+gcloud builds submit --tag asia-northeast3-docker.pkg.dev/tixx-449502/cloud-run-source-deploy/tixx-web:latest
+
 gcloud run deploy tixx-web \
-  --source . \
-  --region asia-northeast3 \
+  --image asia-northeast3-docker.pkg.dev/tixx-449502/cloud-run-source-deploy/tixx-web:latest \
+  --region asia-northeast1 \
   --allow-unauthenticated \
   --min-instances=0 \
   --max-instances=2 \
@@ -52,6 +56,8 @@ gcloud run deploy tixx-web \
   --memory=512Mi \
   --set-env-vars TIXX_API_BASE_URL=https://api.tixx.im,SITE_URL=https://tixx.im
 ```
+
+(`gcloud builds submit` needs `cloudbuild.googleapis.com` enabled on the project, and the default Compute service account needs `roles/cloudbuild.builds.builder` — grant once per project with `gcloud projects add-iam-policy-binding <project-id> --member=serviceAccount:<project-number>-compute@developer.gserviceaccount.com --role=roles/cloudbuild.builds.builder`. If a future `gcloud` release fixes the Tokyo repo import bug, `gcloud run deploy --source . --region asia-northeast1 ...` should work directly again — worth retrying periodically.)
 
 Cost-minimizing choices, in case they need revisiting as traffic grows:
 - `--min-instances=0`: scale-to-zero, no idle billing (trade-off: ~1-2s cold start on the first request after idle)
@@ -61,13 +67,18 @@ Cost-minimizing choices, in case they need revisiting as traffic grows:
 
 `TIXX_API_BASE_URL` calls happen server-side only (SSR), so the API's CORS allowlist is never involved. If the API server is reachable over an internal GCP network from the Cloud Run service, pointing `TIXX_API_BASE_URL` at that internal address instead of the public `api.tixx.im` avoids the public network hop entirely.
 
-### Custom domain (`tixx.im`)
+### Custom domain (`tixx.im`, `www.tixx.im`)
 
 Mapped via Cloud Run's native domain mapping (`gcloud run domain-mappings create`), not a Global External Load Balancer + Serverless NEG — the LB path adds a fixed forwarding-rule cost (~$18-25/month) that isn't worth it at this traffic level; native mapping has no extra fixed cost and still gets a Google-managed TLS cert.
 
+Native domain mappings are only supported in a subset of regions (`asia-east1`, `asia-northeast1`, `asia-southeast1`, `europe-north1`, `europe-west1`, `europe-west4`, `us-central1`, `us-east1`, `us-east4`, `us-west1` as of this writing) — **not** `asia-northeast3`, which is why the service lives in Tokyo.
+
 1. Verify domain ownership once per Google account: `gcloud domains verify tixx.im` (opens a browser flow / Search Console)
-2. `gcloud beta run domain-mappings create --service tixx-web --domain tixx.im --region asia-northeast3` — prints the DNS records to add
-3. Add those records at whatever registrar manages `tixx.im` (not automatable via `gcloud`)
+2. `gcloud beta run domain-mappings create --service tixx-web --domain tixx.im --region asia-northeast1` — prints A/AAAA records to add at the apex
+3. `gcloud beta run domain-mappings create --service tixx-web --domain www.tixx.im --region asia-northeast1` — prints a CNAME record for the `www` subdomain
+4. Add those records at whatever registrar manages `tixx.im` (not automatable via `gcloud`) — apex records replace what used to point at GitHub Pages
+
+Previously the site was served from GitHub Pages (this repo, static export) with `tixx.im`/`www.tixx.im` pointed at GitHub's IPs/`github.io`. That's been fully cut over to Cloud Run; GitHub Pages custom domain config is already cleared (`cname: null` via the Pages API).
 
 ### Budget alert
 
