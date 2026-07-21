@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/lib/LanguageContext';
 import { dictionary } from '@/lib/dictionary';
@@ -13,6 +14,8 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { language, toggleLanguage } = useLanguage();
   const t = dictionary[language].navbar;
+  const searchParams = useSearchParams();
+  const isEmbed = searchParams.get('embed') === '1';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -21,6 +24,8 @@ export default function Navbar() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  if (isEmbed) return null;
 
   const links = [
     { name: t.app, href: '/app' },

@@ -1,15 +1,20 @@
 "use client";
 
 import { Instagram, Youtube } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useLanguage } from "@/lib/LanguageContext";
 import { dictionary } from "@/lib/dictionary";
+import Link from "next/link";
 
 export default function Footer() {
     const { language } = useLanguage();
     const t = dictionary[language].footer;
     const pathname = usePathname();
     const isLandingPage = pathname === "/";
+    const searchParams = useSearchParams();
+    const isEmbed = searchParams.get("embed") === "1";
+
+    if (isEmbed) return null;
 
     const partners = [
         "TIMES", "Jagermeister", "BOLERO", "THE HENZ", "FRAME SEOUL", "Orgasm Valley 2",
@@ -52,8 +57,10 @@ export default function Footer() {
                     </div>
                 </div>
                 <div className="text-right text-zinc-600 text-xs">
-                    <div className="flex gap-4 justify-end mb-2">
-                        <a href="https://chemical-egg-b86.notion.site/TIXX-1d5af5a3ef1580cd9f26d9f4ed7a75ae" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">{t.terms}</a>
+                    <div className="flex flex-wrap gap-4 justify-end mb-2">
+                        <Link href="/terms" className="hover:text-white transition-colors">{t.termsOfService}</Link>
+                        <Link href="/privacy" className="hover:text-white transition-colors">{t.privacyPolicy}</Link>
+                        <Link href="/refund" className="hover:text-white transition-colors">{t.refundPolicy}</Link>
                         <a href="/business#contact" className="hover:text-white transition-colors">{t.contact}</a>
                     </div>
                     <p>{t.copyright}</p>

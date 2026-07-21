@@ -6,7 +6,17 @@ import { absoluteUrl } from '@/lib/siteUrl';
 // the second, and this avoids paginating through GET /events on every crawl.
 export const revalidate = 3600;
 
-const STATIC_PATHS = ['/', '/about', '/app', '/business', '/promoters', '/download'];
+const STATIC_PATHS = [
+  '/',
+  '/about',
+  '/app',
+  '/business',
+  '/promoters',
+  '/download',
+  '/terms',
+  '/privacy',
+  '/refund',
+];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticEntries: MetadataRoute.Sitemap = STATIC_PATHS.map((path) => ({

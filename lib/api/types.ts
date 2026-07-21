@@ -199,3 +199,18 @@ export interface HostDetail {
   events: HostVenueEvent[];
   tickets: Ticket[];
 }
+
+export type TermsType = 'service_terms' | 'privacy_collection' | 'refund_policy';
+
+/** Item shape returned by GET /terms/latest and GET /terms/:id (@tixx/schema TermSchema) */
+export interface Term {
+  id: number;
+  type: TermsType;
+  version: string;
+  title: string;
+  content: string;
+  requiresExplicitConsent: boolean;
+  noticeEmailSent: boolean;
+  effectiveAt: string;
+  updatedAt: string;
+}
