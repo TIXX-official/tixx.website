@@ -1,7 +1,7 @@
 "use client";
 
 import { Instagram, Youtube } from "lucide-react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useLanguage } from "@/lib/LanguageContext";
 import { dictionary } from "@/lib/dictionary";
 import Link from "next/link";
@@ -11,10 +11,6 @@ export default function Footer() {
     const t = dictionary[language].footer;
     const pathname = usePathname();
     const isLandingPage = pathname === "/";
-    const searchParams = useSearchParams();
-    const isEmbed = searchParams.get("embed") === "1";
-
-    if (isEmbed) return null;
 
     const partners = [
         "TIMES", "Jagermeister", "BOLERO", "THE HENZ", "FRAME SEOUL", "Orgasm Valley 2",

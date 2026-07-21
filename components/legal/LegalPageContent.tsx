@@ -13,7 +13,7 @@ export async function LegalPageContent({
   searchParams,
 }: {
   type: TermsType;
-  searchParams: Promise<{ date?: string; embed?: string }>;
+  searchParams: Promise<{ date?: string }>;
 }) {
   const { date } = await searchParams;
 
@@ -51,15 +51,13 @@ export async function LegalPageContent({
         : '이전 버전입니다';
 
   return (
-    <main className="min-h-screen bg-black text-white pt-32 pb-24 px-6">
-      <div className="container mx-auto max-w-3xl">
-        <TermsVersionSelector
-          versions={selectableVersions}
-          currentDate={effectiveDateKST(currentTerm.effectiveAt)}
-          selectedDate={effectiveDateKST(term.effectiveAt)}
-        />
-        <LegalDocument term={term} badge={badge} />
-      </div>
-    </main>
+    <>
+      <TermsVersionSelector
+        versions={selectableVersions}
+        currentDate={effectiveDateKST(currentTerm.effectiveAt)}
+        selectedDate={effectiveDateKST(term.effectiveAt)}
+      />
+      <LegalDocument term={term} badge={badge} />
+    </>
   );
 }
