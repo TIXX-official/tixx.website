@@ -1,4 +1,5 @@
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import type { Term } from '@/lib/api/types';
 
 const markdownComponents = {
@@ -29,6 +30,23 @@ const markdownComponents = {
   blockquote: (props: React.ComponentPropsWithoutRef<'blockquote'>) => (
     <blockquote className="border-l-2 border-zinc-700 pl-4 text-zinc-500 italic mb-4" {...props} />
   ),
+  table: (props: React.ComponentPropsWithoutRef<'table'>) => (
+    <div className="overflow-x-auto mb-4">
+      <table className="w-full text-left border-collapse" {...props} />
+    </div>
+  ),
+  thead: (props: React.ComponentPropsWithoutRef<'thead'>) => (
+    <thead className="border-b border-zinc-700" {...props} />
+  ),
+  tr: (props: React.ComponentPropsWithoutRef<'tr'>) => (
+    <tr className="border-b border-zinc-800" {...props} />
+  ),
+  th: (props: React.ComponentPropsWithoutRef<'th'>) => (
+    <th className="py-2 pr-4 text-white font-semibold whitespace-nowrap" {...props} />
+  ),
+  td: (props: React.ComponentPropsWithoutRef<'td'>) => (
+    <td className="py-2 pr-4 text-zinc-400 align-top" {...props} />
+  ),
 };
 
 export function LegalDocument({ term, anchor }: { term: Term; anchor?: string }) {
@@ -39,7 +57,9 @@ export function LegalDocument({ term, anchor }: { term: Term; anchor?: string })
         시행일 {term.effectiveAt.slice(0, 10)}
       </p>
       <div className="font-kr">
-        <ReactMarkdown components={markdownComponents}>{term.content}</ReactMarkdown>
+        <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+          {term.content}
+        </ReactMarkdown>
       </div>
     </section>
   );
