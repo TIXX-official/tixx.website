@@ -214,3 +214,12 @@ export interface Term {
   effectiveAt: string;
   updatedAt: string;
 }
+
+/** Metadata-only item returned by GET /terms (@tixx/schema TermsListItemSchema) — no content */
+export interface TermsListItem {
+  id: number;
+  type: TermsType;
+  version: string;
+  title: string;
+  effectiveAt: string;
+}

@@ -1,6 +1,7 @@
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import type { Term } from '@/lib/api/types';
+import { effectiveDateKST } from '@/lib/format/termsDate';
 
 const markdownComponents = {
   h1: (props: React.ComponentPropsWithoutRef<'h1'>) => (
@@ -49,12 +50,25 @@ const markdownComponents = {
   ),
 };
 
-export function LegalDocument({ term, anchor }: { term: Term; anchor?: string }) {
+export function LegalDocument({
+  term,
+  anchor,
+  badge,
+}: {
+  term: Term;
+  anchor?: string;
+  badge?: string;
+}) {
   return (
     <section id={anchor} className="scroll-mt-24">
       <h1 className="text-2xl md:text-3xl font-black text-white mb-2">{term.title}</h1>
+      {badge && (
+        <p className="inline-block text-xs text-black bg-neon-lime font-semibold px-2 py-0.5 rounded mb-3">
+          {badge}
+        </p>
+      )}
       <p className="text-xs text-zinc-600 mb-8">
-        시행일 {term.effectiveAt.slice(0, 10)}
+        시행일 {effectiveDateKST(term.effectiveAt)}
       </p>
       <div className="font-kr">
         <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
