@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
-import { Suspense } from 'react';
 import { Outfit, Inter, Noto_Sans_KR } from 'next/font/google';
-import './globals.css';
+import '../globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { LanguageProvider } from '@/lib/LanguageContext';
@@ -133,13 +132,9 @@ export default function RootLayout({
         className={`${outfit.variable} ${inter.variable} ${notoSansKr.variable} antialiased bg-black text-white`}
       >
         <LanguageProvider>
-          <Suspense fallback={null}>
-            <Navbar />
-          </Suspense>
+          <Navbar />
           {children}
-          <Suspense fallback={null}>
-            <Footer />
-          </Suspense>
+          <Footer />
         </LanguageProvider>
       </body>
     </html>

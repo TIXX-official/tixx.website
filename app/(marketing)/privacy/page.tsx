@@ -5,7 +5,7 @@ import { effectiveDateKST } from '@/lib/format/termsDate';
 import { absoluteUrl } from '@/lib/siteUrl';
 
 interface PageProps {
-  searchParams: Promise<{ date?: string; embed?: string }>;
+  searchParams: Promise<{ date?: string }>;
 }
 
 export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
@@ -25,5 +25,11 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
 }
 
 export default function PrivacyPage({ searchParams }: PageProps) {
-  return <LegalPageContent type="privacy_collection" searchParams={searchParams} />;
+  return (
+    <main className="min-h-screen bg-black text-white pt-32 pb-24 px-6">
+      <div className="container mx-auto max-w-3xl">
+        <LegalPageContent type="privacy_collection" searchParams={searchParams} />
+      </div>
+    </main>
+  );
 }
