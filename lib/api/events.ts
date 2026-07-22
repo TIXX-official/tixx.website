@@ -5,10 +5,38 @@ export function getEvent(id: number | string): Promise<EventDetail> {
   return apiGet<EventDetail>(`/events/${id}`);
 }
 
-export function getEventsByHost(
+function listEventsByHost(
+  hostId: number | string,
+  page: number,
+  limit: number
+): Promise<PaginatedEventList> {
+  return apiGet<PaginatedEventList>(`/events/host/${hostId}/paginated`, {
+    page,
+    limit,
+  });
+}
+
+/** Pages through GET /events/host/:id/paginated to collect every event for a
+ * host. The flat GET /events/host/:id was replaced by a paginated endpoint,
+ * but this call site still wants the full list at once — host pages render
+ * everything client-side (tab filtering in HostDetailContent), no infinite
+ * scroll UI here. PAGE_SIZE is generous so real-world hosts resolve in a
+ * single request; the loop only kicks in for hosts with 100+ events. */
+export async function getEventsByHost(
   hostId: number | string
 ): Promise<EventListItemDto[]> {
-  return apiGet<EventListItemDto[]>(`/events/host/${hostId}`);
+  const PAGE_SIZE = 100;
+  const items: EventListItemDto[] = [];
+
+  const first = await listEventsByHost(hostId, 1, PAGE_SIZE);
+  items.push(...first.items);
+
+  for (let page = 2; page <= first.totalPages; page++) {
+    const result = await listEventsByHost(hostId, page, PAGE_SIZE);
+    items.push(...result.items);
+  }
+
+  return items;
 }
 
 export function listEvents(
