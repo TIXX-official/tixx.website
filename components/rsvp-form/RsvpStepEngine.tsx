@@ -14,8 +14,10 @@ interface RsvpStepEngineProps {
     value: RsvpSubmissionAnswerValue | undefined,
     onChange: (value: RsvpSubmissionAnswerValue) => void
   ) => ReactNode;
-  onComplete: (answers: RsvpAnswers) => void;
+  onComplete: (answers: RsvpAnswers) => void | Promise<void>;
   isBlockValid: (block: RsvpFormBlock, value: RsvpSubmissionAnswerValue | undefined) => boolean;
+  isSubmitting?: boolean;
+  submitError?: string | null;
 }
 
 // One block fully occupies the screen at a time (see
@@ -29,6 +31,8 @@ export function RsvpStepEngine({
   renderBlock,
   onComplete,
   isBlockValid,
+  isSubmitting = false,
+  submitError = null,
 }: RsvpStepEngineProps) {
   const [stepIndex, setStepIndex] = useState(0);
   const [answers, setAnswers] = useState<RsvpAnswers>({});
@@ -37,7 +41,7 @@ export function RsvpStepEngine({
   const currentBlock = stepIndex >= 1 ? blocks[stepIndex - 1] : null;
 
   const goNext = () => {
-    if (stepIndex >= totalSteps) return;
+    if (stepIndex >= totalSteps || isSubmitting) return;
 
     if (stepIndex === totalSteps - 1) {
       onComplete(answers);
@@ -90,26 +94,38 @@ export function RsvpStepEngine({
         </AnimatePresence>
       </div>
 
-      <div className="flex items-center justify-between px-6 pb-10">
-        {stepIndex >= 1 ? (
+      <div className="flex flex-col gap-2 px-6 pb-10">
+        {submitError && (
+          <p className="text-center text-sm text-red-400">{submitError}</p>
+        )}
+        <div className="flex items-center justify-between">
+          {stepIndex >= 1 ? (
+            <button
+              type="button"
+              onClick={goBack}
+              disabled={isSubmitting}
+              className="rounded-full px-4 py-2 text-sm opacity-70 transition-opacity hover:opacity-100 disabled:opacity-30"
+            >
+              뒤로
+            </button>
+          ) : (
+            <span />
+          )}
           <button
             type="button"
-            onClick={goBack}
-            className="rounded-full px-4 py-2 text-sm opacity-70 transition-opacity hover:opacity-100"
+            onClick={goNext}
+            disabled={!canProceed || isSubmitting}
+            className="rounded-full bg-[var(--rsvp-accent)] px-8 py-3 font-semibold text-black transition-opacity disabled:opacity-40"
           >
-            뒤로
+            {stepIndex === 0
+              ? '시작하기'
+              : stepIndex === totalSteps - 1
+                ? isSubmitting
+                  ? '제출 중...'
+                  : '제출하기'
+                : '다음'}
           </button>
-        ) : (
-          <span />
-        )}
-        <button
-          type="button"
-          onClick={goNext}
-          disabled={!canProceed}
-          className="rounded-full bg-[var(--rsvp-accent)] px-8 py-3 font-semibold text-black transition-opacity disabled:opacity-40"
-        >
-          {stepIndex === 0 ? '시작하기' : stepIndex === totalSteps - 1 ? '제출하기' : '다음'}
-        </button>
+        </div>
       </div>
     </div>
   );
