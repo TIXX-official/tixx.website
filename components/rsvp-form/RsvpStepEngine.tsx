@@ -114,7 +114,7 @@ export function RsvpStepEngine({
             exit={{ opacity: 0, y: -24 }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
             onKeyDown={handleStepKeyDown}
-            className="flex w-full max-w-md flex-col items-center gap-8 text-center"
+            className="flex w-full max-w-md flex-col items-center gap-8 text-center md:max-w-2xl lg:max-w-3xl"
           >
             {stepIndex === 0
               ? coverContent
@@ -186,15 +186,21 @@ export function RsvpStepEngine({
               <ChevronUp className="h-5 w-5" />
             </button>
           )}
-          <button
-            type="button"
-            onClick={goNext}
-            disabled={!canProceed || isSubmitting}
-            className="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--rsvp-button-color)] disabled:opacity-40"
-            style={{ color: 'var(--rsvp-button-text-color)' }}
-          >
-            <ChevronDown className="h-5 w-5" />
-          </button>
+          {/* Hidden on the final (submit) step — a bare arrow icon here
+              reads as "keep navigating" and is too easy to click by
+              accident while browsing back and forth; submission should
+              only happen via the clearly-labeled inline OK/제출하기 button. */}
+          {stepIndex < totalSteps - 1 && (
+            <button
+              type="button"
+              onClick={goNext}
+              disabled={!canProceed || isSubmitting}
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--rsvp-button-color)] disabled:opacity-40"
+              style={{ color: 'var(--rsvp-button-text-color)' }}
+            >
+              <ChevronDown className="h-5 w-5" />
+            </button>
+          )}
         </div>
       </div>
     </div>

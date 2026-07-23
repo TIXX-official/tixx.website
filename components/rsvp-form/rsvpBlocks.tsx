@@ -12,28 +12,34 @@ interface BlockProps {
   questionNumber: number;
 }
 
-// w-full matters here: without an explicit width, the <h2> shrinks to fit
-// its own content as a flex item, which makes text-align a no-op. This
-// keeps `alignment: 'center'` visually identical to before while making
-// `alignment: 'left'` actually work.
-const labelClass = 'w-full font-semibold';
-const labelStyle: CSSProperties = { fontSize: 'var(--rsvp-label-size)', ...rsvpTextAlignStyle };
 const inputClass = 'w-full border-b border-current bg-transparent px-2 py-2 outline-none';
 const answerStyle: CSSProperties = { color: 'var(--rsvp-answer-color)', ...rsvpTextAlignStyle };
 
-// Typeform-style "N →" number tightly paired with the question label — kept
-// in one flex column (not a top-level sibling) so the step container's
-// gap-8 doesn't visually separate the number from its question.
+// Chip-style question number placed to the left of the label. The row's
+// justify-content reuses --rsvp-text-align (both 'left' and 'center' are
+// valid justify-content keywords too), so the chip+label group shifts
+// together as one unit instead of the chip staying pinned to one side
+// while the label centers independently.
+const rsvpJustifyContentStyle: CSSProperties = {
+  justifyContent: 'var(--rsvp-text-align)' as CSSProperties['justifyContent'],
+};
+
 function QuestionLabel({ number, children }: { number: number; children: ReactNode }) {
   return (
-    <div className="flex w-full flex-col gap-1">
+    <div className="flex w-full items-center gap-3" style={rsvpJustifyContentStyle}>
       <span
-        className="text-sm font-semibold opacity-70"
-        style={{ color: 'var(--rsvp-button-color)', ...rsvpTextAlignStyle }}
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold"
+        style={{
+          backgroundColor: 'color-mix(in srgb, var(--rsvp-button-color) 18%, transparent)',
+          color: 'var(--rsvp-button-color)',
+        }}
       >
-        {number} →
+        {number}
       </span>
-      <h2 className={labelClass} style={labelStyle}>
+      <h2
+        className="min-w-0 font-semibold"
+        style={{ fontSize: 'var(--rsvp-label-size)', ...rsvpTextAlignStyle }}
+      >
         {children}
       </h2>
     </div>
