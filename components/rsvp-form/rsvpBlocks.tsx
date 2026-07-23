@@ -1,7 +1,7 @@
 'use client';
 
 import { AsYouType, isValidPhoneNumber } from 'libphonenumber-js';
-import type { CSSProperties } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import type { RsvpFormBlock, RsvpSubmissionAnswerValue } from '@/lib/api/types';
 import { rsvpTextAlignStyle } from '@/lib/format/rsvpTheme';
 
@@ -9,6 +9,7 @@ interface BlockProps {
   block: RsvpFormBlock;
   value: RsvpSubmissionAnswerValue | undefined;
   onChange: (value: RsvpSubmissionAnswerValue) => void;
+  questionNumber: number;
 }
 
 // w-full matters here: without an explicit width, the <h2> shrinks to fit
@@ -20,13 +21,30 @@ const labelStyle: CSSProperties = { fontSize: 'var(--rsvp-label-size)', ...rsvpT
 const inputClass = 'w-full border-b border-current bg-transparent px-2 py-2 outline-none';
 const answerStyle: CSSProperties = { color: 'var(--rsvp-answer-color)', ...rsvpTextAlignStyle };
 
-function ShortTextBlock({ block, value, onChange }: BlockProps) {
+// Typeform-style "N →" number tightly paired with the question label — kept
+// in one flex column (not a top-level sibling) so the step container's
+// gap-8 doesn't visually separate the number from its question.
+function QuestionLabel({ number, children }: { number: number; children: ReactNode }) {
+  return (
+    <div className="flex w-full flex-col gap-1">
+      <span
+        className="text-sm font-semibold opacity-70"
+        style={{ color: 'var(--rsvp-button-color)', ...rsvpTextAlignStyle }}
+      >
+        {number} →
+      </span>
+      <h2 className={labelClass} style={labelStyle}>
+        {children}
+      </h2>
+    </div>
+  );
+}
+
+function ShortTextBlock({ block, value, onChange, questionNumber }: BlockProps) {
   const config = block.config.type === 'short_text' ? block.config : undefined;
   return (
     <>
-      <h2 className={labelClass} style={labelStyle}>
-        {block.label}
-      </h2>
+      <QuestionLabel number={questionNumber}>{block.label}</QuestionLabel>
       <input
         type="text"
         value={typeof value === 'string' ? value : ''}
@@ -39,13 +57,11 @@ function ShortTextBlock({ block, value, onChange }: BlockProps) {
   );
 }
 
-function LongTextBlock({ block, value, onChange }: BlockProps) {
+function LongTextBlock({ block, value, onChange, questionNumber }: BlockProps) {
   const config = block.config.type === 'long_text' ? block.config : undefined;
   return (
     <>
-      <h2 className={labelClass} style={labelStyle}>
-        {block.label}
-      </h2>
+      <QuestionLabel number={questionNumber}>{block.label}</QuestionLabel>
       <textarea
         value={typeof value === 'string' ? value : ''}
         maxLength={config?.maxLength}
@@ -54,16 +70,17 @@ function LongTextBlock({ block, value, onChange }: BlockProps) {
         className={`${inputClass} resize-none`}
         style={answerStyle}
       />
+      <p className="w-full text-xs opacity-50" style={rsvpTextAlignStyle}>
+        Shift + Enter로 줄바꿈
+      </p>
     </>
   );
 }
 
-function PhoneBlock({ block, value, onChange }: BlockProps) {
+function PhoneBlock({ block, value, onChange, questionNumber }: BlockProps) {
   return (
     <>
-      <h2 className={labelClass} style={labelStyle}>
-        {block.label}
-      </h2>
+      <QuestionLabel number={questionNumber}>{block.label}</QuestionLabel>
       <input
         type="tel"
         inputMode="numeric"
@@ -77,7 +94,7 @@ function PhoneBlock({ block, value, onChange }: BlockProps) {
   );
 }
 
-function ChoiceBlock({ block, value, onChange }: BlockProps) {
+function ChoiceBlock({ block, value, onChange, questionNumber }: BlockProps) {
   const config = block.config.type === 'choice' ? block.config : undefined;
   if (!config) return null;
 
@@ -102,9 +119,7 @@ function ChoiceBlock({ block, value, onChange }: BlockProps) {
 
   return (
     <>
-      <h2 className={labelClass} style={labelStyle}>
-        {block.label}
-      </h2>
+      <QuestionLabel number={questionNumber}>{block.label}</QuestionLabel>
       <div className="flex w-full flex-col gap-3">
         {config.options.map((option) => (
           <button
@@ -126,15 +141,13 @@ function ChoiceBlock({ block, value, onChange }: BlockProps) {
   );
 }
 
-function LegalBlock({ block, value, onChange }: BlockProps) {
+function LegalBlock({ block, value, onChange, questionNumber }: BlockProps) {
   const config = block.config.type === 'legal' ? block.config : undefined;
   const checked = value === true;
 
   return (
     <>
-      <h2 className={labelClass} style={labelStyle}>
-        {block.label}
-      </h2>
+      <QuestionLabel number={questionNumber}>{block.label}</QuestionLabel>
       {config?.content && (
         <p className="max-h-40 w-full overflow-y-auto rounded-lg bg-white/5 p-4 text-left text-sm opacity-80">
           {config.content}
@@ -156,9 +169,10 @@ function LegalBlock({ block, value, onChange }: BlockProps) {
 export function renderRsvpBlock(
   block: RsvpFormBlock,
   value: RsvpSubmissionAnswerValue | undefined,
-  onChange: (value: RsvpSubmissionAnswerValue) => void
+  onChange: (value: RsvpSubmissionAnswerValue) => void,
+  questionNumber: number
 ) {
-  const props: BlockProps = { block, value, onChange };
+  const props: BlockProps = { block, value, onChange, questionNumber };
 
   switch (block.type) {
     case 'short_text':

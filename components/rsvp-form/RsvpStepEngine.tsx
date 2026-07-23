@@ -1,7 +1,8 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { useState, type ReactNode } from 'react';
+import { Check, ChevronDown, ChevronLeft, ChevronUp } from 'lucide-react';
+import { useState, type KeyboardEvent, type ReactNode } from 'react';
 import type { RsvpFormBlock, RsvpSubmissionAnswerValue } from '@/lib/api/types';
 
 export type RsvpAnswers = Record<number, RsvpSubmissionAnswerValue>;
@@ -12,7 +13,8 @@ interface RsvpStepEngineProps {
   renderBlock: (
     block: RsvpFormBlock,
     value: RsvpSubmissionAnswerValue | undefined,
-    onChange: (value: RsvpSubmissionAnswerValue) => void
+    onChange: (value: RsvpSubmissionAnswerValue) => void,
+    questionNumber: number
   ) => ReactNode;
   onComplete: (answers: RsvpAnswers) => void | Promise<void>;
   isBlockValid: (block: RsvpFormBlock, value: RsvpSubmissionAnswerValue | undefined) => boolean;
@@ -40,8 +42,15 @@ export function RsvpStepEngine({
   const totalSteps = blocks.length + 1; // cover + blocks (completion isn't a counted step)
   const currentBlock = stepIndex >= 1 ? blocks[stepIndex - 1] : null;
 
+  const canProceed = currentBlock
+    ? isBlockValid(currentBlock, answers[currentBlock.id])
+    : true;
+
+  // Self-gated so every entry point (bottom nav, inline OK button, Enter key)
+  // shares the exact same rule — none of them can skip a required question
+  // (e.g. the always-required `legal` "collection" consent block).
   const goNext = () => {
-    if (stepIndex >= totalSteps || isSubmitting) return;
+    if (stepIndex >= totalSteps || isSubmitting || !canProceed) return;
 
     if (stepIndex === totalSteps - 1) {
       onComplete(answers);
@@ -59,9 +68,31 @@ export function RsvpStepEngine({
     setAnswers((prev) => ({ ...prev, [blockId]: value }));
   };
 
-  const canProceed = currentBlock
-    ? isBlockValid(currentBlock, answers[currentBlock.id])
-    : true;
+  // Enter advances to the next step, sharing goNext's gate. Choice options
+  // and the legal checkbox keep their native Enter/Space activation only —
+  // preventDefault here would hijack the browser's own toggle behavior.
+  // Shift+Enter in a textarea inserts a newline (the browser's default
+  // Enter behavior already does this — we just don't intercept it).
+  const handleStepKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key !== 'Enter') return;
+
+    const target = e.target as HTMLElement;
+    if (target.tagName === 'BUTTON') return;
+    if (target instanceof HTMLInputElement && target.type === 'checkbox') return;
+    if (target instanceof HTMLTextAreaElement && e.shiftKey) return;
+
+    e.preventDefault();
+    goNext();
+  };
+
+  const nextLabel =
+    stepIndex === 0
+      ? '시작하기'
+      : stepIndex === totalSteps - 1
+        ? isSubmitting
+          ? '제출 중...'
+          : '제출하기'
+        : '다음';
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -74,7 +105,7 @@ export function RsvpStepEngine({
         </div>
       )}
 
-      <div className="flex flex-1 items-center justify-center overflow-hidden px-6 py-12">
+      <div className="flex flex-1 items-center justify-center overflow-hidden px-6 py-12 pb-24 md:pb-12">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={stepIndex}
@@ -82,49 +113,87 @@ export function RsvpStepEngine({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -24 }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
+            onKeyDown={handleStepKeyDown}
             className="flex w-full max-w-md flex-col items-center gap-8 text-center"
           >
             {stepIndex === 0
               ? coverContent
               : currentBlock &&
-                renderBlock(currentBlock, answers[currentBlock.id], (value) =>
-                  setAnswer(currentBlock.id, value)
+                renderBlock(
+                  currentBlock,
+                  answers[currentBlock.id],
+                  (value) => setAnswer(currentBlock.id, value),
+                  stepIndex
                 )}
+
+            {/* Inline confirm button — the primary "answer this and advance"
+                action, styled prominently right under the input. Desktop/
+                tablet only: mobile relies solely on the fixed bottom bar
+                below to avoid showing two "confirm" buttons on one screen. */}
+            <button
+              type="button"
+              onClick={goNext}
+              disabled={!canProceed || isSubmitting}
+              className="hidden items-center gap-2 rounded-full bg-[var(--rsvp-button-color)] px-8 py-3 font-semibold transition-opacity disabled:opacity-40 md:inline-flex"
+              style={{ color: 'var(--rsvp-button-text-color)' }}
+            >
+              {nextLabel}
+              <Check className="h-4 w-4" />
+            </button>
           </motion.div>
         </AnimatePresence>
       </div>
 
-      <div className="flex flex-col gap-2 px-6 pb-10">
-        {submitError && (
-          <p className="text-center text-sm text-red-400">{submitError}</p>
-        )}
-        <div className="flex items-center justify-between">
-          {stepIndex >= 1 ? (
+      {/* Mobile: one large fixed bottom button, small back button inline to
+          its left when available. */}
+      <div className="fixed inset-x-0 bottom-0 z-20 flex flex-col gap-2 bg-[var(--rsvp-bg-color)]/90 px-4 py-4 backdrop-blur md:hidden">
+        {submitError && <p className="text-center text-sm text-red-400">{submitError}</p>}
+        <div className="flex items-center gap-3">
+          {stepIndex >= 1 && (
             <button
               type="button"
               onClick={goBack}
               disabled={isSubmitting}
-              className="rounded-full px-4 py-2 text-sm opacity-70 transition-opacity hover:opacity-100 disabled:opacity-30"
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-current opacity-70 disabled:opacity-30"
             >
-              뒤로
+              <ChevronLeft className="h-5 w-5" />
             </button>
-          ) : (
-            <span />
           )}
           <button
             type="button"
             onClick={goNext}
             disabled={!canProceed || isSubmitting}
-            className="rounded-full bg-[var(--rsvp-button-color)] px-8 py-3 font-semibold transition-opacity disabled:opacity-40"
+            className="flex-1 rounded-full bg-[var(--rsvp-button-color)] px-8 py-4 font-semibold disabled:opacity-40"
             style={{ color: 'var(--rsvp-button-text-color)' }}
           >
-            {stepIndex === 0
-              ? '시작하기'
-              : stepIndex === totalSteps - 1
-                ? isSubmitting
-                  ? '제출 중...'
-                  : '제출하기'
-                : '다음'}
+            {nextLabel}
+          </button>
+        </div>
+      </div>
+
+      {/* Desktop/tablet: small centered up/down arrow pair, secondary to the
+          inline OK button above. */}
+      <div className="hidden flex-col items-center gap-2 pb-10 md:flex">
+        {submitError && <p className="text-center text-sm text-red-400">{submitError}</p>}
+        <div className="flex items-center justify-center gap-4">
+          {stepIndex >= 1 && (
+            <button
+              type="button"
+              onClick={goBack}
+              disabled={isSubmitting}
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-current opacity-70 transition-opacity hover:opacity-100 disabled:opacity-30"
+            >
+              <ChevronUp className="h-5 w-5" />
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={goNext}
+            disabled={!canProceed || isSubmitting}
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--rsvp-button-color)] disabled:opacity-40"
+            style={{ color: 'var(--rsvp-button-text-color)' }}
+          >
+            <ChevronDown className="h-5 w-5" />
           </button>
         </div>
       </div>
