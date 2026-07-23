@@ -2,41 +2,10 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
-import type { RsvpForm, RsvpSubmissionAnswerValue } from '@/lib/api/types';
+import type { RsvpForm } from '@/lib/api/types';
 import { RsvpFormShell } from './RsvpFormShell';
 import { RsvpAnswers, RsvpStepEngine } from './RsvpStepEngine';
-
-// Generic placeholder renderer/validator — replaced by typed block
-// components (short_text/long_text/phone/choice/legal) in the next
-// implementation-plan unit. Keeps the step engine exercisable end-to-end
-// in the meantime.
-function renderBlockPlaceholder(
-  block: RsvpForm['blocks'][number],
-  value: RsvpSubmissionAnswerValue | undefined,
-  onChange: (value: RsvpSubmissionAnswerValue) => void
-) {
-  return (
-    <>
-      <h2 className="text-2xl font-semibold" style={{ fontSize: 'var(--rsvp-label-size)' }}>
-        {block.label}
-      </h2>
-      <input
-        type="text"
-        value={typeof value === 'string' ? value : ''}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full border-b border-current bg-transparent px-2 py-2 text-center outline-none"
-      />
-    </>
-  );
-}
-
-function isBlockValidPlaceholder(
-  block: RsvpForm['blocks'][number],
-  value: RsvpSubmissionAnswerValue | undefined
-) {
-  if (!block.required) return true;
-  return typeof value === 'string' && value.trim().length > 0;
-}
+import { isRsvpBlockValid, renderRsvpBlock } from './rsvpBlocks';
 
 export function RsvpFormView({ form }: { form: RsvpForm }) {
   const [submitted, setSubmitted] = useState(false);
@@ -84,8 +53,8 @@ export function RsvpFormView({ form }: { form: RsvpForm }) {
         <RsvpStepEngine
           coverContent={coverContent}
           blocks={form.blocks}
-          renderBlock={renderBlockPlaceholder}
-          isBlockValid={isBlockValidPlaceholder}
+          renderBlock={renderRsvpBlock}
+          isBlockValid={isRsvpBlockValid}
           onComplete={handleComplete}
         />
       )}
