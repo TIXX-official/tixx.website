@@ -118,7 +118,7 @@ function ChoiceBlock({ block, value, onChange }: BlockProps) {
 
 function LegalBlock({ block, value, onChange }: BlockProps) {
   const config = block.config.type === 'legal' ? block.config : undefined;
-  const checked = value === 'true';
+  const checked = value === true;
 
   return (
     <>
@@ -134,10 +134,10 @@ function LegalBlock({ block, value, onChange }: BlockProps) {
         <input
           type="checkbox"
           checked={checked}
-          onChange={(e) => onChange(e.target.checked ? 'true' : 'false')}
+          onChange={(e) => onChange(e.target.checked)}
           className="h-5 w-5 accent-[var(--rsvp-accent)]"
         />
-        동의합니다
+        {config?.purpose === 'marketing_sms' ? '동의합니다 (선택)' : '동의합니다'}
       </label>
     </>
   );
@@ -187,10 +187,15 @@ export function isRsvpBlockValid(
         : typeof value === 'string' && value.length > 0;
     }
 
-    case 'legal':
-      // Always required regardless of block.required — see
-      // docs/rsvp-form-feature-plan.md section 3 ("legal 타입은 항상 필수
-      // 응답이어야 한다"). Defense in depth against a misconfigured block.
-      return value === 'true';
+    case 'legal': {
+      // purpose decides required-ness, not block.required — see
+      // docs/rsvp-form-feature-plan.md section 3. `collection` must always
+      // be agreed to (defense in depth against a misconfigured block);
+      // `marketing_sms` is optional, so both true and false are valid
+      // answers and never block the step.
+      if (block.config.type !== 'legal') return false;
+      if (block.config.purpose === 'marketing_sms') return true;
+      return value === true;
+    }
   }
 }

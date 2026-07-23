@@ -248,12 +248,14 @@ export type RsvpFormBlockType =
   | 'choice'
   | 'legal';
 
+export type RsvpLegalPurpose = 'collection' | 'marketing_sms';
+
 export type RsvpFormBlockConfig =
   | { type: 'short_text'; maxLength?: number }
   | { type: 'long_text'; maxLength?: number }
   | { type: 'phone' }
   | { type: 'choice'; multiple: boolean; options: string[] }
-  | { type: 'legal'; content: string };
+  | { type: 'legal'; purpose: RsvpLegalPurpose; content: string };
 
 export interface RsvpFormBlock {
   id: number;
@@ -270,10 +272,16 @@ export interface RsvpHostBadge {
   imageUrl: string | null;
 }
 
-/** GET /rsvp-forms/:id (public, unauthenticated) */
+export type RsvpFormStatus = 'draft' | 'published';
+
+/** GET /rsvp-forms/:id (public, unauthenticated) — only `published` forms are returned. */
 export interface RsvpForm {
   id: number;
   hostId: number;
+  status: RsvpFormStatus;
+  // Bumped by the backend whenever the form/blocks change. Echoed back on
+  // submission so the server can detect a stale form (see FORM_CHANGED).
+  revision: number;
   posterImageUrl: string | null;
   caption: string | null;
   theme: RsvpFormTheme;
@@ -282,7 +290,7 @@ export interface RsvpForm {
   blocks: RsvpFormBlock[];
 }
 
-export type RsvpSubmissionAnswerValue = string | string[];
+export type RsvpSubmissionAnswerValue = string | string[] | boolean;
 
 export interface RsvpSubmissionAnswer {
   blockId: number;
@@ -291,6 +299,10 @@ export interface RsvpSubmissionAnswer {
 
 /** POST /rsvp-forms/:id/submissions request body */
 export interface CreateRsvpSubmissionRequest {
+  // The RsvpForm.revision this submission was built against — lets the
+  // server reject submissions against a form that changed underneath the
+  // visitor (see FORM_CHANGED below).
+  revision: number;
   answers: RsvpSubmissionAnswer[];
   // Honeypot field: real visitors never fill this (hidden via CSS), bots
   // filling every input often do. Empty/absent on submit is the expected case.
@@ -299,7 +311,9 @@ export interface CreateRsvpSubmissionRequest {
 
 /** Failure shape proposed in docs/rsvp-form-api-requirements.md section 4 */
 export interface RsvpSubmissionErrorResponse {
-  code: 'FORM_NOT_FOUND' | 'RATE_LIMITED' | 'VALIDATION_ERROR';
+  code: 'FORM_NOT_FOUND' | 'FORM_CHANGED' | 'RATE_LIMITED' | 'VALIDATION_ERROR';
   blockId?: number;
   message?: string;
+  // Present on RATE_LIMITED (see docs/rsvp-form-api-requirements.md section 5).
+  retryAfterSeconds?: number;
 }

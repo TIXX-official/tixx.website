@@ -45,8 +45,21 @@ const BASE_BLOCKS: RsvpForm['blocks'] = [
     required: true,
     config: {
       type: 'legal',
+      purpose: 'collection',
       content:
         '수집 항목: 이름, 전화번호. 수집 목적: 행사 안내 및 입장 확인. 보유 기간: 행사 종료 후 1개월. 동의를 거부할 수 있으며, 거부 시 신청이 제한됩니다.',
+    },
+  },
+  {
+    id: 6,
+    order: 5,
+    type: 'legal',
+    label: '마케팅 정보 수신에 동의합니다',
+    required: false,
+    config: {
+      type: 'legal',
+      purpose: 'marketing_sms',
+      content: '이후 TIXX Music의 행사 소식을 문자로 받아보실 수 있습니다. 동의하지 않아도 신청에는 영향이 없습니다.',
     },
   },
 ];
@@ -55,6 +68,8 @@ export const RSVP_FORM_FIXTURES: Record<string, RsvpForm> = {
   'color-bg': {
     id: 1,
     hostId: 10,
+    status: 'published',
+    revision: 1,
     posterImageUrl: '/images/dj-club.png',
     caption: '2026 여름 루프탑 파티에 초대합니다',
     theme: {
@@ -71,6 +86,8 @@ export const RSVP_FORM_FIXTURES: Record<string, RsvpForm> = {
   'image-bg': {
     id: 2,
     hostId: 10,
+    status: 'published',
+    revision: 1,
     posterImageUrl: '/images/dj-club.png',
     caption: '2026 여름 루프탑 파티에 초대합니다',
     theme: {
@@ -87,6 +104,8 @@ export const RSVP_FORM_FIXTURES: Record<string, RsvpForm> = {
   minimal: {
     id: 3,
     hostId: 11,
+    status: 'published',
+    revision: 1,
     posterImageUrl: null,
     caption: '조용한 소모임 RSVP',
     theme: {

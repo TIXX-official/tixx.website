@@ -2,17 +2,34 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
-import type { CreateRsvpSubmissionRequest, RsvpForm } from '@/lib/api/types';
+import type { CreateRsvpSubmissionRequest, RsvpForm, RsvpSubmissionErrorResponse } from '@/lib/api/types';
 import { RsvpSubmissionError, submitRsvpForm } from '@/lib/api/rsvp-forms';
 import { RsvpFormShell } from './RsvpFormShell';
 import { RsvpAnswers, RsvpStepEngine } from './RsvpStepEngine';
 import { isRsvpBlockValid, renderRsvpBlock } from './rsvpBlocks';
 
-const ERROR_MESSAGES: Record<RsvpSubmissionError['response']['code'], string> = {
-  FORM_NOT_FOUND: '이 폼은 더 이상 사용할 수 없습니다.',
-  RATE_LIMITED: '잠시 후 다시 시도해주세요.',
-  VALIDATION_ERROR: '입력값을 다시 확인해주세요.',
-};
+// FORM_CHANGED reloads the page shortly after showing this message — the
+// server-rendered page.tsx will refetch getRsvpForm() and pick up the new
+// revision, since answers against a stale block set can't be safely
+// remapped. See docs/rsvp-form-feature-plan.md section 3 ("공개 상태·수정 충돌").
+const FORM_CHANGED_RELOAD_DELAY_MS = 1500;
+
+function resolveErrorMessage(response: RsvpSubmissionErrorResponse): string {
+  if (response.message) return response.message;
+
+  switch (response.code) {
+    case 'FORM_NOT_FOUND':
+      return '이 폼은 더 이상 사용할 수 없습니다.';
+    case 'FORM_CHANGED':
+      return '폼 내용이 변경되어 새로고침합니다.';
+    case 'RATE_LIMITED':
+      return response.retryAfterSeconds
+        ? `${response.retryAfterSeconds}초 후 다시 시도해주세요.`
+        : '잠시 후 다시 시도해주세요.';
+    case 'VALIDATION_ERROR':
+      return '입력값을 다시 확인해주세요.';
+  }
+}
 
 export function RsvpFormView({ form }: { form: RsvpForm }) {
   const [submitted, setSubmitted] = useState(false);
@@ -52,6 +69,7 @@ export function RsvpFormView({ form }: { form: RsvpForm }) {
     setIsSubmitting(true);
 
     const payload: CreateRsvpSubmissionRequest = {
+      revision: form.revision,
       answers: Object.entries(answers).map(([blockId, value]) => ({
         blockId: Number(blockId),
         value,
@@ -63,11 +81,14 @@ export function RsvpFormView({ form }: { form: RsvpForm }) {
       await submitRsvpForm(form.id, payload);
       setSubmitted(true);
     } catch (error) {
-      const message =
-        error instanceof RsvpSubmissionError
-          ? (error.response.message ?? ERROR_MESSAGES[error.response.code])
-          : '제출에 실패했습니다. 다시 시도해주세요.';
-      setSubmitError(message);
+      if (error instanceof RsvpSubmissionError) {
+        setSubmitError(resolveErrorMessage(error.response));
+        if (error.response.code === 'FORM_CHANGED') {
+          setTimeout(() => window.location.reload(), FORM_CHANGED_RELOAD_DELAY_MS);
+        }
+      } else {
+        setSubmitError('제출에 실패했습니다. 다시 시도해주세요.');
+      }
     } finally {
       setIsSubmitting(false);
     }
