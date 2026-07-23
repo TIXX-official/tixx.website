@@ -223,3 +223,83 @@ export interface TermsListItem {
   title: string;
   effectiveAt: string;
 }
+
+// RSVP forms: no `@tixx/schema` equivalent exists yet (feature is still
+// pending backend implementation, see docs/rsvp-form-api-requirements.md in
+// the tixx monorepo). Shapes here follow that request document's proposal
+// and may need to change once the real API lands.
+
+export type RsvpFormBackgroundType = 'color' | 'image';
+export type RsvpFormFontId = 'pretendard' | 'outfit' | 'inter' | 'notoSansKr';
+export type RsvpFormSizeScale = 'sm' | 'md' | 'lg';
+
+export interface RsvpFormTheme {
+  backgroundType: RsvpFormBackgroundType;
+  backgroundValue: string;
+  fontId: RsvpFormFontId;
+  sizeScale: RsvpFormSizeScale;
+  accentColor: string;
+}
+
+export type RsvpFormBlockType =
+  | 'short_text'
+  | 'long_text'
+  | 'phone'
+  | 'choice'
+  | 'legal';
+
+export type RsvpFormBlockConfig =
+  | { type: 'short_text'; maxLength?: number }
+  | { type: 'long_text'; maxLength?: number }
+  | { type: 'phone' }
+  | { type: 'choice'; multiple: boolean; options: string[] }
+  | { type: 'legal'; content: string };
+
+export interface RsvpFormBlock {
+  id: number;
+  order: number;
+  type: RsvpFormBlockType;
+  label: string;
+  required: boolean;
+  config: RsvpFormBlockConfig;
+}
+
+export interface RsvpHostBadge {
+  id: number;
+  name: string;
+  imageUrl: string | null;
+}
+
+/** GET /rsvp-forms/:id (public, unauthenticated) */
+export interface RsvpForm {
+  id: number;
+  hostId: number;
+  posterImageUrl: string | null;
+  caption: string | null;
+  theme: RsvpFormTheme;
+  showHostBadge: boolean;
+  host: RsvpHostBadge | null;
+  blocks: RsvpFormBlock[];
+}
+
+export type RsvpSubmissionAnswerValue = string | string[];
+
+export interface RsvpSubmissionAnswer {
+  blockId: number;
+  value: RsvpSubmissionAnswerValue;
+}
+
+/** POST /rsvp-forms/:id/submissions request body */
+export interface CreateRsvpSubmissionRequest {
+  answers: RsvpSubmissionAnswer[];
+  // Honeypot field: real visitors never fill this (hidden via CSS), bots
+  // filling every input often do. Empty/absent on submit is the expected case.
+  website?: string;
+}
+
+/** Failure shape proposed in docs/rsvp-form-api-requirements.md section 4 */
+export interface RsvpSubmissionErrorResponse {
+  code: 'FORM_NOT_FOUND' | 'RATE_LIMITED' | 'VALIDATION_ERROR';
+  blockId?: number;
+  message?: string;
+}
