@@ -1,9 +1,17 @@
 'use client';
 
-import { AsYouType, isValidPhoneNumber } from 'libphonenumber-js';
+import parsePhoneNumberFromString, {
+  AsYouType,
+  isValidPhoneNumber,
+  getExampleNumber,
+  type CountryCode,
+} from 'libphonenumber-js';
+import examples from 'libphonenumber-js/examples.mobile.json';
 import type { CSSProperties, ReactNode } from 'react';
+import { useMemo, useState } from 'react';
 import type { RsvpFormBlock, RsvpSubmissionAnswerValue } from '@/lib/api/types';
 import { rsvpTextAlignStyle } from '@/lib/format/rsvpTheme';
+import { PhoneCountryPicker } from './PhoneCountryPicker';
 
 interface BlockProps {
   block: RsvpFormBlock;
@@ -15,34 +23,16 @@ interface BlockProps {
 const inputClass = 'w-full border-b border-current bg-transparent px-2 py-2 outline-none';
 const answerStyle: CSSProperties = { color: 'var(--rsvp-answer-color)', ...rsvpTextAlignStyle };
 
-// Chip-style question number placed to the left of the label. The row's
-// justify-content reuses --rsvp-text-align (both 'left' and 'center' are
-// valid justify-content keywords too), so the chip+label group shifts
-// together as one unit instead of the chip staying pinned to one side
-// while the label centers independently.
-const rsvpJustifyContentStyle: CSSProperties = {
-  justifyContent: 'var(--rsvp-text-align)' as CSSProperties['justifyContent'],
-};
-
+// Number folded into the label as plain inline text — no chip/badge, so it
+// reads as part of the question rather than a separate UI element.
 function QuestionLabel({ number, children }: { number: number; children: ReactNode }) {
   return (
-    <div className="flex w-full items-center gap-3" style={rsvpJustifyContentStyle}>
-      <span
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold"
-        style={{
-          backgroundColor: 'color-mix(in srgb, var(--rsvp-button-color) 18%, transparent)',
-          color: 'var(--rsvp-button-color)',
-        }}
-      >
-        {number}
-      </span>
-      <h2
-        className="min-w-0 font-semibold"
-        style={{ fontSize: 'var(--rsvp-label-size)', ...rsvpTextAlignStyle }}
-      >
-        {children}
-      </h2>
-    </div>
+    <h2
+      className="w-full font-semibold"
+      style={{ fontSize: 'var(--rsvp-label-size)', ...rsvpTextAlignStyle }}
+    >
+      {number}. {children}
+    </h2>
   );
 }
 
@@ -84,18 +74,76 @@ function LongTextBlock({ block, value, onChange, questionNumber }: BlockProps) {
 }
 
 function PhoneBlock({ block, value, onChange, questionNumber }: BlockProps) {
+  // Two pieces of state, both restored once from `value` on mount — the step
+  // engine's AnimatePresence mode="wait" fully unmounts/remounts each step,
+  // so there's no external mutation path to miss between renders.
+  const [country, setCountry] = useState<CountryCode>(() => {
+    if (typeof value === 'string' && value) {
+      return parsePhoneNumberFromString(value)?.country ?? 'KR';
+    }
+    return 'KR';
+  });
+  const [displayText, setDisplayText] = useState<string>(() => {
+    if (typeof value !== 'string' || !value) return '';
+    return parsePhoneNumberFromString(value)?.formatNational() ?? value;
+  });
+
+  const placeholder = useMemo(
+    () => getExampleNumber(country, examples)?.formatNational() ?? '',
+    [country]
+  );
+
+  const handleInputChange = (text: string) => {
+    const isInternational = text.trim().startsWith('+');
+    const formatter = new AsYouType(isInternational ? undefined : country);
+    setDisplayText(formatter.input(text));
+
+    if (isInternational) {
+      const detected = formatter.getCountry();
+      if (detected && detected !== country) setCountry(detected);
+    }
+
+    if (text === '') {
+      onChange('');
+    } else {
+      const e164 = formatter.getNumberValue();
+      // Only reports once resolvable — in international mode, the first 1-2
+      // keystrokes (while the calling code is still ambiguous) leave the
+      // previously-reported value in place rather than clearing it.
+      if (e164) onChange(e164);
+    }
+  };
+
+  // Re-derives the national digits via getNationalNumber() (not a naive
+  // digit-strip of displayText) so leftover calling-code digits from a
+  // mid-typed international entry don't leak into the new country's number.
+  const handleCountrySelect = (nextCountry: CountryCode) => {
+    const wasInternational = displayText.trim().startsWith('+');
+    const currentFormatter = new AsYouType(wasInternational ? undefined : country);
+    currentFormatter.input(displayText);
+    const nationalDigits = currentFormatter.getNationalNumber();
+
+    setCountry(nextCountry);
+    const formatter = new AsYouType(nextCountry);
+    setDisplayText(formatter.input(nationalDigits));
+    onChange(nationalDigits ? (formatter.getNumberValue() ?? '') : '');
+  };
+
   return (
     <>
       <QuestionLabel number={questionNumber}>{block.label}</QuestionLabel>
-      <input
-        type="tel"
-        inputMode="numeric"
-        value={typeof value === 'string' ? value : ''}
-        onChange={(e) => onChange(new AsYouType('KR').input(e.target.value))}
-        placeholder="010-1234-5678"
-        className={`${inputClass} placeholder:text-[color:var(--rsvp-answer-placeholder-color)]`}
-        style={answerStyle}
-      />
+      <div className="flex w-full items-stretch gap-2">
+        <PhoneCountryPicker value={country} onChange={handleCountrySelect} />
+        <input
+          type="tel"
+          inputMode="tel"
+          value={displayText}
+          onChange={(e) => handleInputChange(e.target.value)}
+          placeholder={placeholder}
+          className="min-w-0 flex-1 border-b border-current bg-transparent px-2 py-2 outline-none placeholder:text-[color:var(--rsvp-answer-placeholder-color)]"
+          style={answerStyle}
+        />
+      </div>
     </>
   );
 }
@@ -206,7 +254,7 @@ export function isRsvpBlockValid(
 
     case 'phone': {
       if (!block.required && (value === undefined || value === '')) return true;
-      return typeof value === 'string' && isValidPhoneNumber(value, 'KR');
+      return typeof value === 'string' && isValidPhoneNumber(value);
     }
 
     case 'choice': {
