@@ -68,7 +68,7 @@ export function RsvpStepEngine({
       {stepIndex >= 1 && (
         <div className="h-1 w-full bg-white/15">
           <div
-            className="h-full bg-[var(--rsvp-accent)] transition-[width] duration-300"
+            className="h-full bg-[var(--rsvp-button-color)] transition-[width] duration-300"
             style={{ width: `${(stepIndex / totalSteps) * 100}%` }}
           />
         </div>
@@ -115,7 +115,8 @@ export function RsvpStepEngine({
             type="button"
             onClick={goNext}
             disabled={!canProceed || isSubmitting}
-            className="rounded-full bg-[var(--rsvp-accent)] px-8 py-3 font-semibold text-black transition-opacity disabled:opacity-40"
+            className="rounded-full bg-[var(--rsvp-button-color)] px-8 py-3 font-semibold transition-opacity disabled:opacity-40"
+            style={{ color: 'var(--rsvp-button-text-color)' }}
           >
             {stepIndex === 0
               ? '시작하기'

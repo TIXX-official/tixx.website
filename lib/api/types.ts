@@ -229,16 +229,34 @@ export interface TermsListItem {
 // the tixx monorepo). Shapes here follow that request document's proposal
 // and may need to change once the real API lands.
 
-export type RsvpFormBackgroundType = 'color' | 'image';
 export type RsvpFormFontId = 'pretendard' | 'outfit' | 'inter' | 'notoSansKr';
 export type RsvpFormSizeScale = 'sm' | 'md' | 'lg';
+export type RsvpFormAlignment = 'left' | 'center';
 
 export interface RsvpFormTheme {
-  backgroundType: RsvpFormBackgroundType;
-  backgroundValue: string;
+  // 폰트
   fontId: RsvpFormFontId;
+  fontColor: string;
   sizeScale: RsvpFormSizeScale;
-  accentColor: string;
+  // Applies to the question label and free-text (short_text/long_text/phone)
+  // input text only — choice/legal keep their current layout regardless.
+  alignment: RsvpFormAlignment;
+
+  // 버튼 — drives progress bar fill, selected choice option, legal checkbox
+  // accent, and the next/submit button background+text as one shared pair.
+  buttonColor: string;
+  buttonTextColor: string;
+  // Color of visitor-typed answer text. Placeholder color is derived from
+  // this at render time (see buildAnswerPlaceholderColor), not stored.
+  answerColor: string;
+
+  // 배경 — backgroundColor is always the fallback; backgroundImage (if set)
+  // renders full-bleed with a brightness-driven overlay for legibility.
+  backgroundColor: string;
+  backgroundImage: string | null;
+  // -100..100. Negative = black overlay, positive = white overlay, opacity
+  // = abs(brightness)/100. Not a CSS `filter: brightness()` on the image.
+  brightness: number;
 }
 
 export type RsvpFormBlockType =

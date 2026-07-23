@@ -41,7 +41,7 @@ export function RsvpFormView({ form }: { form: RsvpForm }) {
 
   const coverContent = (
     <>
-      {form.theme.backgroundType === 'color' && form.posterImageUrl && (
+      {form.posterImageUrl && (
         <div className="relative aspect-[4/5] w-full max-w-sm overflow-hidden rounded-2xl">
           <Image
             src={form.posterImageUrl}

@@ -21,8 +21,10 @@
 - `app/(forms)/forms/[id]/page.tsx` — `generateMetadata`(OG/JSON-LD, `events/[id]` 패턴 재사용), 404 처리(`ApiNotFoundError`), fixture 데이터로 정적 렌더링 확인.
 
 ### 3. 테마 시스템
-- 배경(색/이미지) · 폰트 프리셋(이미 `globals.css`에 있는 `--font-pretendard`/`--font-display`/`--font-sans`/`--font-noto-sans-kr` 재사용, 신규 폰트 추가 없음) · 사이즈 프리셋(`sm`/`md`/`lg`) · 액센트 컬러를 CSS 커스텀 프로퍼티로 주입.
-- `pickReadableTextColor`(대비율 계산, `apps/mobile/src/utils/storyShareColor.ts` 이식) — 최종 배경색 기준 텍스트색을 렌더링 시점에 계산.
+폰트/버튼/배경 3그룹 구조(`docs/rsvp-form-feature-plan.md` 3절 참고)로 CSS 커스텀 프로퍼티를 주입한다.
+- 폰트: 프리셋(이미 `globals.css`에 있는 `--font-pretendard`/`--font-display`/`--font-sans`/`--font-kr` 재사용, 신규 폰트 추가 없음) · `fontColor`(명시적 저장값, 렌더링 시점 대비 계산 없음) · 사이즈 프리셋(`sm`/`md`/`lg`) · 정렬(질문 라벨·자유입력에만 적용).
+- 버튼: `buttonColor`/`buttonTextColor`가 진행바·선택 버튼·체크박스·다음/제출 버튼을 공통으로 구동. `answerColor`는 응답 입력 텍스트 색이며 플레이스홀더는 여기서 알파 투명도로 파생 계산(`buildAnswerPlaceholderColor`).
+- 배경: `backgroundColor`(항상 폴백) · `backgroundImage`(선택) · `brightness`(-100~100, 검정/흰색 오버레이 opacity 방식, `buildBackgroundOverlayColor`)로 기존 고정 그라디언트 스크림을 대체.
 
 ### 4. 스텝 엔진
 - `framer-motion`의 `AnimatePresence`로 스텝 전환, 진행 표시(progress bar), 뒤로가기 시 이전 답변 유지.

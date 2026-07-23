@@ -1,7 +1,9 @@
 'use client';
 
 import { AsYouType, isValidPhoneNumber } from 'libphonenumber-js';
+import type { CSSProperties } from 'react';
 import type { RsvpFormBlock, RsvpSubmissionAnswerValue } from '@/lib/api/types';
+import { rsvpTextAlignStyle } from '@/lib/format/rsvpTheme';
 
 interface BlockProps {
   block: RsvpFormBlock;
@@ -9,10 +11,14 @@ interface BlockProps {
   onChange: (value: RsvpSubmissionAnswerValue) => void;
 }
 
-const labelClass = 'font-semibold';
-const labelStyle = { fontSize: 'var(--rsvp-label-size)' };
-const inputClass =
-  'w-full border-b border-current bg-transparent px-2 py-2 text-center outline-none';
+// w-full matters here: without an explicit width, the <h2> shrinks to fit
+// its own content as a flex item, which makes text-align a no-op. This
+// keeps `alignment: 'center'` visually identical to before while making
+// `alignment: 'left'` actually work.
+const labelClass = 'w-full font-semibold';
+const labelStyle: CSSProperties = { fontSize: 'var(--rsvp-label-size)', ...rsvpTextAlignStyle };
+const inputClass = 'w-full border-b border-current bg-transparent px-2 py-2 outline-none';
+const answerStyle: CSSProperties = { color: 'var(--rsvp-answer-color)', ...rsvpTextAlignStyle };
 
 function ShortTextBlock({ block, value, onChange }: BlockProps) {
   const config = block.config.type === 'short_text' ? block.config : undefined;
@@ -27,6 +33,7 @@ function ShortTextBlock({ block, value, onChange }: BlockProps) {
         maxLength={config?.maxLength}
         onChange={(e) => onChange(e.target.value)}
         className={inputClass}
+        style={answerStyle}
       />
     </>
   );
@@ -45,6 +52,7 @@ function LongTextBlock({ block, value, onChange }: BlockProps) {
         onChange={(e) => onChange(e.target.value)}
         rows={4}
         className={`${inputClass} resize-none`}
+        style={answerStyle}
       />
     </>
   );
@@ -62,7 +70,8 @@ function PhoneBlock({ block, value, onChange }: BlockProps) {
         value={typeof value === 'string' ? value : ''}
         onChange={(e) => onChange(new AsYouType('KR').input(e.target.value))}
         placeholder="010-1234-5678"
-        className={inputClass}
+        className={`${inputClass} placeholder:text-[color:var(--rsvp-answer-placeholder-color)]`}
+        style={answerStyle}
       />
     </>
   );
@@ -104,9 +113,10 @@ function ChoiceBlock({ block, value, onChange }: BlockProps) {
             onClick={() => toggle(option)}
             className={`w-full rounded-xl border px-4 py-3 transition-colors ${
               selected.has(option)
-                ? 'border-[var(--rsvp-accent)] bg-[var(--rsvp-accent)] text-black'
+                ? 'border-[var(--rsvp-button-color)] bg-[var(--rsvp-button-color)]'
                 : 'border-current bg-transparent'
             }`}
+            style={selected.has(option) ? { color: 'var(--rsvp-button-text-color)' } : undefined}
           >
             {option}
           </button>
@@ -135,7 +145,7 @@ function LegalBlock({ block, value, onChange }: BlockProps) {
           type="checkbox"
           checked={checked}
           onChange={(e) => onChange(e.target.checked)}
-          className="h-5 w-5 accent-[var(--rsvp-accent)]"
+          className="h-5 w-5 accent-[var(--rsvp-button-color)]"
         />
         {config?.purpose === 'marketing_sms' ? '동의합니다 (선택)' : '동의합니다'}
       </label>
