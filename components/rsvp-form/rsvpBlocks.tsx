@@ -23,15 +23,27 @@ interface BlockProps {
 const inputClass = 'w-full border-b border-current bg-transparent px-2 py-2 outline-none';
 const answerStyle: CSSProperties = { color: 'var(--rsvp-answer-color)', ...rsvpTextAlignStyle };
 
-// Number folded into the label as plain inline text — no chip/badge, so it
-// reads as part of the question rather than a separate UI element.
+// Circular badge, but sized in `em` off the surrounding label font-size and
+// rendered `inline-flex` so it flows as part of the same text line as the
+// question — not a separate row/block taking its own space (that was the
+// previous version's problem) — while still visually reading as a badge,
+// not plain "1." text.
 function QuestionLabel({ number, children }: { number: number; children: ReactNode }) {
   return (
     <h2
       className="w-full font-semibold"
       style={{ fontSize: 'var(--rsvp-label-size)', ...rsvpTextAlignStyle }}
     >
-      {number}. {children}
+      <span
+        className="mr-2 inline-flex h-[0.75em] w-[0.75em] items-center justify-center rounded-full align-middle text-[0.45em] font-bold"
+        style={{
+          backgroundColor: 'color-mix(in srgb, var(--rsvp-button-color) 20%, transparent)',
+          color: 'var(--rsvp-button-color)',
+        }}
+      >
+        {number}
+      </span>
+      {children}
     </h2>
   );
 }
