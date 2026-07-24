@@ -37,6 +37,15 @@ export function RsvpFormView({ form, isPreview = false }: { form: RsvpForm; isPr
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  // Gate the initial reveal on every image the page needs, not just each
+  // one individually — background and poster otherwise finish decoding at
+  // different times and the page visibly assembles itself piece by piece.
+  // An image that 404s still resolves the gate via onError so a broken URL
+  // can't leave the page stuck hidden forever.
+  const [backgroundReady, setBackgroundReady] = useState(!form.theme.backgroundImage);
+  const [posterReady, setPosterReady] = useState(!form.posterImageUrl);
+  const ready = backgroundReady && posterReady;
+
   const coverContent = (
     <>
       {form.posterImageUrl && (
@@ -48,6 +57,8 @@ export function RsvpFormView({ form, isPreview = false }: { form: RsvpForm; isPr
             priority
             sizes="(min-width: 640px) 384px, 100vw"
             className="object-cover"
+            onLoad={() => setPosterReady(true)}
+            onError={() => setPosterReady(true)}
           />
         </div>
       )}
@@ -101,7 +112,11 @@ export function RsvpFormView({ form, isPreview = false }: { form: RsvpForm; isPr
   };
 
   return (
-    <RsvpFormShell theme={form.theme}>
+    <RsvpFormShell
+      theme={form.theme}
+      ready={ready}
+      onBackgroundImageResolved={() => setBackgroundReady(true)}
+    >
       {submitted ? (
         <main className="flex min-h-screen flex-col items-center justify-center px-6 text-center">
           <p className="text-2xl font-semibold" style={{ fontSize: 'var(--rsvp-label-size)' }}>
