@@ -4,6 +4,10 @@
 const API_BASE_URL = process.env.TIXX_API_BASE_URL ?? 'https://api.tixx.im';
 
 export class ApiNotFoundError extends Error {}
+// Thrown on 401 — used for the RSVP preview token flow (missing/expired/
+// mismatched token), where the caller wants to notFound() rather than
+// surface a generic 500.
+export class ApiUnauthorizedError extends Error {}
 
 export async function apiGet<T>(
   path: string,
@@ -24,6 +28,9 @@ export async function apiGet<T>(
 
   if (res.status === 404) {
     throw new ApiNotFoundError(`${path} not found`);
+  }
+  if (res.status === 401) {
+    throw new ApiUnauthorizedError(`${path} unauthorized`);
   }
   if (!res.ok) {
     throw new Error(`TIXX API ${res.status} for ${path}`);

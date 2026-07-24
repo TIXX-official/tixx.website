@@ -223,3 +223,122 @@ export interface TermsListItem {
   title: string;
   effectiveAt: string;
 }
+
+// RSVP forms: mirrors `PublicRsvpFormDto`/`RsvpSubmission*` in
+// `@tixx/schema` (packages/schema/src/rsvp-forms.ts) in the tixx monorepo.
+// Duplicated here for the same reason as the types above — only the
+// read/submit subset this site needs.
+
+export type RsvpFormFontId = 'pretendard' | 'outfit' | 'inter' | 'notoSansKr';
+export type RsvpFormSizeScale = 'sm' | 'md' | 'lg';
+export type RsvpFormAlignment = 'left' | 'center';
+
+export interface RsvpFormTheme {
+  // 폰트
+  fontId: RsvpFormFontId;
+  fontColor: string;
+  sizeScale: RsvpFormSizeScale;
+  // Applies to the question label and free-text (short_text/long_text/phone)
+  // input text only — choice/legal keep their current layout regardless.
+  alignment: RsvpFormAlignment;
+
+  // 버튼 — drives progress bar fill, selected choice option, legal checkbox
+  // accent, and the next/submit button background+text as one shared pair.
+  buttonColor: string;
+  buttonTextColor: string;
+  // Color of visitor-typed answer text. Placeholder color is derived from
+  // this at render time (see buildAnswerPlaceholderColor), not stored.
+  answerColor: string;
+
+  // 배경 — backgroundColor is always the fallback; backgroundImage (if set)
+  // renders full-bleed with a brightness-driven overlay for legibility.
+  backgroundColor: string;
+  backgroundImage: string | null;
+  // -100..100. Negative = black overlay, positive = white overlay, opacity
+  // = abs(brightness)/100. Not a CSS `filter: brightness()` on the image.
+  brightness: number;
+}
+
+export type RsvpFormBlockType =
+  | 'short_text'
+  | 'long_text'
+  | 'phone'
+  | 'choice'
+  | 'legal';
+
+export type RsvpLegalPurpose = 'collection' | 'marketing_sms';
+
+export type RsvpFormBlockConfig =
+  | { type: 'short_text'; maxLength?: number }
+  | { type: 'long_text'; maxLength?: number }
+  | { type: 'phone' }
+  | { type: 'choice'; multiple: boolean; options: string[] }
+  | { type: 'legal'; purpose: RsvpLegalPurpose; content: string };
+
+export interface RsvpFormBlock {
+  id: number;
+  order: number;
+  type: RsvpFormBlockType;
+  label: string;
+  required: boolean;
+  config: RsvpFormBlockConfig;
+}
+
+export interface RsvpHostBadge {
+  id: number;
+  name: string;
+  imageUrl: string | null;
+}
+
+export type RsvpFormStatus = 'draft' | 'published';
+
+/** GET /rsvp-forms/:id (public, unauthenticated) — only `published` forms are returned. */
+export interface RsvpForm {
+  publicId: string;
+  status: RsvpFormStatus;
+  // Bumped by the backend whenever the form/blocks change. Echoed back on
+  // submission so the server can detect a stale form (see FORM_CHANGED).
+  revision: number;
+  posterImageUrl: string | null;
+  caption: string | null;
+  theme: RsvpFormTheme;
+  showHostBadge: boolean;
+  host: RsvpHostBadge | null;
+  blocks: RsvpFormBlock[];
+}
+
+export type RsvpSubmissionAnswerValue = string | string[] | boolean;
+
+export interface RsvpSubmissionAnswer {
+  blockId: number;
+  value: RsvpSubmissionAnswerValue;
+}
+
+/** POST /rsvp-forms/:id/submissions request body */
+export interface CreateRsvpSubmissionRequest {
+  // The RsvpForm.revision this submission was built against — lets the
+  // server reject submissions against a form that changed underneath the
+  // visitor (see FORM_CHANGED below).
+  revision: number;
+  answers: RsvpSubmissionAnswer[];
+}
+
+/** One entry of VALIDATION_ERROR's `errors` array — per-block validation
+ * failure (RsvpValidationErrorSchema in @tixx/schema). `message` is an
+ * internal/English description, not meant to be shown to visitors as-is. */
+export interface RsvpValidationErrorDetail {
+  blockId?: number;
+  code: string;
+  message: string;
+}
+
+/** Failure shape returned by POST /rsvp-forms/:id/submissions, matching
+ * @tixx/schema (RsvpValidationErrorSchema + the plain {code, message}
+ * exceptions thrown for the other cases). `message` on every variant is an
+ * internal/English description for logs — build user-facing copy from
+ * `code` instead (see resolveErrorMessage in RsvpFormView.tsx). */
+export type RsvpSubmissionErrorResponse =
+  | { code: 'FORM_NOT_FOUND'; message?: string }
+  | { code: 'FORM_CHANGED'; message?: string }
+  | { code: 'RATE_LIMITED'; message?: string; retryAfterSeconds?: number }
+  | { code: 'VALIDATION_ERROR'; message?: string; errors: RsvpValidationErrorDetail[] };
