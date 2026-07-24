@@ -4,6 +4,7 @@ import { Check, ChevronDown, Search } from 'lucide-react';
 import { getCountries, getCountryCallingCode, type CountryCode } from 'libphonenumber-js';
 import {
   useEffect,
+  useId,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -63,8 +64,14 @@ export function PhoneCountryPicker({ value, onChange }: PhoneCountryPickerProps)
   const [query, setQuery] = useState('');
   const [highlightedIndex, setHighlightedIndex] = useState(0);
   const [menuPos, setMenuPos] = useState<{ top: number; left: number } | null>(null);
+  const [menuColors, setMenuColors] = useState<{
+    bg: string;
+    answer: string;
+    placeholder: string;
+  } | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const searchInputId = useId();
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -92,6 +99,24 @@ export function PhoneCountryPicker({ value, onChange }: PhoneCountryPickerProps)
       window.removeEventListener('resize', updatePosition);
       window.removeEventListener('scroll', updatePosition, true);
     };
+  }, [open]);
+
+  // The menu is portaled to document.body, outside the DOM subtree where
+  // RsvpFormShell declares --rsvp-* as inline custom properties — so var()
+  // references inside the portal resolve to nothing there. Reading the
+  // resolved values off the trigger (which does sit inside that subtree)
+  // and applying them as plain color strings lets the menu match the host's
+  // theme regardless of where the portal lands. Uses --rsvp-answer-color
+  // (not --rsvp-font-color) to match the trigger button, which already
+  // colors itself with the answer color.
+  useLayoutEffect(() => {
+    if (!open || !triggerRef.current) return;
+    const computed = getComputedStyle(triggerRef.current);
+    setMenuColors({
+      bg: computed.getPropertyValue('--rsvp-bg-color').trim(),
+      answer: computed.getPropertyValue('--rsvp-answer-color').trim(),
+      placeholder: computed.getPropertyValue('--rsvp-answer-placeholder-color').trim(),
+    });
   }, [open]);
 
   useEffect(() => {
@@ -156,17 +181,30 @@ export function PhoneCountryPicker({ value, onChange }: PhoneCountryPickerProps)
 
       {open &&
         menuPos &&
+        menuColors &&
         createPortal(
           <div
             ref={menuRef}
             onKeyDown={handleMenuKeyDown}
-            style={{ position: 'fixed', top: menuPos.top, left: menuPos.left }}
-            className="z-50 w-64 rounded-xl border border-white/10 bg-[var(--rsvp-bg-color)] shadow-lg"
+            style={{
+              position: 'fixed',
+              top: menuPos.top,
+              left: menuPos.left,
+              color: menuColors.answer,
+              backgroundColor: menuColors.bg,
+              borderColor: `color-mix(in srgb, ${menuColors.answer} 15%, transparent)`,
+            }}
+            className="z-50 w-64 rounded-xl border shadow-lg"
           >
-            <div className="flex items-center gap-2 border-b border-white/10 px-3 py-2">
+            <style>{`[data-rsvp-country-search="${searchInputId}"]::placeholder { color: ${menuColors.placeholder}; }`}</style>
+            <div
+              className="flex items-center gap-2 border-b px-3 py-2"
+              style={{ borderColor: `color-mix(in srgb, ${menuColors.answer} 15%, transparent)` }}
+            >
               <Search className="h-4 w-4 opacity-50" />
               <input
                 autoFocus
+                data-rsvp-country-search={searchInputId}
                 value={query}
                 onChange={(e) => {
                   setQuery(e.target.value);
@@ -186,9 +224,12 @@ export function PhoneCountryPicker({ value, onChange }: PhoneCountryPickerProps)
                       setOpen(false);
                       triggerRef.current?.focus();
                     }}
-                    className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm ${
-                      i === highlightedIndex ? 'bg-white/10' : ''
-                    }`}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm"
+                    style={
+                      i === highlightedIndex
+                        ? { backgroundColor: `color-mix(in srgb, ${menuColors.answer} 12%, transparent)` }
+                        : undefined
+                    }
                   >
                     <span>{countryCodeToFlagEmoji(c)}</span>
                     <span className="min-w-0 flex-1 truncate">{countryDisplayName(c)}</span>

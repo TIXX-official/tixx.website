@@ -35,7 +35,7 @@ function QuestionLabel({ number, children }: { number: number; children: ReactNo
       style={{ fontSize: 'var(--rsvp-label-size)', ...rsvpTextAlignStyle }}
     >
       <span
-        className="mr-2 inline-flex h-[0.75em] w-[0.75em] items-center justify-center rounded-full align-middle text-[0.45em] font-bold"
+        className="mr-2.5 inline-flex h-[1.35em] w-[1.35em] items-center justify-center rounded-full align-middle text-[0.6em] font-bold"
         style={{
           backgroundColor: 'color-mix(in srgb, var(--rsvp-button-color) 20%, transparent)',
           color: 'var(--rsvp-button-color)',
