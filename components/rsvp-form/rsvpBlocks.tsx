@@ -55,6 +55,7 @@ function ShortTextBlock({ block, value, onChange, questionNumber }: BlockProps) 
       <QuestionLabel number={questionNumber}>{block.label}</QuestionLabel>
       <input
         type="text"
+        autoFocus
         value={typeof value === 'string' ? value : ''}
         maxLength={config?.maxLength}
         onChange={(e) => onChange(e.target.value)}
@@ -71,6 +72,7 @@ function LongTextBlock({ block, value, onChange, questionNumber }: BlockProps) {
     <>
       <QuestionLabel number={questionNumber}>{block.label}</QuestionLabel>
       <textarea
+        autoFocus
         value={typeof value === 'string' ? value : ''}
         maxLength={config?.maxLength}
         onChange={(e) => onChange(e.target.value)}
@@ -149,6 +151,7 @@ function PhoneBlock({ block, value, onChange, questionNumber }: BlockProps) {
         <input
           type="tel"
           inputMode="tel"
+          autoFocus
           value={displayText}
           onChange={(e) => handleInputChange(e.target.value)}
           placeholder={placeholder}
