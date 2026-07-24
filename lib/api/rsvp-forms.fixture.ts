@@ -69,8 +69,7 @@ const BASE_BLOCKS: RsvpForm['blocks'] = [
 export const RSVP_FORM_FIXTURES: Record<string, RsvpForm> = {
   // 순수 색 배경, 오버레이 없음, 가운데 정렬
   'color-bg': {
-    id: 1,
-    hostId: 10,
+    publicId: 'color-bg',
     status: 'published',
     revision: 1,
     posterImageUrl: '/images/dj-club.png',
@@ -93,8 +92,7 @@ export const RSVP_FORM_FIXTURES: Record<string, RsvpForm> = {
   },
   // 배경 이미지 + 어두운(검정) 오버레이, 왼쪽 정렬
   'image-bg': {
-    id: 2,
-    hostId: 10,
+    publicId: 'image-bg',
     status: 'published',
     revision: 1,
     posterImageUrl: '/images/dj-club.png',
@@ -117,8 +115,7 @@ export const RSVP_FORM_FIXTURES: Record<string, RsvpForm> = {
   },
   // 배경 이미지 + 밝은(흰색) 오버레이, 가운데 정렬
   'image-bg-light': {
-    id: 4,
-    hostId: 10,
+    publicId: 'image-bg-light',
     status: 'published',
     revision: 1,
     posterImageUrl: '/images/dj-club.png',
@@ -141,8 +138,7 @@ export const RSVP_FORM_FIXTURES: Record<string, RsvpForm> = {
   },
   // 순수 색 배경 + 왼쪽 정렬, 문항 최소 조합(2개), 포스터/호스트 배지 없음
   minimal: {
-    id: 3,
-    hostId: 11,
+    publicId: 'minimal',
     status: 'published',
     revision: 1,
     posterImageUrl: null,

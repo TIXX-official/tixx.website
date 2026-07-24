@@ -294,8 +294,7 @@ export type RsvpFormStatus = 'draft' | 'published';
 
 /** GET /rsvp-forms/:id (public, unauthenticated) — only `published` forms are returned. */
 export interface RsvpForm {
-  id: number;
-  hostId: number;
+  publicId: string;
   status: RsvpFormStatus;
   // Bumped by the backend whenever the form/blocks change. Echoed back on
   // submission so the server can detect a stale form (see FORM_CHANGED).

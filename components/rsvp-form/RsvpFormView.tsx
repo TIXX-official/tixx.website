@@ -95,7 +95,7 @@ export function RsvpFormView({ form, isPreview = false }: { form: RsvpForm; isPr
     };
 
     try {
-      await submitRsvpForm(form.id, payload);
+      await submitRsvpForm(form.publicId, payload);
       setSubmitted(true);
     } catch (error) {
       if (error instanceof RsvpSubmissionError) {
