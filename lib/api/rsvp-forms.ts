@@ -10,6 +10,14 @@ export function getRsvpForm(id: number | string): Promise<RsvpForm> {
   return apiGet<RsvpForm>(`/rsvp-forms/${id}`);
 }
 
+/** GET /rsvp-forms/:id/preview — token-gated, returns draft or published
+ * content. The token is short-lived (15min, minted by the host app via
+ * POST /hosts/:hostId/rsvp-forms/:formId/preview-token), so this must never
+ * be cached. */
+export function getRsvpFormPreview(id: number | string, token: string): Promise<RsvpForm> {
+  return apiGet<RsvpForm>(`/rsvp-forms/${id}/preview`, { token }, 0);
+}
+
 // Submission happens from the browser (no login, so there's no session to
 // proxy through a server action), which means it needs a build-time-inlined
 // base URL rather than server-only `TIXX_API_BASE_URL` — see
@@ -42,7 +50,11 @@ export async function submitRsvpForm(
   if (!res.ok) {
     const body = (await res.json().catch(() => null)) as RsvpSubmissionErrorResponse | null;
     throw new RsvpSubmissionError(
-      body ?? { code: 'VALIDATION_ERROR', message: `RSVP submission failed (${res.status})` }
+      body ?? {
+        code: 'VALIDATION_ERROR',
+        message: `RSVP submission failed (${res.status})`,
+        errors: [],
+      }
     );
   }
 }

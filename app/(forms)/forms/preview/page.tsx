@@ -7,9 +7,10 @@ interface PageProps {
 }
 
 // Dev-only mock-data harness — visits the real component tree
-// (RsvpFormView -> RsvpFormShell/RsvpStepEngine/rsvpBlocks) without needing
-// the not-yet-built backend. 404s in production so it never ships as a
-// public route. Try ?fixture=color-bg | image-bg | minimal.
+// (RsvpFormView -> RsvpFormShell/RsvpStepEngine/rsvpBlocks) without needing a
+// live host session or preview token. For the real token-gated preview, see
+// app/(forms)/forms/[id]/preview/page.tsx. 404s in production so this never
+// ships as a public route. Try ?fixture=color-bg | image-bg | minimal.
 export default async function RsvpFormPreviewPage({ searchParams }: PageProps) {
   if (process.env.NODE_ENV === 'production') notFound();
 

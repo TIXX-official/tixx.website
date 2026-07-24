@@ -14,9 +14,10 @@ import { isRsvpBlockValid, renderRsvpBlock } from './rsvpBlocks';
 // remapped. See docs/rsvp-form-feature-plan.md section 3 ("공개 상태·수정 충돌").
 const FORM_CHANGED_RELOAD_DELAY_MS = 1500;
 
+// Every RsvpSubmissionErrorResponse variant carries a `message`, but it's
+// the backend's internal/English description (e.g. "RSVP form has
+// changed") — not copy meant for visitors. Map by `code` instead.
 function resolveErrorMessage(response: RsvpSubmissionErrorResponse): string {
-  if (response.message) return response.message;
-
   switch (response.code) {
     case 'FORM_NOT_FOUND':
       return '이 폼은 더 이상 사용할 수 없습니다.';
@@ -35,9 +36,6 @@ export function RsvpFormView({ form }: { form: RsvpForm }) {
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  // Honeypot: hidden from real visitors via CSS, so a filled value here means
-  // an automated submission — see docs/rsvp-form-api-requirements.md section 5.
-  const [honeypot, setHoneypot] = useState('');
 
   const coverContent = (
     <>
@@ -74,7 +72,6 @@ export function RsvpFormView({ form }: { form: RsvpForm }) {
         blockId: Number(blockId),
         value,
       })),
-      website: honeypot,
     };
 
     try {
@@ -103,27 +100,15 @@ export function RsvpFormView({ form }: { form: RsvpForm }) {
           </p>
         </main>
       ) : (
-        <>
-          <input
-            type="text"
-            name="website"
-            tabIndex={-1}
-            autoComplete="off"
-            aria-hidden="true"
-            value={honeypot}
-            onChange={(e) => setHoneypot(e.target.value)}
-            className="absolute left-[-9999px] h-0 w-0 opacity-0"
-          />
-          <RsvpStepEngine
-            coverContent={coverContent}
-            blocks={form.blocks}
-            renderBlock={renderRsvpBlock}
-            isBlockValid={isRsvpBlockValid}
-            onComplete={handleComplete}
-            isSubmitting={isSubmitting}
-            submitError={submitError}
-          />
-        </>
+        <RsvpStepEngine
+          coverContent={coverContent}
+          blocks={form.blocks}
+          renderBlock={renderRsvpBlock}
+          isBlockValid={isRsvpBlockValid}
+          onComplete={handleComplete}
+          isSubmitting={isSubmitting}
+          submitError={submitError}
+        />
       )}
     </RsvpFormShell>
   );

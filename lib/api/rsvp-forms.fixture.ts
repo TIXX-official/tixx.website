@@ -1,7 +1,9 @@
 import type { RsvpForm } from './types';
 
-// Mock data for local development/QA only — the real backend API doesn't
-// exist yet (see docs/rsvp-form-api-requirements.md). Consumed by
+// Mock data for local development/QA only — lets the component tree
+// (RsvpFormView -> RsvpFormShell/RsvpStepEngine/rsvpBlocks) be iterated on
+// without a live host session or preview token. For the real integration
+// see getRsvpForm/getRsvpFormPreview in ./rsvp-forms.ts. Consumed by
 // app/(forms)/forms/preview/page.tsx, which 404s outside development.
 
 const BASE_BLOCKS: RsvpForm['blocks'] = [

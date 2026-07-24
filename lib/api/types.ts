@@ -224,10 +224,10 @@ export interface TermsListItem {
   effectiveAt: string;
 }
 
-// RSVP forms: no `@tixx/schema` equivalent exists yet (feature is still
-// pending backend implementation, see docs/rsvp-form-api-requirements.md in
-// the tixx monorepo). Shapes here follow that request document's proposal
-// and may need to change once the real API lands.
+// RSVP forms: mirrors `PublicRsvpFormDto`/`RsvpSubmission*` in
+// `@tixx/schema` (packages/schema/src/rsvp-forms.ts) in the tixx monorepo.
+// Duplicated here for the same reason as the types above — only the
+// read/submit subset this site needs.
 
 export type RsvpFormFontId = 'pretendard' | 'outfit' | 'inter' | 'notoSansKr';
 export type RsvpFormSizeScale = 'sm' | 'md' | 'lg';
@@ -322,16 +322,24 @@ export interface CreateRsvpSubmissionRequest {
   // visitor (see FORM_CHANGED below).
   revision: number;
   answers: RsvpSubmissionAnswer[];
-  // Honeypot field: real visitors never fill this (hidden via CSS), bots
-  // filling every input often do. Empty/absent on submit is the expected case.
-  website?: string;
 }
 
-/** Failure shape proposed in docs/rsvp-form-api-requirements.md section 4 */
-export interface RsvpSubmissionErrorResponse {
-  code: 'FORM_NOT_FOUND' | 'FORM_CHANGED' | 'RATE_LIMITED' | 'VALIDATION_ERROR';
+/** One entry of VALIDATION_ERROR's `errors` array — per-block validation
+ * failure (RsvpValidationErrorSchema in @tixx/schema). `message` is an
+ * internal/English description, not meant to be shown to visitors as-is. */
+export interface RsvpValidationErrorDetail {
   blockId?: number;
-  message?: string;
-  // Present on RATE_LIMITED (see docs/rsvp-form-api-requirements.md section 5).
-  retryAfterSeconds?: number;
+  code: string;
+  message: string;
 }
+
+/** Failure shape returned by POST /rsvp-forms/:id/submissions, matching
+ * @tixx/schema (RsvpValidationErrorSchema + the plain {code, message}
+ * exceptions thrown for the other cases). `message` on every variant is an
+ * internal/English description for logs — build user-facing copy from
+ * `code` instead (see resolveErrorMessage in RsvpFormView.tsx). */
+export type RsvpSubmissionErrorResponse =
+  | { code: 'FORM_NOT_FOUND'; message?: string }
+  | { code: 'FORM_CHANGED'; message?: string }
+  | { code: 'RATE_LIMITED'; message?: string; retryAfterSeconds?: number }
+  | { code: 'VALIDATION_ERROR'; message?: string; errors: RsvpValidationErrorDetail[] };
