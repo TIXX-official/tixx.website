@@ -211,7 +211,7 @@ export function PhoneCountryPicker({ value, onChange }: PhoneCountryPickerProps)
                   setHighlightedIndex(0);
                 }}
                 placeholder="국가 검색"
-                className="w-full bg-transparent text-sm outline-none"
+                className="w-full bg-transparent outline-none"
               />
             </div>
             <ul className="max-h-64 overflow-y-auto py-1">

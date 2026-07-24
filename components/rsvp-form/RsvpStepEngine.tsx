@@ -146,7 +146,7 @@ export function RsvpStepEngine({
 
       {/* Mobile: one large fixed bottom button, small back button inline to
           its left when available. */}
-      <div className="fixed inset-x-0 bottom-0 z-20 flex flex-col gap-2 bg-[var(--rsvp-bg-color)]/90 px-4 py-4 backdrop-blur md:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-20 flex flex-col gap-2 px-4 py-4 md:hidden">
         {submitError && <p className="text-center text-sm text-red-400">{submitError}</p>}
         <div className="flex items-center gap-3">
           {stepIndex >= 1 && (
