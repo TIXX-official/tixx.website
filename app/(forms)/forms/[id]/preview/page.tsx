@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { RsvpFormView } from '@/components/rsvp-form/RsvpFormView';
+import { RsvpFormPreviewBridge } from '@/components/rsvp-form/RsvpFormPreviewBridge';
 import { ApiNotFoundError, ApiUnauthorizedError } from '@/lib/api/client';
 import { getRsvpFormPreview } from '@/lib/api/rsvp-forms';
 
@@ -31,5 +31,5 @@ export default async function RsvpFormPreviewPage({ params, searchParams }: Page
     throw error;
   }
 
-  return <RsvpFormView form={form} isPreview />;
+  return <RsvpFormPreviewBridge initialForm={form} />;
 }
