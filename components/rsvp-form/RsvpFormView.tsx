@@ -32,7 +32,7 @@ function resolveErrorMessage(response: RsvpSubmissionErrorResponse): string {
   }
 }
 
-export function RsvpFormView({ form }: { form: RsvpForm }) {
+export function RsvpFormView({ form, isPreview = false }: { form: RsvpForm; isPreview?: boolean }) {
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -63,6 +63,15 @@ export function RsvpFormView({ form }: { form: RsvpForm }) {
   );
 
   const handleComplete = async (answers: RsvpAnswers) => {
+    // Never actually submit from a preview — the form here may be a draft
+    // (submissions require published) or, worse, an already-published form
+    // a host is just checking the look of, where a real POST would create a
+    // genuine RSVP entry mixed in with real visitor data.
+    if (isPreview) {
+      setSubmitted(true);
+      return;
+    }
+
     setSubmitError(null);
     setIsSubmitting(true);
 
@@ -96,8 +105,11 @@ export function RsvpFormView({ form }: { form: RsvpForm }) {
       {submitted ? (
         <main className="flex min-h-screen flex-col items-center justify-center px-6 text-center">
           <p className="text-2xl font-semibold" style={{ fontSize: 'var(--rsvp-label-size)' }}>
-            제출이 완료되었습니다
+            {isPreview ? '프리뷰에서는 제출이 되지 않아요' : '제출이 완료되었습니다'}
           </p>
+          {isPreview && (
+            <p className="mt-2 text-sm opacity-60">실제 방문자가 제출하면 이렇게 완료 화면이 보여요.</p>
+          )}
         </main>
       ) : (
         <RsvpStepEngine

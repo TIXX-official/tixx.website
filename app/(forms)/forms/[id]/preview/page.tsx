@@ -31,5 +31,5 @@ export default async function RsvpFormPreviewPage({ params, searchParams }: Page
     throw error;
   }
 
-  return <RsvpFormView form={form} />;
+  return <RsvpFormView form={form} isPreview />;
 }
