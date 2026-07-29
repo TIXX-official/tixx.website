@@ -1,5 +1,6 @@
 'use client';
 
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 import type { CreateRsvpSubmissionRequest, RsvpForm, RsvpSubmissionErrorResponse } from '@/lib/api/types';
@@ -44,6 +45,7 @@ export function RsvpFormView({ form, isPreview = false }: { form: RsvpForm; isPr
   // can't leave the page stuck hidden forever.
   const [backgroundReady, setBackgroundReady] = useState(!form.theme.backgroundImage);
   const [posterReady, setPosterReady] = useState(!form.posterImageUrl);
+  const [captionExpanded, setCaptionExpanded] = useState(false);
   const ready = backgroundReady && posterReady;
 
   const coverContent = (
@@ -64,9 +66,32 @@ export function RsvpFormView({ form, isPreview = false }: { form: RsvpForm; isPr
       )}
       {form.title && <h1 className="max-w-md text-xl font-semibold">{form.title}</h1>}
       {form.caption && (
-        <p className="max-w-md font-medium" style={{ fontSize: 'var(--rsvp-label-size)' }}>
-          {form.caption}
-        </p>
+        <div className="max-w-md">
+          <p
+            className="font-medium"
+            style={{
+              fontSize: 'var(--rsvp-label-size)',
+              ...(captionExpanded
+                ? {}
+                : {
+                    display: '-webkit-box',
+                    WebkitLineClamp: 5,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                  }),
+            }}
+          >
+            {form.caption}
+          </p>
+          <button
+            type="button"
+            onClick={() => setCaptionExpanded((prev) => !prev)}
+            aria-expanded={captionExpanded}
+            className="mt-1 flex w-full justify-center opacity-60"
+          >
+            {captionExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+          </button>
+        </div>
       )}
       {form.showHostBadge && form.host && (
         <p className="text-sm opacity-60">Hosted by {form.host.name}</p>
