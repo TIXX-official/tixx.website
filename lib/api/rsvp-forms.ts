@@ -5,9 +5,14 @@ import type {
   RsvpSubmissionErrorResponse,
 } from './types';
 
-/** GET /rsvp-forms/:id — public, unauthenticated, called server-side at render time. */
+/** GET /rsvp-forms/:id — public, unauthenticated, called server-side at render time.
+ * Must never be cached: the client echoes back the `revision` it read here on
+ * submit, and the API rejects a stale revision with FORM_CHANGED. apiGet's
+ * default 60s cache would keep serving a pre-edit revision to guests (and to
+ * the FORM_CHANGED recovery reload itself) long after a host publishes a
+ * change, making every submission in that window fail and loop. */
 export function getRsvpForm(id: number | string): Promise<RsvpForm> {
-  return apiGet<RsvpForm>(`/rsvp-forms/${id}`);
+  return apiGet<RsvpForm>(`/rsvp-forms/${id}`, undefined, 0);
 }
 
 /** GET /rsvp-forms/:id/preview — token-gated, returns draft or published
