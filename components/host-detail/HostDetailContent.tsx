@@ -179,14 +179,14 @@ export function HostDetailContent({
 
         {hasSidebar && (
           <div className="mt-6 hidden px-4 lg:col-start-2 lg:row-start-2 lg:mt-0 lg:block lg:px-0 lg:sticky lg:top-8">
-            {ctaLabel && <AppCTA label={ctaLabel} />}
+            {ctaLabel && <AppCTA label={ctaLabel} deepLink={`tixx://host/${host.id}`} />}
           </div>
         )}
       </div>
 
       {ctaLabel && (
         <div className="fixed bottom-0 left-0 right-0 lg:hidden">
-          <AppCTA label={ctaLabel} />
+          <AppCTA label={ctaLabel} deepLink={`tixx://host/${host.id}`} />
         </div>
       )}
 

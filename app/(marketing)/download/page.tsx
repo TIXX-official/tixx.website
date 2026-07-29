@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { APP_STORE_URL, PLAY_STORE_URL } from "@/lib/deepLink";
 
 function AppleIcon({ className }: { className?: string }) {
     return (
@@ -37,7 +38,7 @@ export default function DownloadPage() {
 
                     <div className="flex flex-col md:flex-row gap-6 justify-center">
                         <a
-                            href="https://apps.apple.com/us/app/tixx/id6737306169"
+                            href={APP_STORE_URL}
                             className="flex items-center justify-center gap-4 px-8 py-6 bg-zinc-900 rounded-2xl border border-zinc-800 hover:border-neon-lime hover:bg-zinc-800 transition-all group w-full md:w-64"
                         >
                             <AppleIcon className="w-8 h-8 text-white group-hover:text-neon-lime transition-colors" />
@@ -48,7 +49,7 @@ export default function DownloadPage() {
                         </a>
 
                         <a
-                            href="https://play.google.com/store/apps/details?id=com.tixx.mobile"
+                            href={PLAY_STORE_URL}
                             className="flex items-center justify-center gap-4 px-8 py-6 bg-zinc-900 rounded-2xl border border-zinc-800 hover:border-neon-lime hover:bg-zinc-800 transition-all group w-full md:w-64"
                         >
                             <GooglePlayIcon className="w-8 h-8 text-white group-hover:text-neon-lime transition-colors" />
