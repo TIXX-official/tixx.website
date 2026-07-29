@@ -214,7 +214,7 @@ export function HostDetailContent({
             {ctaLabel && (
               <AppCTA
                 label={ctaLabel}
-                deepLink={`https://tixx.im/hosts/${host.id}`}
+                deepLink={`tixx://host/${host.id}`}
               />
             )}
           </div>
@@ -225,7 +225,7 @@ export function HostDetailContent({
         <div className='fixed bottom-0 left-0 right-0 lg:hidden'>
           <AppCTA
             label={ctaLabel}
-            deepLink={`https://tixx.im/hosts/${host.id}`}
+            deepLink={`tixx://host/${host.id}`}
           />
         </div>
       )}

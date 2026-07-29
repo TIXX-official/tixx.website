@@ -186,7 +186,7 @@ export function EventDetailContent({ event }: { event: EventDetail }) {
           <div className='mt-6 hidden px-4 lg:col-start-2 lg:row-start-2 lg:mt-0 lg:block lg:px-0 lg:sticky lg:top-8'>
             <AppCTA
               label={ctaLabel}
-              deepLink={`https://tixx.im/events/${event.id}`}
+              deepLink={`tixx://event/${event.id}`}
             />
           </div>
         )}
@@ -196,7 +196,7 @@ export function EventDetailContent({ event }: { event: EventDetail }) {
         <div className='fixed bottom-0 left-0 right-0 lg:hidden'>
           <AppCTA
             label={ctaLabel}
-            deepLink={`https://tixx.im/events/${event.id}`}
+            deepLink={`tixx://event/${event.id}`}
           />
         </div>
       )}

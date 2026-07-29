@@ -11,12 +11,16 @@ function detectPlatform(): 'ios' | 'android' | 'other' {
 }
 
 /**
- * Tries to hand off to the native app via a Universal Link
- * (`https://tixx.im/events/:id` etc — the same URL shape used for shared
- * links, parsed by apps/mobile's useUniversalLink hook). If the app
- * doesn't take over the page within `timeoutMs` (i.e. it isn't
- * installed), falls back to the matching app store on mobile, or the
- * marketing download page on desktop.
+ * Tries to hand off to the native app via its custom URL scheme
+ * (`tixx://event/:id`, `tixx://host/:id` — parsed by apps/mobile's
+ * useUniversalLink hook alongside Universal Links). Unlike a Universal
+ * Link, this also works when the page is loaded inside an in-app browser
+ * (KakaoTalk, Instagram, etc.), since those WebViews generally forward
+ * unrecognized custom schemes to the OS even though they never trigger
+ * Universal Link interception. If the app doesn't take over the page
+ * within `timeoutMs` (i.e. it isn't installed), falls back to the
+ * matching app store on mobile, or the marketing download page on
+ * desktop.
  */
 export function openAppOrFallback(deepLinkUrl: string, timeoutMs = 1500) {
   const platform = detectPlatform();
