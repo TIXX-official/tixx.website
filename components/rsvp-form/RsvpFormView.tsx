@@ -52,7 +52,7 @@ export function RsvpFormView({ form, isPreview = false }: { form: RsvpForm; isPr
         <div className="relative aspect-[4/5] w-full max-w-sm overflow-hidden rounded-2xl">
           <Image
             src={form.posterImageUrl}
-            alt={form.caption ?? 'RSVP'}
+            alt={form.title ?? form.caption ?? 'RSVP'}
             fill
             priority
             sizes="(min-width: 640px) 384px, 100vw"
@@ -62,6 +62,7 @@ export function RsvpFormView({ form, isPreview = false }: { form: RsvpForm; isPr
           />
         </div>
       )}
+      {form.title && <h1 className="max-w-md text-xl font-semibold">{form.title}</h1>}
       {form.caption && (
         <p className="max-w-md font-medium" style={{ fontSize: 'var(--rsvp-label-size)' }}>
           {form.caption}

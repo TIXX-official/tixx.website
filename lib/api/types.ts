@@ -300,6 +300,7 @@ export interface RsvpForm {
   // submission so the server can detect a stale form (see FORM_CHANGED).
   revision: number;
   posterImageUrl: string | null;
+  title: string | null;
   caption: string | null;
   theme: RsvpFormTheme;
   showHostBadge: boolean;

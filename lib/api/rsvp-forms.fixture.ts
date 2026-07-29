@@ -73,6 +73,7 @@ export const RSVP_FORM_FIXTURES: Record<string, RsvpForm> = {
     status: 'published',
     revision: 1,
     posterImageUrl: '/images/dj-club.png',
+    title: '2026 여름 루프탑 파티',
     caption: '2026 여름 루프탑 파티에 초대합니다',
     theme: {
       fontId: 'pretendard',
@@ -96,6 +97,7 @@ export const RSVP_FORM_FIXTURES: Record<string, RsvpForm> = {
     status: 'published',
     revision: 1,
     posterImageUrl: '/images/dj-club.png',
+    title: '2026 여름 루프탑 파티',
     caption: '2026 여름 루프탑 파티에 초대합니다',
     theme: {
       fontId: 'outfit',
@@ -119,7 +121,14 @@ export const RSVP_FORM_FIXTURES: Record<string, RsvpForm> = {
     status: 'published',
     revision: 1,
     posterImageUrl: '/images/dj-club.png',
-    caption: '2026 여름 루프탑 파티에 초대합니다',
+    title: '2026 여름 루프탑 파티',
+    caption:
+      '2026 여름 루프탑 파티에 초대합니다.\n' +
+      '이번 파티는 도심 속 루프탑에서 열리는 특별한 자리로, 좋은 음악과 사람들이 함께합니다.\n' +
+      '가볍게 즐길 수 있는 다과와 음료가 준비되어 있으며, 편안한 복장으로 참석하시면 됩니다.\n' +
+      '우천 시에는 실내 공간으로 자리를 옮겨 진행할 예정이니 참고해 주세요.\n' +
+      '입장 시 신분 확인이 있을 수 있으니 신분증을 꼭 지참해 주세요.\n' +
+      '궁금한 점이 있으면 호스트에게 편하게 문의해 주세요. 즐거운 시간 함께해요!',
     theme: {
       fontId: 'inter',
       fontColor: '#111111',
@@ -142,6 +151,7 @@ export const RSVP_FORM_FIXTURES: Record<string, RsvpForm> = {
     status: 'published',
     revision: 1,
     posterImageUrl: null,
+    title: null,
     caption: '조용한 소모임 RSVP',
     theme: {
       fontId: 'notoSansKr',

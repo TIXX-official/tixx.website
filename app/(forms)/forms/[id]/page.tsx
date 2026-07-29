@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   try {
     const form = await getRsvpForm(id);
-    const title = form.caption ?? (form.host ? `${form.host.name}의 초대장` : 'RSVP');
+    const title = form.title ?? form.caption ?? (form.host ? `${form.host.name}의 초대장` : 'RSVP');
     const url = absoluteUrl(`/forms/${id}`);
 
     return {

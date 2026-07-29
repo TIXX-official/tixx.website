@@ -18,6 +18,7 @@ interface RsvpPreviewUpdatePayload {
   theme: RsvpFormTheme;
   blocks: Array<Omit<RsvpFormBlock, 'id' | 'order'> & { id?: number; order?: number }>;
   posterImageUrl: string | null;
+  title: string | null;
   caption: string | null;
   showHostBadge: boolean;
 }
@@ -79,6 +80,7 @@ export function RsvpFormPreviewBridge({ initialForm }: { initialForm: RsvpForm }
         ...prev,
         theme: payload.theme,
         posterImageUrl: payload.posterImageUrl,
+        title: payload.title,
         caption: payload.caption,
         showHostBadge: payload.showHostBadge,
         blocks: withStableIds(payload.blocks),
