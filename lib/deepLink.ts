@@ -11,13 +11,12 @@ function detectPlatform(): 'ios' | 'android' | 'other' {
 }
 
 /**
- * Tries to hand off to the native app via its custom URL scheme
- * (`tixx://...`). If the app doesn't take over the page within
- * `timeoutMs` (i.e. it isn't installed), falls back to the matching app
- * store on mobile, or the marketing download page on desktop — where a
- * custom-scheme handoff isn't possible anyway.
- * Mirrors apps/mobile's `tixx://event/:id` / `tixx://host/:id` scheme
- * (see apps/mobile/src/hooks/useShareLink.ts).
+ * Tries to hand off to the native app via a Universal Link
+ * (`https://tixx.im/events/:id` etc — the same URL shape used for shared
+ * links, parsed by apps/mobile's useUniversalLink hook). If the app
+ * doesn't take over the page within `timeoutMs` (i.e. it isn't
+ * installed), falls back to the matching app store on mobile, or the
+ * marketing download page on desktop.
  */
 export function openAppOrFallback(deepLinkUrl: string, timeoutMs = 1500) {
   const platform = detectPlatform();
