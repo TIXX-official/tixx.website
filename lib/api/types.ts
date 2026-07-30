@@ -229,7 +229,18 @@ export interface TermsListItem {
 // Duplicated here for the same reason as the types above — only the
 // read/submit subset this site needs.
 
-export type RsvpFormFontId = 'pretendard' | 'outfit' | 'inter' | 'notoSansKr';
+export type RsvpFormFontId =
+  | 'pretendard'
+  | 'notoSansKr'
+  | 'notoSerifKr'
+  | 'nanumMyeongjo'
+  | 'nanumGothic'
+  | 'gowunDodum'
+  | 'doHyeon'
+  | 'blackHanSans'
+  | 'jua'
+  | 'nanumPenScript'
+  | 'ibmPlexSansKr';
 export type RsvpFormSizeScale = 'sm' | 'md' | 'lg';
 export type RsvpFormAlignment = 'left' | 'center';
 

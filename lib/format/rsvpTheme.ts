@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import type { RsvpFormFontId, RsvpFormSizeScale, RsvpFormTheme } from '@/lib/api/types';
+import type { RsvpFormSizeScale, RsvpFormTheme } from '@/lib/api/types';
 
 function normalizeHexColor(color?: string | null): string | null {
   if (!color) return null;
@@ -52,13 +52,25 @@ export function buildBackgroundOverlayColor(brightness: number): string | null {
   return `rgba(${rgbTriplet}, ${opacity})`;
 }
 
-// Preset font stack per fontId — reuses the CSS vars already declared in
-// app/globals.css (`@theme`), so no new font downloads/dependencies.
-const FONT_VAR_BY_ID: Record<RsvpFormFontId, string> = {
+// Preset font stack per fontId — points straight at each next/font
+// `variable` CSS var declared in app/(forms)/layout.tsx (pretendard is the
+// one exception, wired to the local self-hosted @font-face in globals.css).
+// Keyed as `Record<string, string>` rather than `Record<RsvpFormFontId, string>`
+// on purpose: the runtime value comes from an API response / WebView
+// postMessage payload, which isn't guaranteed to match the TS union, so the
+// lookup below needs a real (non-dead-code) fallback for unrecognized ids.
+const FONT_VAR_BY_ID: Record<string, string> = {
   pretendard: 'var(--font-pretendard)',
-  outfit: 'var(--font-display)',
-  inter: 'var(--font-sans)',
-  notoSansKr: 'var(--font-kr)',
+  notoSansKr: 'var(--font-noto-sans-kr)',
+  notoSerifKr: 'var(--font-noto-serif-kr)',
+  nanumMyeongjo: 'var(--font-nanum-myeongjo)',
+  nanumGothic: 'var(--font-nanum-gothic)',
+  gowunDodum: 'var(--font-gowun-dodum)',
+  doHyeon: 'var(--font-do-hyeon)',
+  blackHanSans: 'var(--font-black-han-sans)',
+  jua: 'var(--font-jua)',
+  nanumPenScript: 'var(--font-nanum-pen-script)',
+  ibmPlexSansKr: 'var(--font-ibm-plex-sans-kr)',
 };
 
 // Main question label size per sizeScale preset.
@@ -108,7 +120,7 @@ export function buildRsvpThemeStyle(theme: RsvpFormTheme): RsvpThemeCssVars {
   return {
     '--rsvp-bg-color': theme.backgroundColor,
     '--rsvp-font-color': theme.fontColor,
-    '--rsvp-font': FONT_VAR_BY_ID[theme.fontId],
+    '--rsvp-font': FONT_VAR_BY_ID[theme.fontId] ?? FONT_VAR_BY_ID.pretendard,
     '--rsvp-label-size': LABEL_FONT_SIZE_BY_SCALE[theme.sizeScale],
     '--rsvp-title-size': TITLE_FONT_SIZE_BY_SCALE[theme.sizeScale],
     '--rsvp-caption-size': CAPTION_FONT_SIZE_BY_SCALE[theme.sizeScale],

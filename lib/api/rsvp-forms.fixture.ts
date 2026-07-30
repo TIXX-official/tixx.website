@@ -100,7 +100,7 @@ export const RSVP_FORM_FIXTURES: Record<string, RsvpForm> = {
     title: '2026 여름 루프탑 파티',
     caption: '2026 여름 루프탑 파티에 초대합니다',
     theme: {
-      fontId: 'outfit',
+      fontId: 'blackHanSans',
       fontColor: '#ffffff',
       sizeScale: 'lg',
       alignment: 'left',
@@ -130,7 +130,7 @@ export const RSVP_FORM_FIXTURES: Record<string, RsvpForm> = {
       '입장 시 신분 확인이 있을 수 있으니 신분증을 꼭 지참해 주세요.\n' +
       '궁금한 점이 있으면 호스트에게 편하게 문의해 주세요. 즐거운 시간 함께해요!',
     theme: {
-      fontId: 'inter',
+      fontId: 'ibmPlexSansKr',
       fontColor: '#111111',
       sizeScale: 'md',
       alignment: 'center',
