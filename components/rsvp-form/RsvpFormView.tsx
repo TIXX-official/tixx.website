@@ -65,14 +65,17 @@ export function RsvpFormView({ form, isPreview = false }: { form: RsvpForm; isPr
         </div>
       )}
       {form.title && (
-        <h1 className="max-w-md font-semibold" style={{ fontSize: 'var(--rsvp-title-size)' }}>
+        <h1
+          className="max-w-md whitespace-pre-line font-semibold"
+          style={{ fontSize: 'var(--rsvp-title-size)' }}
+        >
           {form.title}
         </h1>
       )}
       {form.caption && (
         <div className="max-w-md">
           <p
-            className="font-medium"
+            className="whitespace-pre-line font-medium"
             style={{
               fontSize: 'var(--rsvp-label-size)',
               ...(captionExpanded

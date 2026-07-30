@@ -31,7 +31,7 @@ const answerStyle: CSSProperties = { color: 'var(--rsvp-answer-color)', ...rsvpT
 function QuestionLabel({ number, children }: { number: number; children: ReactNode }) {
   return (
     <h2
-      className="w-full font-semibold"
+      className="w-full whitespace-pre-line font-semibold"
       style={{ fontSize: 'var(--rsvp-label-size)', ...rsvpTextAlignStyle }}
     >
       <span
@@ -218,7 +218,7 @@ function LegalBlock({ block, value, onChange, questionNumber }: BlockProps) {
     <>
       <QuestionLabel number={questionNumber}>{block.label}</QuestionLabel>
       {config?.content && (
-        <p className="max-h-40 w-full overflow-y-auto rounded-lg bg-white/5 p-4 text-left text-sm opacity-80">
+        <p className="max-h-40 w-full overflow-y-auto whitespace-pre-line rounded-lg bg-white/5 p-4 text-left text-sm opacity-80">
           {config.content}
         </p>
       )}
