@@ -77,7 +77,7 @@ export function RsvpFormView({ form, isPreview = false }: { form: RsvpForm; isPr
           <p
             className="whitespace-pre-line font-medium"
             style={{
-              fontSize: 'var(--rsvp-label-size)',
+              fontSize: 'var(--rsvp-caption-size)',
               ...(captionExpanded
                 ? {}
                 : {

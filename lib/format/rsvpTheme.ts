@@ -80,12 +80,23 @@ const TITLE_FONT_SIZE_BY_SCALE: Record<RsvpFormSizeScale, string> = {
   lg: '2.75rem',
 };
 
+// Caption body-text size per sizeScale preset — deliberately decoupled from
+// the label size. The caption holds longer, paragraph-style copy (an event
+// description), not a short headline, so it needs a standard reading size
+// for mobile legibility rather than scaling up alongside question labels.
+const CAPTION_FONT_SIZE_BY_SCALE: Record<RsvpFormSizeScale, string> = {
+  sm: '0.9375rem',
+  md: '1rem',
+  lg: '1.125rem',
+};
+
 export interface RsvpThemeCssVars extends CSSProperties {
   '--rsvp-bg-color': string;
   '--rsvp-font-color': string;
   '--rsvp-font': string;
   '--rsvp-label-size': string;
   '--rsvp-title-size': string;
+  '--rsvp-caption-size': string;
   '--rsvp-button-color': string;
   '--rsvp-button-text-color': string;
   '--rsvp-answer-color': string;
@@ -100,6 +111,7 @@ export function buildRsvpThemeStyle(theme: RsvpFormTheme): RsvpThemeCssVars {
     '--rsvp-font': FONT_VAR_BY_ID[theme.fontId],
     '--rsvp-label-size': LABEL_FONT_SIZE_BY_SCALE[theme.sizeScale],
     '--rsvp-title-size': TITLE_FONT_SIZE_BY_SCALE[theme.sizeScale],
+    '--rsvp-caption-size': CAPTION_FONT_SIZE_BY_SCALE[theme.sizeScale],
     '--rsvp-button-color': theme.buttonColor,
     '--rsvp-button-text-color': theme.buttonTextColor,
     '--rsvp-answer-color': theme.answerColor,
