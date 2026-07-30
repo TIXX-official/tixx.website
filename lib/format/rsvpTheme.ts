@@ -63,6 +63,18 @@ const FONT_VAR_BY_ID: Record<RsvpFormFontId, string> = {
 
 // Main question label size per sizeScale preset.
 const LABEL_FONT_SIZE_BY_SCALE: Record<RsvpFormSizeScale, string> = {
+  sm: '1.25rem',
+  md: '1.75rem',
+  lg: '2.25rem',
+};
+
+// Cover title size per sizeScale preset — a modest step above the label
+// size (rather than a large multiple of it) so the title stays the most
+// prominent text on the cover without dominating the screen: the cover
+// packs poster + title + caption + button into one non-scrolling viewport
+// (see RsvpStepEngine's overflow-hidden step container), so an oversized
+// title pushes content below the fold on short mobile screens.
+const TITLE_FONT_SIZE_BY_SCALE: Record<RsvpFormSizeScale, string> = {
   sm: '1.5rem',
   md: '2rem',
   lg: '2.75rem',
@@ -73,6 +85,7 @@ export interface RsvpThemeCssVars extends CSSProperties {
   '--rsvp-font-color': string;
   '--rsvp-font': string;
   '--rsvp-label-size': string;
+  '--rsvp-title-size': string;
   '--rsvp-button-color': string;
   '--rsvp-button-text-color': string;
   '--rsvp-answer-color': string;
@@ -86,6 +99,7 @@ export function buildRsvpThemeStyle(theme: RsvpFormTheme): RsvpThemeCssVars {
     '--rsvp-font-color': theme.fontColor,
     '--rsvp-font': FONT_VAR_BY_ID[theme.fontId],
     '--rsvp-label-size': LABEL_FONT_SIZE_BY_SCALE[theme.sizeScale],
+    '--rsvp-title-size': TITLE_FONT_SIZE_BY_SCALE[theme.sizeScale],
     '--rsvp-button-color': theme.buttonColor,
     '--rsvp-button-text-color': theme.buttonTextColor,
     '--rsvp-answer-color': theme.answerColor,
