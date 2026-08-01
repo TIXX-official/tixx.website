@@ -10,7 +10,13 @@ import { buildMapEmbedUrl } from '@/lib/format/map';
 interface NaverMapsNamespace {
   LatLng: new (lat: number, lng: number) => unknown;
   Map: new (el: HTMLElement, options: { center: unknown; zoom: number }) => unknown;
-  Marker: new (options: { position: unknown; map: unknown }) => unknown;
+  Marker: new (options: {
+    position: unknown;
+    map: unknown;
+    icon?: { url: string; size: unknown; anchor: unknown };
+  }) => unknown;
+  Size: new (width: number, height: number) => unknown;
+  Point: new (x: number, y: number) => unknown;
 }
 
 declare global {
@@ -34,7 +40,15 @@ export function NaverMap({ place, className }: { place: Place; className?: strin
     if (!sdkReady || !mapRef.current || !window.naver?.maps) return;
     const center = new window.naver.maps.LatLng(Number(place.latitude), Number(place.longitude));
     const map = new window.naver.maps.Map(mapRef.current, { center, zoom: 16 });
-    new window.naver.maps.Marker({ position: center, map });
+    new window.naver.maps.Marker({
+      position: center,
+      map,
+      icon: {
+        url: '/icons/marker.svg',
+        size: new window.naver.maps.Size(18, 23),
+        anchor: new window.naver.maps.Point(9, 23),
+      },
+    });
   }, [sdkReady, place]);
 
   if (!NAVER_MAP_CLIENT_ID) {
