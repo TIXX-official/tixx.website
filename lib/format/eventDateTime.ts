@@ -44,11 +44,20 @@ export function parseEventDateTime(date: string, time: string): Date {
   return new Date(`${date}T${time}Z`);
 }
 
-/** If the event's time-of-day wraps past midnight, the mobile app displays
- * the end date shifted back a day so the range reads correctly. */
+/** If the event's time-of-day wraps past midnight in KST, the mobile app
+ * displays the end date shifted back a day so the range reads correctly.
+ * Time-of-day must be compared in KST, not the instant's raw UTC hours —
+ * otherwise events starting late in the KST evening (which fall on the UTC
+ * afternoon of the same day) get misjudged as spanning two calendar days. */
 export function resolveDisplayEndDateTime(start: Date, end: Date): Date {
-  const startMinutes = start.getUTCHours() * 60 + start.getUTCMinutes();
-  const endMinutes = end.getUTCHours() * 60 + end.getUTCMinutes();
+  const kstMinutesOfDay = (date: Date) => {
+    const [hours, minutes] = formatInTimeZone(date, EVENT_TIME_ZONE, 'HH:mm')
+      .split(':')
+      .map(Number);
+    return hours * 60 + minutes;
+  };
+  const startMinutes = kstMinutesOfDay(start);
+  const endMinutes = kstMinutesOfDay(end);
   if (startMinutes > endMinutes) {
     const adjusted = new Date(end);
     adjusted.setUTCDate(adjusted.getUTCDate() - 1);
