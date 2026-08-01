@@ -125,7 +125,7 @@ export function EventDetailContent({ event }: { event: EventDetail }) {
             <div className='mt-4'>
               <HashtagList categoryLabel={categoryLabel} hashtags={hashtags} />
             </div>
-            {event.host.name && (
+            {event.host.name && event.host.name !== 'ㅤ' && (
               <div className='mt-5'>
                 <HostInlineCard
                   host={event.host}
