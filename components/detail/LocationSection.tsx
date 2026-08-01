@@ -35,7 +35,7 @@ export function LocationSection({
       <div className="flex flex-row items-center gap-1">
         <MapPin size={16} className="flex-shrink-0 text-grayscale-300" />
         <Text variant="body3Regular" className="text-grayscale-300">
-          {place.name} · {place.address}
+          {place.address} {place.name}
         </Text>
       </div>
       {venue && (

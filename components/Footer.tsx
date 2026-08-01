@@ -20,10 +20,10 @@ export default function Footer() {
     ];
 
     return (
-        <footer id="about" className="bg-black border-t border-zinc-900 pt-20 pb-10 overflow-hidden">
+        <footer id="about" className="bg-black border-t border-zinc-900 pt-12 pb-8 md:pt-20 md:pb-10 overflow-hidden">
             {/* Partner Logo Marquee */}
             {isLandingPage && (
-                <div className="mb-20 opacity-40 hover:opacity-100 transition-opacity duration-500">
+                <div className="mb-12 md:mb-20 opacity-40 hover:opacity-100 transition-opacity duration-500">
                     <p className="text-center text-xs font-bold text-zinc-600 uppercase tracking-widest mb-8">
                         {t.marquee}
                     </p>
@@ -39,7 +39,7 @@ export default function Footer() {
                 </div>
             )}
 
-            <div className="px-6 max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-end gap-8">
+            <div className="px-6 max-w-7xl mx-auto flex flex-col md:flex-row justify-between md:items-end gap-6 md:gap-8">
                 <div>
                     <h2 className="text-3xl font-black text-white mb-4 font-display">{t.companyName}</h2>
                     <p className="text-zinc-600 text-sm max-w-xs mb-4">
@@ -52,8 +52,8 @@ export default function Footer() {
                         </a>
                     </div>
                 </div>
-                <div className="text-right text-zinc-600 text-xs">
-                    <div className="flex flex-wrap gap-4 justify-end mb-2">
+                <div className="text-center md:text-right text-zinc-600 text-xs">
+                    <div className="flex flex-wrap gap-4 justify-center md:justify-end mb-2">
                         <Link href="/terms" className="hover:text-white transition-colors">{t.termsOfService}</Link>
                         <Link href="/privacy" className="hover:text-white transition-colors">{t.privacyPolicy}</Link>
                         <Link href="/refund" className="hover:text-white transition-colors">{t.refundPolicy}</Link>
@@ -64,7 +64,7 @@ export default function Footer() {
             </div>
 
             {/* Company Info */}
-            <div className="border-t border-zinc-900 mt-10 pt-10">
+            <div className="border-t border-zinc-900 mt-8 pt-8 md:mt-10 md:pt-10">
                 <div className="container mx-auto max-w-7xl px-6">
                     <div
                         className="text-zinc-600 text-[10px] leading-relaxed font-kr"

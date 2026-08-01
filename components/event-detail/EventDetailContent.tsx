@@ -142,9 +142,14 @@ export function EventDetailContent({ event }: { event: EventDetail }) {
           <Divider />
           {event.participantCount > 0 && (
             <section>
-              <Text variant='headline2Medium' className='mb-3'>
-                {t.guestList}
-              </Text>
+              <div className='mb-3 flex flex-row items-center gap-2'>
+                <Text variant='headline2Medium'>{t.guestList}</Text>
+                <Text variant='headline2Medium' className='text-grayscale-300'>
+                  {event.participantCount.toLocaleString(
+                    language === 'KO' ? 'ko-KR' : 'en-US',
+                  )}
+                </Text>
+              </div>
               <AvatarStack
                 participants={event.participants}
                 participantCount={event.participantCount}

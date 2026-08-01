@@ -2,7 +2,7 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import type { Participant } from '@/lib/api/types';
 
-const MAX_VISIBLE = 8;
+const MAX_VISIBLE = 10;
 
 export function AvatarStack({
   participants,
@@ -16,7 +16,8 @@ export function AvatarStack({
   if (participantCount === 0) return null;
 
   const visible = participants.slice(0, MAX_VISIBLE);
-  const hasHiddenParticipants = participantCount > participants.length;
+  const hasHiddenParticipants =
+    participantCount > participants.length && participantCount <= MAX_VISIBLE;
   const hasOverflow = participantCount > visible.length;
 
   return (
