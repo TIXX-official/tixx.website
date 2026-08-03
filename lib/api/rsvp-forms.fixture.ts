@@ -71,6 +71,7 @@ export const RSVP_FORM_FIXTURES: Record<string, RsvpForm> = {
   'color-bg': {
     publicId: 'color-bg',
     status: 'published',
+    layoutType: 'step',
     revision: 1,
     posterImageUrl: '/images/dj-club.png',
     title: '2026 여름 루프탑 파티',
@@ -95,6 +96,7 @@ export const RSVP_FORM_FIXTURES: Record<string, RsvpForm> = {
   'image-bg': {
     publicId: 'image-bg',
     status: 'published',
+    layoutType: 'step',
     revision: 1,
     posterImageUrl: '/images/dj-club.png',
     title: '2026 여름 루프탑 파티',
@@ -119,6 +121,7 @@ export const RSVP_FORM_FIXTURES: Record<string, RsvpForm> = {
   'image-bg-light': {
     publicId: 'image-bg-light',
     status: 'published',
+    layoutType: 'scroll',
     revision: 1,
     posterImageUrl: '/images/dj-club.png',
     title: '2026 여름 루프탑 파티',
@@ -149,6 +152,7 @@ export const RSVP_FORM_FIXTURES: Record<string, RsvpForm> = {
   minimal: {
     publicId: 'minimal',
     status: 'published',
+    layoutType: 'step',
     revision: 1,
     posterImageUrl: null,
     title: null,
