@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import type { RsvpForm, RsvpFormBlock, RsvpFormTheme } from '@/lib/api/types';
+import type { RsvpForm, RsvpFormBlock, RsvpFormLayoutType, RsvpFormTheme } from '@/lib/api/types';
 import { RsvpFormView } from './RsvpFormView';
 
 declare global {
@@ -16,6 +16,7 @@ declare global {
 // PartnerRsvpFormPreviewWebView.buildPreviewPayload in apps/mobile.
 interface RsvpPreviewUpdatePayload {
   theme: RsvpFormTheme;
+  layoutType: RsvpFormLayoutType;
   blocks: Array<Omit<RsvpFormBlock, 'id' | 'order'> & { id?: number; order?: number }>;
   posterImageUrl: string | null;
   title: string | null;
@@ -79,6 +80,7 @@ export function RsvpFormPreviewBridge({ initialForm }: { initialForm: RsvpForm }
       setForm((prev) => ({
         ...prev,
         theme: payload.theme,
+        layoutType: payload.layoutType,
         posterImageUrl: payload.posterImageUrl,
         title: payload.title,
         caption: payload.caption,

@@ -6,6 +6,7 @@ import { useState } from 'react';
 import type { CreateRsvpSubmissionRequest, RsvpForm, RsvpSubmissionErrorResponse } from '@/lib/api/types';
 import { RsvpSubmissionError, submitRsvpForm } from '@/lib/api/rsvp-forms';
 import { RsvpFormShell } from './RsvpFormShell';
+import { RsvpScrollEngine } from './RsvpScrollEngine';
 import { RsvpAnswers, RsvpStepEngine } from './RsvpStepEngine';
 import { isRsvpBlockValid, renderRsvpBlock } from './rsvpBlocks';
 
@@ -159,6 +160,16 @@ export function RsvpFormView({ form, isPreview = false }: { form: RsvpForm; isPr
             <p className="mt-2 text-sm opacity-60">실제 방문자가 제출하면 이렇게 완료 화면이 보여요.</p>
           )}
         </main>
+      ) : form.layoutType === 'scroll' ? (
+        <RsvpScrollEngine
+          coverContent={coverContent}
+          blocks={form.blocks}
+          renderBlock={renderRsvpBlock}
+          isBlockValid={isRsvpBlockValid}
+          onComplete={handleComplete}
+          isSubmitting={isSubmitting}
+          submitError={submitError}
+        />
       ) : (
         <RsvpStepEngine
           coverContent={coverContent}

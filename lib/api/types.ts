@@ -303,10 +303,13 @@ export interface RsvpHostBadge {
 
 export type RsvpFormStatus = 'draft' | 'published';
 
+export type RsvpFormLayoutType = 'step' | 'scroll';
+
 /** GET /rsvp-forms/:id (public, unauthenticated) — only `published` forms are returned. */
 export interface RsvpForm {
   publicId: string;
   status: RsvpFormStatus;
+  layoutType: RsvpFormLayoutType;
   // Bumped by the backend whenever the form/blocks change. Echoed back on
   // submission so the server can detect a stale form (see FORM_CHANGED).
   revision: number;
