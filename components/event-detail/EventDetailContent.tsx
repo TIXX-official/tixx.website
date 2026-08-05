@@ -6,6 +6,7 @@ import { AppCTA } from '@/components/detail/AppCTA';
 import { Divider } from '@/components/detail/Divider';
 import { ExpandableCard } from '@/components/detail/ExpandableCard';
 import { AvatarStack } from '@/components/detail/AvatarStack';
+import { Button } from '@/components/detail/Button';
 import { GalleryGrid } from '@/components/detail/GalleryGrid';
 import { HashtagList } from '@/components/detail/HashtagList';
 import { HostInlineCard } from '@/components/detail/HostInlineCard';
@@ -13,6 +14,7 @@ import { LocationSection } from '@/components/detail/LocationSection';
 import { ShareButton } from '@/components/detail/ShareButton';
 import { SnsLinks } from '@/components/detail/SnsLinks';
 import { Text } from '@/components/detail/Text';
+import { openAppOrFallback } from '@/lib/deepLink';
 import { dictionary } from '@/lib/dictionary';
 import { useLanguage } from '@/lib/LanguageContext';
 import type { EventDetail } from '@/lib/api/types';
@@ -21,7 +23,7 @@ import {
   parseEventDateTime,
   resolveDisplayEndDateTime,
 } from '@/lib/format/eventDateTime';
-import { resolveEventCtaState } from '@/lib/format/ticket';
+import { hasGuestCodeTicket, resolveEventCtaState } from '@/lib/format/ticket';
 
 export function EventDetailContent({ event }: { event: EventDetail }) {
   const { language } = useLanguage();
@@ -46,6 +48,8 @@ export function EventDetailContent({ event }: { event: EventDetail }) {
   // The event's embedded `host` is a bare summary (id/name/imageUrl) with no
   // category — mirrors the mobile app's fallback ('hosts.categories.Host').
   const hostCategoryLabel = dictionary[language].hostDetail.categories.Host;
+
+  const showGuestCodeButton = hasGuestCodeTicket(event.tickets);
 
   const cta = resolveEventCtaState(event.tickets);
   const ctaLabel =
@@ -140,21 +144,37 @@ export function EventDetailContent({ event }: { event: EventDetail }) {
         {/* Left column: browsing content */}
         <div className='mt-6 flex flex-col gap-6 px-4 lg:col-start-1 lg:px-0'>
           <Divider />
-          {event.participantCount > 0 && (
+          {(event.participantCount > 0 || showGuestCodeButton) && (
             <section>
-              <div className='mb-3 flex flex-row items-center gap-2'>
-                <Text variant='headline2Medium'>{t.guestList}</Text>
-                <Text variant='headline2Medium' className='text-grayscale-300'>
-                  {event.participantCount.toLocaleString(
-                    language === 'KO' ? 'ko-KR' : 'en-US',
-                  )}
-                </Text>
-              </div>
-              <AvatarStack
-                participants={event.participants}
-                participantCount={event.participantCount}
-                blurred
-              />
+              {event.participantCount > 0 && (
+                <>
+                  <div className='mb-3 flex flex-row items-center gap-2'>
+                    <Text variant='headline2Medium'>{t.guestList}</Text>
+                    <Text
+                      variant='headline2Medium'
+                      className='text-grayscale-300'
+                    >
+                      {event.participantCount.toLocaleString(
+                        language === 'KO' ? 'ko-KR' : 'en-US',
+                      )}
+                    </Text>
+                  </div>
+                  <AvatarStack
+                    participants={event.participants}
+                    participantCount={event.participantCount}
+                    blurred
+                  />
+                </>
+              )}
+              {showGuestCodeButton && (
+                <Button
+                  variant='outline'
+                  className={event.participantCount > 0 ? 'mt-3' : undefined}
+                  onClick={() => openAppOrFallback('tixx://guest-ticket')}
+                >
+                  {t.enterGuestCode}
+                </Button>
+              )}
             </section>
           )}
 
