@@ -164,7 +164,9 @@ export function EventDetailContent({ event }: { event: EventDetail }) {
                 <Button
                   variant='outline'
                   className={event.participantCount > 0 ? 'mt-3' : undefined}
-                  onClick={() => openAppOrFallback('tixx://guest-ticket')}
+                  onClick={() =>
+                    openAppOrFallback(`tixx://event/${event.id}`)
+                  }
                 >
                   {t.enterGuestCode}
                 </Button>
