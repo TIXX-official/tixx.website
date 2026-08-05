@@ -60,12 +60,6 @@ export function EventDetailContent({ event }: { event: EventDetail }) {
         : cta.kind === 'waitlist'
           ? t.joinWaitlist
           : null;
-  // TEMP: event 789 uses a manually-created OneLink for testing before the
-  // per-event OneLink URL is generated dynamically for all events.
-  const ctaDeepLink =
-    event.id === 789
-      ? 'https://tixx.onelink.me/b0Kl/e8rzo0nk'
-      : `tixx://event/${event.id}`;
 
   return (
     <div className='mx-auto max-w-6xl px-0 pb-28 pt-24 lg:px-6 lg:pb-16'>
@@ -217,7 +211,7 @@ export function EventDetailContent({ event }: { event: EventDetail }) {
           <div className='mt-6 hidden px-4 lg:col-start-2 lg:row-start-2 lg:mt-0 lg:block lg:px-0 lg:sticky lg:top-8'>
             <AppCTA
               label={ctaLabel}
-              deepLink={ctaDeepLink}
+              deepLink={`tixx://event/${event.id}`}
             />
           </div>
         )}
@@ -227,7 +221,7 @@ export function EventDetailContent({ event }: { event: EventDetail }) {
         <div className='fixed bottom-0 left-0 right-0 lg:hidden'>
           <AppCTA
             label={ctaLabel}
-            deepLink={ctaDeepLink}
+            deepLink={`tixx://event/${event.id}`}
           />
         </div>
       )}
