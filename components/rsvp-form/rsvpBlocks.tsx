@@ -218,7 +218,7 @@ function LegalBlock({ block, value, onChange, questionNumber }: BlockProps) {
     <>
       <QuestionLabel number={questionNumber}>{block.label}</QuestionLabel>
       {config?.content && (
-        <p className="max-h-40 w-full overflow-y-auto whitespace-pre-line rounded-lg bg-white/5 p-4 text-left text-sm opacity-80">
+        <p className="max-h-40 w-full overflow-y-scroll whitespace-pre-line rounded-lg bg-white/5 p-4 text-left text-sm opacity-80">
           {config.content}
         </p>
       )}
