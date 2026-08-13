@@ -49,7 +49,8 @@ export function EventDetailContent({ event }: { event: EventDetail }) {
   // category — mirrors the mobile app's fallback ('hosts.categories.Host').
   const hostCategoryLabel = dictionary[language].hostDetail.categories.Host;
 
-  const showGuestCodeButton = hasGuestCodeTicket(event.tickets);
+  // TEMP: hide the "enter guest code" CTA for event 819 only, per request. Remove when no longer needed.
+  const showGuestCodeButton = event.id !== 819 && hasGuestCodeTicket(event.tickets);
 
   const cta = resolveEventCtaState(event.tickets);
   const ctaLabel =
