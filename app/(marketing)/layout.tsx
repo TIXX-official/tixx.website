@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { Outfit, Inter, Noto_Sans_KR } from 'next/font/google';
 import '../globals.css';
-import { AppHandoff } from '@/components/detail/AppHandoff';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { LanguageProvider } from '@/lib/LanguageContext';
@@ -132,9 +131,6 @@ export default function RootLayout({
       <body
         className={`${outfit.variable} ${inter.variable} ${notoSansKr.variable} antialiased bg-black text-white`}
       >
-        {/* First in <body> on purpose: its inline script must run before any
-            visible markup is parsed. Self-limits to /events/:id and /hosts/:id. */}
-        <AppHandoff />
         <LanguageProvider>
           <Navbar />
           {children}

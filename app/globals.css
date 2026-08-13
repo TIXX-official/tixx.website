@@ -117,46 +117,6 @@
   }
 }
 
-/* In-app browser -> native app handoff (components/detail/AppHandoff.tsx).
-   The overlay ships in the SSR'd HTML but stays hidden until the inline script
-   at the top of <body> adds .app-handoff, which it does before the first paint. */
-#app-handoff-overlay {
-  display: none;
-}
-
-/* `visibility` (not `display`) so the page stays laid out and can simply be
-   revealed again when the app turns out not to be installed. It also inherits,
-   which blanks everything the moment the class lands — even markup the parser
-   hasn't reached yet — while the overlay opts its own subtree back in. */
-html.app-handoff {
-  background: var(--color-grayscale-900);
-}
-
-html.app-handoff body {
-  overflow: hidden;
-  visibility: hidden;
-}
-
-html.app-handoff #app-handoff-overlay {
-  visibility: visible;
-  display: flex;
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-grayscale-900);
-}
-
-#app-handoff-overlay .handoff-en,
-html.app-handoff-en #app-handoff-overlay .handoff-ko {
-  display: none;
-}
-
-html.app-handoff-en #app-handoff-overlay .handoff-en {
-  display: inline;
-}
-
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
