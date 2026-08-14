@@ -63,4 +63,4 @@ jobs:
             --max-instances=2 \
             --cpu=1 \
             --memory=512Mi \
-            --set-env-vars TIXX_API_BASE_URL=https://api.tixx.im,SITE_URL=https://tixx.im
+            --update-env-vars TIXX_API_BASE_URL=https://api.tixx.im,SITE_URL=https://tixx.im

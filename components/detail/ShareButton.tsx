@@ -5,20 +5,21 @@ import { useState } from 'react';
 
 export function ShareButton({
   title,
+  sharePath,
   shareLabel,
   copiedLabel,
 }: {
   title: string;
+  sharePath: string;
   shareLabel: string;
   copiedLabel: string;
 }) {
   const [copied, setCopied] = useState(false);
 
   const handleClick = async () => {
-    // Read the URL at click-time from the browser itself rather than a
-    // server-configured SITE_URL — always correct regardless of domain,
-    // no env var to keep in sync.
-    const url = window.location.href;
+    // Resolve against the browser origin at click time so the same build works
+    // on local, staging, and production domains without a public env variable.
+    const url = new URL(sharePath, window.location.origin).toString();
 
     if (navigator.share) {
       try {

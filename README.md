@@ -4,6 +4,8 @@ Next.js marketing site for TIXX. Most pages (`/`, `/about`, `/app`, `/business`,
 
 `/events/[id]` and `/hosts/[id]` are read-only, SEO-oriented mirrors of the mobile app's Event Detail / Host Detail screens — server-rendered per request against the live TIXX API, with no login/purchase/chat (those actions CTA out to the app). See `lib/api/`, `components/event-detail/`, `components/host-detail/`. `/sitemap.xml` and `/robots.txt` (`app/sitemap.ts`, `app/robots.ts`) list every event/host page so search engines can discover them — there are no other internal links into `/events/[id]` or `/hosts/[id]` yet.
 
+`/open/events/[id]` and `/open/hosts/[id]` are no-index sharing gateways. They render the same detail page and OG metadata with the canonical URL pointing at `/events/[id]` or `/hosts/[id]`. On an external first load inside an explicitly enabled KakaoTalk/Instagram WebView, they attempt `tixx://` in an isolated iframe; the visible web page is never hidden or navigated on failure. Existing canonical detail links use the same external-entry behavior, while same-origin navigation, reloads, back/forward navigation, `?noapp=1`, and `?web=1` skip it.
+
 ## Getting Started
 
 ```bash
@@ -34,8 +36,19 @@ docker build --build-arg NEXT_PUBLIC_NAVER_MAP_CLIENT_ID=aj6lau7hx3 --build-arg 
 docker run -p 8080:8080 \
   -e TIXX_API_BASE_URL=https://api.tixx.im \
   -e SITE_URL=https://tixx.im \
+  -e AUTO_APP_HANDOFF_TARGETS=kakao-ios,kakao-android \
   tixx-web
 ```
+
+`AUTO_APP_HANDOFF_TARGETS` is a server-side runtime kill switch. It accepts a comma-separated subset of `kakao-ios`, `kakao-android`, `instagram-ios`, and `instagram-android`, and defaults to empty (all automatic handoffs disabled). Enable each combination only after installed and uninstalled real-device testing; unsupported combinations continue to show the normal web detail page and explicit app CTA. For example, after KakaoTalk testing passes:
+
+```bash
+gcloud run services update tixx-web \
+  --region asia-northeast1 \
+  --update-env-vars '^@^AUTO_APP_HANDOFF_TARGETS=kakao-ios,kakao-android'
+```
+
+The deploy workflow uses `--update-env-vars` so this independently managed kill-switch value survives later image deployments.
 
 Deploy target is **Cloud Run**, region **`asia-northeast1`** (Tokyo), service name **`tixx-web`**, custom domain **`tixx.im`**. `TIXX_API_BASE_URL` is read server-side only, at request time — not baked into the image at build time — so the same image can be reused across environments without rebuilding it. `SITE_URL` is also read at request time for per-request work (`/events/[id]`, `/hosts/[id]` SSR), but it's *additionally* passed as a Docker build arg: `sitemap.ts`/`robots.ts` need it to emit absolute URLs, and Cloud Run's `--min-instances=0` means containers are frequently recycled before ISR ever gets to revalidate a build-time snapshot that baked in a missing value — see the Dockerfile comment on this. `NEXT_PUBLIC_NAVER_MAP_CLIENT_ID` is different again: Next.js inlines `NEXT_PUBLIC_*` vars into the client bundle at build time, so it's a Docker **build arg only**, not a runtime env var — changing it means rebuilding the image (see the Dockerfile comment on this).
 
@@ -57,7 +70,7 @@ gcloud run deploy tixx-web \
   --max-instances=2 \
   --cpu=1 \
   --memory=512Mi \
-  --set-env-vars TIXX_API_BASE_URL=https://api.tixx.im,SITE_URL=https://tixx.im
+  --update-env-vars TIXX_API_BASE_URL=https://api.tixx.im,SITE_URL=https://tixx.im
 ```
 
 (If a future `gcloud`/Artifact Registry fix resolves the Tokyo repo import bug, `gcloud run deploy --source . --region asia-northeast1 ...` should work directly again — worth retrying periodically.)

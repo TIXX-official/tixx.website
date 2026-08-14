@@ -79,6 +79,7 @@ export function EventDetailContent({ event }: { event: EventDetail }) {
             <div className='absolute right-3 top-3'>
               <ShareButton
                 title={event.name}
+                sharePath={`/open/events/${event.id}`}
                 shareLabel={t.share}
                 copiedLabel={t.copied}
               />

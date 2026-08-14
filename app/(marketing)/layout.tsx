@@ -4,6 +4,7 @@ import '../globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { LanguageProvider } from '@/lib/LanguageContext';
+import { INITIAL_ENTRY_SCRIPT } from '@/lib/appHandoff';
 import { absoluteUrl, SITE_URL } from '@/lib/siteUrl';
 
 const outfit = Outfit({
@@ -131,6 +132,7 @@ export default function RootLayout({
       <body
         className={`${outfit.variable} ${inter.variable} ${notoSansKr.variable} antialiased bg-black text-white`}
       >
+        <script dangerouslySetInnerHTML={{ __html: INITIAL_ENTRY_SCRIPT }} />
         <LanguageProvider>
           <Navbar />
           {children}
