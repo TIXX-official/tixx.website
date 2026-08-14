@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { HostDetailPage as HostDetailPageContent } from '@/components/host-detail/HostDetailPage';
+import { HostDetailPage } from '@/components/host-detail/HostDetailPage';
 import { getHost } from '@/lib/api/hosts';
 import { buildHostMetadata } from '@/lib/seo/detailMetadata';
 
@@ -12,13 +12,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   try {
     const host = await getHost(id);
-    return buildHostMetadata(host);
+    return buildHostMetadata(host, { noIndex: true });
   } catch {
-    return { title: 'TIXX' };
+    return { title: 'TIXX', robots: { index: false, follow: true } };
   }
 }
 
-export default async function HostDetailPage({ params }: PageProps) {
+export default async function SharedHostPage({ params }: PageProps) {
   const { id } = await params;
-  return <HostDetailPageContent id={id} />;
+  return <HostDetailPage id={id} />;
 }
