@@ -34,6 +34,17 @@ describe('resolveRsvpError', () => {
     expect(resolveRsvpError('RSVP_REDEEM_CODE_EVENT_MISMATCH').action).toBe('refetch');
   });
 
+  it('maps EVENT_NOT_FOUND to a dedicated event_not_found action', () => {
+    expect(resolveRsvpError('EVENT_NOT_FOUND').action).toBe('event_not_found');
+  });
+
+  it('maps RSVP_REQUEST_TIMEOUT to staying with a timeout message', () => {
+    expect(resolveRsvpError('RSVP_REQUEST_TIMEOUT')).toEqual({
+      messageKey: 'timeout',
+      action: 'stay',
+    });
+  });
+
   it('falls back to a generic refetch resolution for unknown codes', () => {
     expect(resolveRsvpError('SOME_UNMAPPED_CODE')).toEqual({
       messageKey: 'generic',

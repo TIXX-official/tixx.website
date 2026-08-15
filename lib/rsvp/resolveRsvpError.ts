@@ -1,4 +1,9 @@
-export type RsvpErrorAction = 'stay' | 'resend_otp' | 'refetch' | 'app_fallback';
+export type RsvpErrorAction =
+  | 'stay'
+  | 'resend_otp'
+  | 'refetch'
+  | 'app_fallback'
+  | 'event_not_found';
 
 export interface RsvpErrorResolution {
   messageKey:
@@ -12,6 +17,7 @@ export interface RsvpErrorResolution {
     | 'redeemCodeStale'
     | 'notClaimableNow'
     | 'notEligibleForWeb'
+    | 'timeout'
     | 'generic';
   action: RsvpErrorAction;
 }
@@ -23,6 +29,8 @@ export interface RsvpErrorResolution {
 // through to 'generic' + 'refetch' rather than pattern-matching on message
 // text, which the guide explicitly says not to treat as a stable contract.
 const CODE_MAP: Record<string, RsvpErrorResolution> = {
+  EVENT_NOT_FOUND: { messageKey: 'generic', action: 'event_not_found' },
+  RSVP_REQUEST_TIMEOUT: { messageKey: 'timeout', action: 'stay' },
   INVALID_PHONE_NUMBER: { messageKey: 'invalidPhoneNumber', action: 'stay' },
   PHONE_AUTH_CODE_NOT_FOUND: { messageKey: 'otpExpired', action: 'resend_otp' },
   PHONE_AUTH_CODE_EXPIRED: { messageKey: 'otpExpired', action: 'resend_otp' },
