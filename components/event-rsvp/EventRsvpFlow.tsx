@@ -71,6 +71,8 @@ export function EventRsvpFlow({ event, redeemCodeId }: EventRsvpFlowProps) {
   const [isRequestingCode, setIsRequestingCode] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showAppFallback, setShowAppFallback] = useState(false);
+  const [eventNotFound, setEventNotFound] = useState(false);
+  const [needsRefetch, setNeedsRefetch] = useState(false);
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
@@ -79,28 +81,53 @@ export function EventRsvpFlow({ event, redeemCodeId }: EventRsvpFlowProps) {
     return () => clearInterval(interval);
   }, [step]);
 
+  // 제출 중에는 새로고침/탭 닫기 및 뒤로 가기로 요청이 유실되지 않도록 막는다.
+  useEffect(() => {
+    if (step !== 'submitting') return;
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    window.history.pushState(null, '', window.location.href);
+    const handlePopState = () => {
+      window.history.pushState(null, '', window.location.href);
+    };
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [step]);
+
   const handleApiError = (error: unknown) => {
     const code = error instanceof RsvpError ? error.code : 'generic';
     const resolved = resolveRsvpError(code);
     setErrorMessage(t.errors[resolved.messageKey]);
-    if (resolved.action === 'app_fallback') setShowAppFallback(true);
-  };
 
-  if (redeemCodeId === null || showAppFallback) {
-    return (
-      <main style={themeVars} className='min-h-screen bg-black px-4 pb-32 pt-24 text-white'>
-        <div className='mx-auto max-w-md text-center'>
-          <Text as='h1' variant='h1Semibold' className='mb-3'>
-            {t.notEligibleTitle}
-          </Text>
-          <Text variant='body1Regular' className='mb-8 text-grayscale-300'>
-            {t.notEligibleDescription}
-          </Text>
-        </div>
-        <AppCTA label={t.notEligibleOpenApp} deepLink={`tixx://event/${event.id}`} />
-      </main>
-    );
-  }
+    if (resolved.action === 'app_fallback') {
+      setShowAppFallback(true);
+      return;
+    }
+    if (resolved.action === 'event_not_found') {
+      setEventNotFound(true);
+      return;
+    }
+    if (resolved.action === 'refetch') {
+      setNeedsRefetch(true);
+      return;
+    }
+    if (resolved.action === 'resend_otp') {
+      // OTP가 더 이상 유효하지 않으므로 즉시 만료 상태로 표시하고, 남은
+      // cooldown과 무관하게 바로 재발급받을 수 있게 한다.
+      setAuthCode('');
+      setExpiredAt(0);
+      setLastIssuedAt(null);
+    }
+  };
 
   if (step === 'completed') {
     return (
@@ -114,6 +141,37 @@ export function EventRsvpFlow({ event, redeemCodeId }: EventRsvpFlowProps) {
           </Text>
         </div>
         <AppCTA label={t.openApp} deepLink={`tixx://event/${event.id}`} />
+      </main>
+    );
+  }
+
+  if (eventNotFound) {
+    return (
+      <main style={themeVars} className='min-h-screen bg-black px-4 pb-32 pt-24 text-white'>
+        <div className='mx-auto max-w-md text-center'>
+          <Text as='h1' variant='h1Semibold' className='mb-3'>
+            {t.eventNotFoundTitle}
+          </Text>
+          <Text variant='body1Regular' className='mb-8 text-grayscale-300'>
+            {t.eventNotFoundDescription}
+          </Text>
+        </div>
+      </main>
+    );
+  }
+
+  if (redeemCodeId === null || showAppFallback) {
+    return (
+      <main style={themeVars} className='min-h-screen bg-black px-4 pb-32 pt-24 text-white'>
+        <div className='mx-auto max-w-md text-center'>
+          <Text as='h1' variant='h1Semibold' className='mb-3'>
+            {t.notEligibleTitle}
+          </Text>
+          <Text variant='body1Regular' className='mb-8 text-grayscale-300'>
+            {t.notEligibleDescription}
+          </Text>
+        </div>
+        <AppCTA label={t.notEligibleOpenApp} deepLink={`tixx://event/${event.id}`} />
       </main>
     );
   }
@@ -149,10 +207,13 @@ export function EventRsvpFlow({ event, redeemCodeId }: EventRsvpFlowProps) {
     setDisplayText(formatter.input(nationalDigits));
   };
 
+  const isSubmitting = step === 'submitting';
+
   const handleSendCode = async () => {
-    if (!isPhoneValid || isRequestingCode) return;
+    if (!isPhoneValid || isRequestingCode || isSubmitting) return;
     setIsRequestingCode(true);
     setErrorMessage(null);
+    setNeedsRefetch(false);
     try {
       const result = await issuePhoneAuthCode(currentE164);
       setVerifiedPhone(result.phone);
@@ -172,7 +233,6 @@ export function EventRsvpFlow({ event, redeemCodeId }: EventRsvpFlowProps) {
   const isResendCoolingDown =
     lastIssuedAt !== null && now - lastIssuedAt < RESEND_COOLDOWN_MS;
 
-  const isSubmitting = step === 'submitting';
   const canSubmit =
     !isSubmitting &&
     !isOtpExpired &&
@@ -184,6 +244,7 @@ export function EventRsvpFlow({ event, redeemCodeId }: EventRsvpFlowProps) {
     if (!canSubmit) return;
     setStep('submitting');
     setErrorMessage(null);
+    setNeedsRefetch(false);
     try {
       // rsvp.eventTicketId isn't shown on this page — completion is
       // announced generically and the ticket itself is only viewable in the
@@ -274,7 +335,7 @@ export function EventRsvpFlow({ event, redeemCodeId }: EventRsvpFlowProps) {
                 <button
                   type='button'
                   onClick={() => void handleSendCode()}
-                  disabled={isRequestingCode || isResendCoolingDown}
+                  disabled={isRequestingCode || isResendCoolingDown || isSubmitting}
                   className='shrink-0 whitespace-nowrap px-2 py-2 text-sm underline disabled:opacity-40'
                 >
                   {t.resendCode}
@@ -346,12 +407,21 @@ export function EventRsvpFlow({ event, redeemCodeId }: EventRsvpFlowProps) {
                 {errorMessage}
               </Text>
             )}
+            {needsRefetch && (
+              <button
+                type='button'
+                onClick={() => window.location.reload()}
+                className='self-start text-sm underline text-grayscale-300'
+              >
+                {t.recheck}
+              </button>
+            )}
 
             <Button
               onClick={() => void handleSubmit()}
               className={!canSubmit ? 'pointer-events-none opacity-50' : undefined}
             >
-              {t.submit}
+              {isSubmitting ? t.submitting : t.submit}
             </Button>
           </div>
         )}
