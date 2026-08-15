@@ -244,7 +244,7 @@ export const dictionary = {
             viewOnMap: '지도에서 보기',
             guestList: '게스트 리스트',
             guestListEmpty: '아직 참여 예정인 게스트가 없어요',
-            enterGuestCode: '게스트 코드 등록하기',
+            enterGuestCode: '게스트로 등록하기',
             album: '앨범',
             albumEmpty: '아직 등록된 사진/영상이 없어요',
             video: '동영상',
@@ -266,7 +266,7 @@ export const dictionary = {
             }
         },
         eventRsvp: {
-            pageTitle: '게스트 코드 등록',
+            pageTitle: '게스트 등록',
             phoneStepTitle: '휴대폰 번호로 인증해요',
             phoneStepDescription: '인증번호를 받을 번호를 입력해주세요.',
             phonePlaceholder: '휴대폰 번호',
@@ -280,13 +280,17 @@ export const dictionary = {
             termsLinkPrivacy: '개인정보 처리방침',
             marketingLabel: '(선택) 이벤트 혜택 및 광고성 정보 수신에 동의합니다.',
             marketingNightLabel: '(선택) 심야시간(21시~08시) 광고성 정보 수신에 동의합니다.',
-            submit: '게스트 코드 등록하기',
+            submit: '게스트로 등록하기',
+            submitting: '등록 중...',
+            recheck: '다시 확인하기',
             completedTitle: '등록이 완료됐어요',
-            completedDescription: '앱을 설치하면 발급받은 티켓을 확인할 수 있어요.',
-            openApp: '앱에서 티켓 확인하기',
+            completedDescription: '이벤트 현장에서 이름 또는 전화번호 뒤 4자리로 입장할 수 있어요.',
+            openApp: '앱 설치하기',
             notEligibleTitle: '앱에서만 등록할 수 있어요',
-            notEligibleDescription: '이 이벤트의 게스트 코드는 앱에서만 등록할 수 있어요.',
+            notEligibleDescription: '이 이벤트는 앱에서만 게스트로 등록할 수 있어요.',
             notEligibleOpenApp: '앱에서 등록하기',
+            eventNotFoundTitle: '이벤트를 찾을 수 없어요',
+            eventNotFoundDescription: '삭제됐거나 종료된 이벤트예요. 링크를 다시 확인해주세요.',
             retry: '다시 시도',
             errors: {
                 invalidPhoneNumber: '올바른 휴대폰 번호 형식이 아니에요.',
@@ -299,6 +303,7 @@ export const dictionary = {
                 redeemCodeStale: '정보가 변경됐어요. 페이지를 새로고침해주세요.',
                 notClaimableNow: '지금은 등록할 수 없는 코드예요. 잠시 후 다시 시도해주세요.',
                 notEligibleForWeb: '앱에서만 등록할 수 있는 코드예요.',
+                timeout: '요청이 지연되고 있어요. 같은 버튼을 다시 눌러주세요.',
                 generic: '처리 중 문제가 발생했어요. 잠시 후 다시 시도해주세요.'
             }
         },
@@ -557,7 +562,7 @@ export const dictionary = {
             viewOnMap: 'View on map',
             guestList: 'Guest List',
             guestListEmpty: 'No guests yet',
-            enterGuestCode: 'Enter guest code',
+            enterGuestCode: 'Register as guest',
             album: 'Album',
             albumEmpty: 'No photos or videos yet',
             video: 'Video',
@@ -579,7 +584,7 @@ export const dictionary = {
             }
         },
         eventRsvp: {
-            pageTitle: 'Register Guest Code',
+            pageTitle: 'Guest Registration',
             phoneStepTitle: 'Verify your phone number',
             phoneStepDescription: 'Enter the number to receive a verification code.',
             phonePlaceholder: 'Phone number',
@@ -593,13 +598,19 @@ export const dictionary = {
             termsLinkPrivacy: 'Privacy Policy',
             marketingLabel: '(Optional) I agree to receive event benefits and promotional information.',
             marketingNightLabel: '(Optional) I agree to receive promotional information during late night hours (9PM-8AM).',
-            submit: 'Register guest code',
+            submit: 'Register as guest',
+            submitting: 'Registering...',
+            recheck: 'Check again',
             completedTitle: 'Registration complete',
-            completedDescription: 'Install the app to check your issued ticket.',
-            openApp: 'Check ticket in app',
+            completedDescription:
+                'Show your name or the last 4 digits of your phone number at the venue to enter.',
+            openApp: 'Install the app',
             notEligibleTitle: 'This can only be registered in the app',
-            notEligibleDescription: "This event's guest code can only be registered in the app.",
+            notEligibleDescription: 'This event can only be registered as a guest in the app.',
             notEligibleOpenApp: 'Register in the app',
+            eventNotFoundTitle: "Couldn't find this event",
+            eventNotFoundDescription:
+                'This event may have been removed or ended. Please double-check the link.',
             retry: 'Try again',
             errors: {
                 invalidPhoneNumber: 'This is not a valid phone number format.',
@@ -612,6 +623,7 @@ export const dictionary = {
                 redeemCodeStale: 'Information has changed. Please refresh the page.',
                 notClaimableNow: 'This code cannot be registered right now. Please try again shortly.',
                 notEligibleForWeb: 'This code can only be registered in the app.',
+                timeout: 'The request is taking longer than expected. Please try the same action again.',
                 generic: 'Something went wrong. Please try again shortly.'
             }
         },
