@@ -22,9 +22,17 @@ import {
   parseEventDateTime,
   resolveDisplayEndDateTime,
 } from '@/lib/format/eventDateTime';
-import { hasGuestCodeTicket, resolveEventCtaState } from '@/lib/format/ticket';
+import { resolveEventCtaState } from '@/lib/format/ticket';
 
-export function EventDetailContent({ event }: { event: EventDetail }) {
+export function EventDetailContent({
+  event,
+  hasRsvpCandidate,
+}: {
+  event: EventDetail;
+  /** Whether the web RSVP page (/events/[id]/rsvp) has exactly one eligible
+   * candidate for this event right now — see EventDetailPage. */
+  hasRsvpCandidate: boolean;
+}) {
   const { language } = useLanguage();
   const t = dictionary[language].eventDetail;
 
@@ -49,7 +57,7 @@ export function EventDetailContent({ event }: { event: EventDetail }) {
   const hostCategoryLabel = dictionary[language].hostDetail.categories.Host;
 
   // TEMP: hide the "enter guest code" CTA for event 819 only, per request. Remove when no longer needed.
-  const showGuestCodeButton = event.id !== 819 && hasGuestCodeTicket(event.tickets);
+  const showGuestCodeButton = event.id !== 819 && hasRsvpCandidate;
 
   const cta = resolveEventCtaState(event.tickets);
   const ctaLabel =
