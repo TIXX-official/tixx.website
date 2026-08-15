@@ -1,6 +1,8 @@
 // Server-only fetch wrapper for the TIXX API. All calls here run inside
 // Server Components at request time — never in the browser — so the API's
-// CORS allowlist (admin.tixx.im, app.tixx.im only) never comes into play.
+// CORS allowlist never comes into play. (It currently includes tixx.im and
+// www.tixx.im too, for the client-side calls in rsvp-forms.ts and rsvp.ts —
+// see apps/api/src/main.ts in the tixx monorepo.)
 const API_BASE_URL = process.env.TIXX_API_BASE_URL ?? 'https://api.tixx.im';
 
 export class ApiNotFoundError extends Error {}

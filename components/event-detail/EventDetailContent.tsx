@@ -14,7 +14,6 @@ import { LocationSection } from '@/components/detail/LocationSection';
 import { ShareButton } from '@/components/detail/ShareButton';
 import { SnsLinks } from '@/components/detail/SnsLinks';
 import { Text } from '@/components/detail/Text';
-import { openAppOrFallback } from '@/lib/deepLink';
 import { dictionary } from '@/lib/dictionary';
 import { useLanguage } from '@/lib/LanguageContext';
 import type { EventDetail } from '@/lib/api/types';
@@ -166,9 +165,7 @@ export function EventDetailContent({ event }: { event: EventDetail }) {
                 <Button
                   variant='outline'
                   className={event.participantCount > 0 ? 'mt-3' : undefined}
-                  onClick={() =>
-                    openAppOrFallback(`tixx://event/${event.id}`)
-                  }
+                  href={`/events/${event.id}/rsvp`}
                 >
                   {t.enterGuestCode}
                 </Button>
