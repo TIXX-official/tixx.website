@@ -33,12 +33,29 @@ function extractErrorCode(body: unknown, status: number): string {
   return `RSVP_REQUEST_FAILED_${status}`;
 }
 
+const REQUEST_TIMEOUT_MS = 15_000;
+
 async function postJson<T>(path: string, body: unknown): Promise<T> {
-  const res = await fetch(`${CLIENT_API_BASE_URL}${path}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${CLIENT_API_BASE_URL}${path}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    });
+  } catch (error) {
+    // AbortSignal.timeout() aborts with a TimeoutError DOMException (some
+    // runtimes surface it as AbortError instead) — the server's commit state
+    // is unknown here, so this must not be treated as a definite failure.
+    if (
+      error instanceof DOMException &&
+      (error.name === 'TimeoutError' || error.name === 'AbortError')
+    ) {
+      throw new RsvpError(0, 'RSVP_REQUEST_TIMEOUT');
+    }
+    throw error;
+  }
 
   if (!res.ok) {
     const errorBody = await res.json().catch(() => null);

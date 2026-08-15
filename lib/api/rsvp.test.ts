@@ -96,6 +96,26 @@ describe('createEventRsvp', () => {
     expect(error).toBeInstanceOf(RsvpError);
     expect((error as RsvpError).code).toBe('RSVP_REQUEST_FAILED_500');
   });
+
+  it('converts an AbortSignal.timeout() abort into RSVP_REQUEST_TIMEOUT, not a definite failure', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockRejectedValue(new DOMException('The operation timed out.', 'TimeoutError'))
+    );
+
+    const error = await createEventRsvp(100, {
+      phone: '+821012345678',
+      authCode: '123456',
+      marketingOptIn: 0,
+      marketingSmsOptIn: 0,
+      marketingEmailOptIn: 0,
+      marketingNightOptIn: 0,
+      redeemCodeId: 5,
+    }).catch((e) => e);
+
+    expect(error).toBeInstanceOf(RsvpError);
+    expect((error as RsvpError).code).toBe('RSVP_REQUEST_TIMEOUT');
+  });
 });
 
 describe('issuePhoneAuthCode', () => {
