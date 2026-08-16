@@ -237,9 +237,15 @@ export function EventRsvpFlow({ event, redeemCodeId }: EventRsvpFlowProps) {
         issuePhoneAuthCode(currentE164),
         checkPhoneRegistered(currentE164),
       ]);
+      // now is otherwise only refreshed by the 1s interval below, which
+      // doesn't restart on a resend within the same step — sync it here so
+      // remainingMs/isResendCoolingDown never read a stale now right after
+      // expiredAt/lastIssuedAt change.
+      const issuedAt = Date.now();
       setVerifiedPhone(result.phone);
       setExpiredAt(new Date(result.expiredAt).getTime());
-      setLastIssuedAt(Date.now());
+      setLastIssuedAt(issuedAt);
+      setNow(issuedAt);
       setAuthCode('');
       setIsExistingUser(registered);
       setStep('otp-and-profile');
