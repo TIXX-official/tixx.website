@@ -329,12 +329,13 @@ export function EventRsvpFlow({ event, redeemCodeId }: EventRsvpFlowProps) {
                   if (e.key === 'Enter') void handleSendCode();
                 }}
                 placeholder={phonePlaceholder || t.phonePlaceholder}
+                aria-label={t.phonePlaceholder}
                 className={answerInputClass}
                 style={answerInputStyle}
               />
             </div>
             {errorMessage && (
-              <Text variant='caption1Regular' className='text-red-400'>
+              <Text variant='caption1Regular' className='text-red-400' aria-live='polite'>
                 {errorMessage}
               </Text>
             )}
@@ -364,6 +365,7 @@ export function EventRsvpFlow({ event, redeemCodeId }: EventRsvpFlowProps) {
                   value={authCode}
                   onChange={(e) => setAuthCode(e.target.value.replace(/\D/g, ''))}
                   placeholder={t.otpPlaceholder}
+                  aria-label={t.otpPlaceholder}
                   disabled={isSubmitting}
                   className={answerInputClass}
                   style={answerInputStyle}
@@ -393,6 +395,7 @@ export function EventRsvpFlow({ event, redeemCodeId }: EventRsvpFlowProps) {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder={t.namePlaceholder}
+                  aria-label={t.namePlaceholder}
                   disabled={isSubmitting}
                   className={answerInputClass}
                   style={answerInputStyle}
@@ -447,7 +450,7 @@ export function EventRsvpFlow({ event, redeemCodeId }: EventRsvpFlowProps) {
             )}
 
             {errorMessage && (
-              <Text variant='caption1Regular' className='text-red-400'>
+              <Text variant='caption1Regular' className='text-red-400' aria-live='polite'>
                 {errorMessage}
               </Text>
             )}
