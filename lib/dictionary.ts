@@ -293,7 +293,6 @@ export const dictionary = {
             notEligibleOpenApp: '앱에서 등록하기',
             eventNotFoundTitle: '이벤트를 찾을 수 없어요',
             eventNotFoundDescription: '삭제됐거나 종료된 이벤트예요. 링크를 다시 확인해주세요.',
-            retry: '다시 시도',
             errors: {
                 invalidPhoneNumber: '올바른 휴대폰 번호 형식이 아니에요.',
                 otpExpired: '인증번호가 만료됐어요. 다시 요청해주세요.',
@@ -618,7 +617,6 @@ export const dictionary = {
             eventNotFoundTitle: "Couldn't find this event",
             eventNotFoundDescription:
                 'This event may have been removed or ended. Please double-check the link.',
-            retry: 'Try again',
             errors: {
                 invalidPhoneNumber: 'This is not a valid phone number format.',
                 otpExpired: 'The verification code has expired. Please request a new one.',
