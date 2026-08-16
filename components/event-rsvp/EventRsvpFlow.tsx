@@ -13,7 +13,12 @@ import { AppCTA } from '@/components/detail/AppCTA';
 import { Button } from '@/components/detail/Button';
 import { Text } from '@/components/detail/Text';
 import { PhoneCountryPicker } from '@/components/rsvp-form/PhoneCountryPicker';
-import { createEventRsvp, issuePhoneAuthCode, RsvpError } from '@/lib/api/rsvp';
+import {
+  checkPhoneRegistered,
+  createEventRsvp,
+  issuePhoneAuthCode,
+  RsvpError,
+} from '@/lib/api/rsvp';
 import { dictionary } from '@/lib/dictionary';
 import { useLanguage } from '@/lib/LanguageContext';
 import { resolveRsvpError, type RsvpErrorAction } from '@/lib/rsvp/resolveRsvpError';
@@ -74,6 +79,7 @@ export function EventRsvpFlow({ event, redeemCodeId }: EventRsvpFlowProps) {
   const [eventNotFound, setEventNotFound] = useState(false);
   const [needsRefetch, setNeedsRefetch] = useState(false);
   const [alreadyRegistered, setAlreadyRegistered] = useState(false);
+  const [isExistingUser, setIsExistingUser] = useState(false);
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
@@ -224,11 +230,18 @@ export function EventRsvpFlow({ event, redeemCodeId }: EventRsvpFlowProps) {
     setErrorMessage(null);
     setNeedsRefetch(false);
     try {
-      const result = await issuePhoneAuthCode(currentE164);
+      // Issuing the code and checking whether this number already has an
+      // account are independent — run them together rather than adding
+      // checkPhoneRegistered's latency in front of the OTP request.
+      const [result, registered] = await Promise.all([
+        issuePhoneAuthCode(currentE164),
+        checkPhoneRegistered(currentE164),
+      ]);
       setVerifiedPhone(result.phone);
       setExpiredAt(new Date(result.expiredAt).getTime());
       setLastIssuedAt(Date.now());
       setAuthCode('');
+      setIsExistingUser(registered);
       setStep('otp-and-profile');
     } catch (error) {
       handleApiError(error);
@@ -246,8 +259,7 @@ export function EventRsvpFlow({ event, redeemCodeId }: EventRsvpFlowProps) {
     !isSubmitting &&
     !isOtpExpired &&
     authCode.trim().length > 0 &&
-    name.trim().length > 0 &&
-    termsAccepted;
+    (isExistingUser || (name.trim().length > 0 && termsAccepted));
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
@@ -262,8 +274,12 @@ export function EventRsvpFlow({ event, redeemCodeId }: EventRsvpFlowProps) {
       await createEventRsvp(event.id, {
         phone: verifiedPhone,
         authCode,
-        name: name.trim(),
-        termsAccepted: true,
+        // event-rsvp.service.ts only applies name/termsAccepted when
+        // creating a brand-new user — omitted here for existing users since
+        // the name/terms step is hidden and there's nothing to send.
+        ...(isExistingUser
+          ? {}
+          : { name: name.trim(), termsAccepted: true }),
         marketingOptIn: marketingOptIn ? 1 : 0,
         marketingSmsOptIn: marketingOptIn ? 1 : 0,
         marketingEmailOptIn: marketingOptIn ? 1 : 0,
@@ -357,61 +373,69 @@ export function EventRsvpFlow({ event, redeemCodeId }: EventRsvpFlowProps) {
               </Text>
             </div>
 
-            <input
-              type='text'
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder={t.namePlaceholder}
-              disabled={isSubmitting}
-              className={answerInputClass}
-              style={answerInputStyle}
-            />
+            {isExistingUser ? (
+              <Text variant='caption1Regular' className='text-grayscale-400'>
+                {t.existingUserNotice}
+              </Text>
+            ) : (
+              <>
+                <input
+                  type='text'
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder={t.namePlaceholder}
+                  disabled={isSubmitting}
+                  className={answerInputClass}
+                  style={answerInputStyle}
+                />
 
-            <label className='flex items-start gap-2 text-sm'>
-              <input
-                type='checkbox'
-                checked={termsAccepted}
-                onChange={(e) => setTermsAccepted(e.target.checked)}
-                disabled={isSubmitting}
-                className='mt-1'
-              />
-              <span>
-                {t.termsLabel}{' '}
-                <Link href='/terms' target='_blank' rel='noopener noreferrer' className='underline'>
-                  {t.termsLinkTerms}
-                </Link>{' '}
-                /{' '}
-                <Link href='/privacy' target='_blank' rel='noopener noreferrer' className='underline'>
-                  {t.termsLinkPrivacy}
-                </Link>
-              </span>
-            </label>
+                <label className='flex items-start gap-2 text-sm'>
+                  <input
+                    type='checkbox'
+                    checked={termsAccepted}
+                    onChange={(e) => setTermsAccepted(e.target.checked)}
+                    disabled={isSubmitting}
+                    className='mt-1'
+                  />
+                  <span>
+                    {t.termsLabel}{' '}
+                    <Link href='/terms' target='_blank' rel='noopener noreferrer' className='underline'>
+                      {t.termsLinkTerms}
+                    </Link>{' '}
+                    /{' '}
+                    <Link href='/privacy' target='_blank' rel='noopener noreferrer' className='underline'>
+                      {t.termsLinkPrivacy}
+                    </Link>
+                  </span>
+                </label>
 
-            <label className='flex items-start gap-2 text-sm'>
-              <input
-                type='checkbox'
-                checked={marketingOptIn}
-                onChange={(e) => {
-                  const checked = e.target.checked;
-                  setMarketingOptIn(checked);
-                  if (!checked) setMarketingNightOptIn(false);
-                }}
-                disabled={isSubmitting}
-                className='mt-1'
-              />
-              <span>{t.marketingLabel}</span>
-            </label>
+                <label className='flex items-start gap-2 text-sm'>
+                  <input
+                    type='checkbox'
+                    checked={marketingOptIn}
+                    onChange={(e) => {
+                      const checked = e.target.checked;
+                      setMarketingOptIn(checked);
+                      if (!checked) setMarketingNightOptIn(false);
+                    }}
+                    disabled={isSubmitting}
+                    className='mt-1'
+                  />
+                  <span>{t.marketingLabel}</span>
+                </label>
 
-            <label className='flex items-start gap-2 text-sm opacity-80'>
-              <input
-                type='checkbox'
-                checked={marketingNightOptIn}
-                onChange={(e) => setMarketingNightOptIn(e.target.checked)}
-                disabled={isSubmitting || !marketingOptIn}
-                className='mt-1'
-              />
-              <span>{t.marketingNightLabel}</span>
-            </label>
+                <label className='flex items-start gap-2 text-sm opacity-80'>
+                  <input
+                    type='checkbox'
+                    checked={marketingNightOptIn}
+                    onChange={(e) => setMarketingNightOptIn(e.target.checked)}
+                    disabled={isSubmitting || !marketingOptIn}
+                    className='mt-1'
+                  />
+                  <span>{t.marketingNightLabel}</span>
+                </label>
+              </>
+            )}
 
             {errorMessage && (
               <Text variant='caption1Regular' className='text-red-400'>

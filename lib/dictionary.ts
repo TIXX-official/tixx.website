@@ -274,6 +274,7 @@ export const dictionary = {
             resendCode: '재전송',
             otpPlaceholder: '인증번호 6자리',
             profileStepTitle: '이름과 약관 동의가 필요해요',
+            existingUserNotice: '이미 가입된 번호예요. 인증만 완료하면 게스트로 등록돼요.',
             namePlaceholder: '이름',
             termsLabel: '(필수) 만 14세 이상이며, 이용약관 및 개인정보 수집·이용에 동의합니다.',
             termsLinkTerms: '이용약관',
@@ -595,6 +596,8 @@ export const dictionary = {
             resendCode: 'Resend',
             otpPlaceholder: '6-digit code',
             profileStepTitle: 'We need your name and agreement to the terms',
+            existingUserNotice:
+                'This number is already registered. Just verify the code to register as a guest.',
             namePlaceholder: 'Name',
             termsLabel: '(Required) I am 14 or older and agree to the Terms of Service and Privacy Policy.',
             termsLinkTerms: 'Terms of Service',

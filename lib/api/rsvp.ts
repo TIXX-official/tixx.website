@@ -77,3 +77,25 @@ export function createEventRsvp(
 ): Promise<EventRsvpResponse> {
   return postJson(`/events/${eventId}/rsvp`, body);
 }
+
+// GET /users?phoneNumber= is an unauthenticated lookup (no @UseGuards on
+// UsersController.getUsers) — apps/mobile's checkPhoneNumber.ts already
+// calls it pre-login for the same reason. Used here to skip the name/terms
+// step for phone numbers that already have an account, since the RSVP
+// endpoint silently ignores that input for existing users anyway
+// (event-rsvp.service.ts only applies it when creating a brand-new user).
+// Never throws: a failed/timed-out check just falls back to treating the
+// number as new, which only costs the user an unnecessary name/terms step.
+export async function checkPhoneRegistered(phone: string): Promise<boolean> {
+  try {
+    const res = await fetch(
+      `${CLIENT_API_BASE_URL}/users?phoneNumber=${encodeURIComponent(phone)}`,
+      { signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) }
+    );
+    if (!res.ok) return false;
+    const body = await res.json().catch(() => null);
+    return Boolean(body && typeof body === 'object' && 'id' in body);
+  } catch {
+    return false;
+  }
+}
