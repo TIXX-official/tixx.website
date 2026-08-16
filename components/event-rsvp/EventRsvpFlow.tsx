@@ -16,7 +16,7 @@ import { PhoneCountryPicker } from '@/components/rsvp-form/PhoneCountryPicker';
 import { createEventRsvp, issuePhoneAuthCode, RsvpError } from '@/lib/api/rsvp';
 import { dictionary } from '@/lib/dictionary';
 import { useLanguage } from '@/lib/LanguageContext';
-import { resolveRsvpError } from '@/lib/rsvp/resolveRsvpError';
+import { resolveRsvpError, type RsvpErrorAction } from '@/lib/rsvp/resolveRsvpError';
 
 type RsvpStep = 'phone' | 'otp-and-profile' | 'submitting' | 'completed';
 
@@ -73,6 +73,7 @@ export function EventRsvpFlow({ event, redeemCodeId }: EventRsvpFlowProps) {
   const [showAppFallback, setShowAppFallback] = useState(false);
   const [eventNotFound, setEventNotFound] = useState(false);
   const [needsRefetch, setNeedsRefetch] = useState(false);
+  const [alreadyRegistered, setAlreadyRegistered] = useState(false);
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
@@ -103,22 +104,29 @@ export function EventRsvpFlow({ event, redeemCodeId }: EventRsvpFlowProps) {
     };
   }, [step]);
 
-  const handleApiError = (error: unknown) => {
+  const handleApiError = (error: unknown): RsvpErrorAction => {
     const code = error instanceof RsvpError ? error.code : 'generic';
     const resolved = resolveRsvpError(code);
     setErrorMessage(t.errors[resolved.messageKey]);
 
+    if (resolved.action === 'already_registered') {
+      // 이 번호로 이미 티켓이 발급된 상태 — 새로고침이나 재시도로는 해결되지
+      // 않으므로 실제로 등록을 마쳤을 때와 같은 완료 화면으로 보낸다.
+      setAlreadyRegistered(true);
+      setStep('completed');
+      return resolved.action;
+    }
     if (resolved.action === 'app_fallback') {
       setShowAppFallback(true);
-      return;
+      return resolved.action;
     }
     if (resolved.action === 'event_not_found') {
       setEventNotFound(true);
-      return;
+      return resolved.action;
     }
     if (resolved.action === 'refetch') {
       setNeedsRefetch(true);
-      return;
+      return resolved.action;
     }
     if (resolved.action === 'resend_otp') {
       // OTP가 더 이상 유효하지 않으므로 즉시 만료 상태로 표시하고, 남은
@@ -127,6 +135,7 @@ export function EventRsvpFlow({ event, redeemCodeId }: EventRsvpFlowProps) {
       setExpiredAt(0);
       setLastIssuedAt(null);
     }
+    return resolved.action;
   };
 
   if (step === 'completed') {
@@ -134,7 +143,7 @@ export function EventRsvpFlow({ event, redeemCodeId }: EventRsvpFlowProps) {
       <main style={themeVars} className='min-h-screen bg-black px-4 pb-32 pt-24 text-white'>
         <div className='mx-auto max-w-md text-center'>
           <Text as='h1' variant='h1Semibold' className='mb-3'>
-            {t.completedTitle}
+            {alreadyRegistered ? t.alreadyRegisteredTitle : t.completedTitle}
           </Text>
           <Text variant='body1Regular' className='mb-8 text-grayscale-300'>
             {t.completedDescription}
@@ -263,8 +272,10 @@ export function EventRsvpFlow({ event, redeemCodeId }: EventRsvpFlowProps) {
       });
       setStep('completed');
     } catch (error) {
-      handleApiError(error);
-      setStep('otp-and-profile');
+      const action = handleApiError(error);
+      if (action !== 'already_registered') {
+        setStep('otp-and-profile');
+      }
     }
   };
 

@@ -51,4 +51,36 @@ describe('resolveRsvpError', () => {
       action: 'refetch',
     });
   });
+
+  it('maps an already-redeemed RedemptionService message to already_registered', () => {
+    expect(
+      resolveRsvpError('This redeem code has already been redeemed')
+    ).toEqual({
+      messageKey: 'alreadyRegistered',
+      action: 'already_registered',
+    });
+  });
+
+  it('maps a quantity-exhausted RedemptionService message to soldOut + refetch', () => {
+    expect(
+      resolveRsvpError('This redeem code has reached its limit')
+    ).toEqual({
+      messageKey: 'soldOut',
+      action: 'refetch',
+    });
+  });
+
+  it('maps other RedemptionService free-text messages to sensible fallbacks', () => {
+    expect(resolveRsvpError('Redeem code not found').action).toBe('refetch');
+    expect(resolveRsvpError('This redeem code is not redeemable yet').action).toBe(
+      'refetch'
+    );
+    expect(resolveRsvpError('This redeem code has expired').action).toBe('refetch');
+    expect(
+      resolveRsvpError('This redeem code is for approved promoters only').action
+    ).toBe('app_fallback');
+    expect(
+      resolveRsvpError('This redeem code has already been applied for').action
+    ).toBe('refetch');
+  });
 });
