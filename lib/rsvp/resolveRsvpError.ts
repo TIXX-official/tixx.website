@@ -19,6 +19,7 @@ export interface RsvpErrorResolution {
     | 'notClaimableNow'
     | 'notEligibleForWeb'
     | 'timeout'
+    | 'rateLimit'
     | 'alreadyRegistered'
     | 'soldOut'
     | 'generic';
@@ -35,6 +36,7 @@ const CODE_MAP: Record<string, RsvpErrorResolution> = {
   PHONE_AUTH_CODE_EXPIRED: { messageKey: 'otpExpired', action: 'resend_otp' },
   INVALID_PHONE_AUTH_CODE: { messageKey: 'otpInvalid', action: 'stay' },
   PHONE_AUTH_CODE_ALREADY_USED: { messageKey: 'otpAlreadyUsed', action: 'resend_otp' },
+  PHONE_AUTH_RATE_LIMIT_EXCEEDED: { messageKey: 'rateLimit', action: 'stay' },
   TERMS_NOT_ACCEPTED: { messageKey: 'termsRequired', action: 'stay' },
   NIGHT_MARKETING_REQUIRES_APP_OR_SMS_OPT_IN: {
     messageKey: 'nightMarketingInvalid',
@@ -62,6 +64,11 @@ const CODE_MAP: Record<string, RsvpErrorResolution> = {
     action: 'refetch',
   },
   RSVP_REDEEM_RESULT_INVALID: { messageKey: 'generic', action: 'refetch' },
+  RSVP_ALREADY_CLAIMED: {
+    messageKey: 'alreadyRegistered',
+    action: 'already_registered',
+  },
+  RSVP_SOLD_OUT: { messageKey: 'soldOut', action: 'refetch' },
 };
 
 // RedemptionService (apps/api/src/redemption/redemption.service.ts) actually

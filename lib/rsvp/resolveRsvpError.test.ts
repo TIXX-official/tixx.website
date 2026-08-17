@@ -45,6 +45,24 @@ describe('resolveRsvpError', () => {
     });
   });
 
+  it('maps the stable rate-limit code to the one-hour limit message', () => {
+    expect(resolveRsvpError('PHONE_AUTH_RATE_LIMIT_EXCEEDED')).toEqual({
+      messageKey: 'rateLimit',
+      action: 'stay',
+    });
+  });
+
+  it('maps stable claimed and sold-out codes to their recovery actions', () => {
+    expect(resolveRsvpError('RSVP_ALREADY_CLAIMED')).toEqual({
+      messageKey: 'alreadyRegistered',
+      action: 'already_registered',
+    });
+    expect(resolveRsvpError('RSVP_SOLD_OUT')).toEqual({
+      messageKey: 'soldOut',
+      action: 'refetch',
+    });
+  });
+
   it('falls back to a generic refetch resolution for unknown codes', () => {
     expect(resolveRsvpError('SOME_UNMAPPED_CODE')).toEqual({
       messageKey: 'generic',

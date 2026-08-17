@@ -286,8 +286,8 @@ export const dictionary = {
             recheck: '다시 확인하기',
             completedTitle: '등록이 완료됐어요',
             alreadyRegisteredTitle: '이미 게스트로 등록하셨어요',
-            completedDescription: '이벤트 현장에서 이름 또는 전화번호 뒤 4자리로 입장할 수 있어요.',
-            openApp: '앱 설치하기',
+            completedDescription: '앱에서 같은 휴대폰 번호로 로그인하면 발급된 티켓을 확인할 수 있어요.',
+            openApp: '앱에서 티켓 확인하기',
             notEligibleTitle: '앱에서만 등록할 수 있어요',
             notEligibleDescription: '이 이벤트는 앱에서만 게스트로 등록할 수 있어요.',
             notEligibleOpenApp: '앱에서 등록하기',
@@ -305,6 +305,7 @@ export const dictionary = {
                 notClaimableNow: '지금은 등록할 수 없는 코드예요. 잠시 후 다시 시도해주세요.',
                 notEligibleForWeb: '앱에서만 등록할 수 있는 코드예요.',
                 timeout: '요청이 지연되고 있어요. 같은 버튼을 다시 눌러주세요.',
+                rateLimit: '1시간 내 인증번호 요청 횟수를 초과했어요. 잠시 후 다시 시도해주세요.',
                 alreadyRegistered: '이미 게스트로 등록된 번호예요.',
                 soldOut: '선착순 등록이 마감됐어요.',
                 generic: '처리 중 문제가 발생했어요. 잠시 후 다시 시도해주세요.'
@@ -609,8 +610,8 @@ export const dictionary = {
             completedTitle: 'Registration complete',
             alreadyRegisteredTitle: 'You already registered as a guest',
             completedDescription:
-                'Show your name or the last 4 digits of your phone number at the venue to enter.',
-            openApp: 'Install the app',
+                'Sign in to the app with the same phone number to view your issued ticket.',
+            openApp: 'View ticket in the app',
             notEligibleTitle: 'This can only be registered in the app',
             notEligibleDescription: 'This event can only be registered as a guest in the app.',
             notEligibleOpenApp: 'Register in the app',
@@ -629,6 +630,7 @@ export const dictionary = {
                 notClaimableNow: 'This code cannot be registered right now. Please try again shortly.',
                 notEligibleForWeb: 'This code can only be registered in the app.',
                 timeout: 'The request is taking longer than expected. Please try the same action again.',
+                rateLimit: 'You have reached the verification request limit for one hour. Please try again later.',
                 alreadyRegistered: 'This number is already registered as a guest.',
                 soldOut: 'Guest registration is full.',
                 generic: 'Something went wrong. Please try again shortly.'
