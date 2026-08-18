@@ -1,29 +1,38 @@
-import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
-import { EventRsvpFlow } from '@/components/event-rsvp/EventRsvpFlow';
-import { ApiNotFoundError } from '@/lib/api/client';
-import { getEvent } from '@/lib/api/events';
-import { getClaimableRedeemCodes } from '@/lib/api/redeem-codes';
-import { selectRsvpCandidates } from '@/lib/rsvp/selectRsvpRedeemCode';
-import { buildEventMetadata } from '@/lib/seo/detailMetadata';
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { EventRsvpFlow } from "@/components/event-rsvp/EventRsvpFlow";
+import { ApiNotFoundError } from "@/lib/api/client";
+import { getEvent } from "@/lib/api/events";
+import { getClaimableRedeemCodes } from "@/lib/api/redeem-codes";
+import type { EventRsvpRedeemTarget } from "@/lib/api/types";
+import { normalizeGuestCode } from "@/lib/guestCode";
+import { selectRsvpCandidates } from "@/lib/rsvp/selectRsvpRedeemCode";
+import { buildEventMetadata } from "@/lib/seo/detailMetadata";
 
 interface PageProps {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ code?: string | string[] }>;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { id } = await params;
 
   try {
     const event = await getEvent(id);
     return buildEventMetadata(event);
   } catch {
-    return { title: 'TIXX' };
+    return { title: "TIXX" };
   }
 }
 
-export default async function EventRsvpPage({ params }: PageProps) {
+export default async function EventRsvpPage({
+  params,
+  searchParams,
+}: PageProps) {
   const { id } = await params;
+  const { code } = await searchParams;
 
   let event;
   try {
@@ -33,19 +42,28 @@ export default async function EventRsvpPage({ params }: PageProps) {
     throw error;
   }
 
-  // Never cached (getClaimableRedeemCodes uses revalidate: 0) — quantity
-  // moves in real time between this read and the eventual RSVP submit, so
-  // this list only picks a candidate to submit; the RSVP response is the
-  // only source of truth for whether the claim actually succeeded.
-  const claimableCodes = await getClaimableRedeemCodes(id).catch(() => []);
-  const candidates = selectRsvpCandidates(claimableCodes, event.tickets);
-  // Exactly one eligible code is required to proceed — zero means nothing
-  // claimable here, two or more means the "which one" policy isn't decided
-  // yet (docs/rsvp-phone-auth-frontend-work-breakdown.md §2.5). Either way
-  // EventRsvpFlow falls back to the app CTA rather than guessing.
-  const redeemCodeId = candidates.length === 1 ? candidates[0].id : null;
+  const guestCode = normalizeGuestCode(code);
+  let redeemTarget: EventRsvpRedeemTarget | null = guestCode
+    ? { code: guestCode }
+    : null;
+
+  if (!redeemTarget) {
+    // Never cached (getClaimableRedeemCodes uses revalidate: 0) — quantity
+    // moves in real time between this read and the eventual RSVP submit, so
+    // this list only picks a candidate to submit; the RSVP response is the
+    // only source of truth for whether the claim actually succeeded.
+    const claimableCodes = await getClaimableRedeemCodes(id).catch(() => []);
+    const candidates = selectRsvpCandidates(claimableCodes, event.tickets);
+    // Exactly one eligible code is required to proceed — zero means nothing
+    // claimable here, two or more means the picking policy is not decided.
+    redeemTarget =
+      candidates.length === 1 ? { redeemCodeId: candidates[0].id } : null;
+  }
 
   return (
-    <EventRsvpFlow event={{ id: event.id, name: event.name }} redeemCodeId={redeemCodeId} />
+    <EventRsvpFlow
+      event={{ id: event.id, name: event.name }}
+      redeemTarget={redeemTarget}
+    />
   );
 }

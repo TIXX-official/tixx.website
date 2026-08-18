@@ -1,10 +1,10 @@
-export type AppHandoffKind = 'event' | 'host';
+export type AppHandoffKind = "event" | "host";
 
 export type AppHandoffTarget =
-  | 'kakao-ios'
-  | 'kakao-android'
-  | 'instagram-ios'
-  | 'instagram-android';
+  | "kakao-ios"
+  | "kakao-android"
+  | "instagram-ios"
+  | "instagram-android";
 
 export interface InitialBrowserEntry {
   pathname: string;
@@ -23,7 +23,7 @@ interface ResolveAutomaticHandoffOptions {
   enabledTargets: string;
 }
 
-export const APP_HANDOFF_SESSION_KEY = 'tixx:auto-app-handoff-attempted';
+export const APP_HANDOFF_SESSION_KEY = "tixx:auto-app-handoff-attempted";
 
 export const INITIAL_ENTRY_SCRIPT = `(function(){try{var n=performance.getEntriesByType("navigation")[0];window.__TIXX_INITIAL_ENTRY__={pathname:location.pathname,referrer:document.referrer||"",navigationType:n&&n.type?n.type:"navigate"}}catch(e){window.__TIXX_INITIAL_ENTRY__={pathname:location.pathname,referrer:document.referrer||"",navigationType:"navigate"}}})();`;
 
@@ -34,17 +34,20 @@ function detectTarget(userAgent: string): AppHandoffTarget | null {
   if (!isIos && !isAndroid) return null;
 
   if (/KAKAOTALK/i.test(userAgent)) {
-    return isIos ? 'kakao-ios' : 'kakao-android';
+    return isIos ? "kakao-ios" : "kakao-android";
   }
 
   if (/Instagram/i.test(userAgent)) {
-    return isIos ? 'instagram-ios' : 'instagram-android';
+    return isIos ? "instagram-ios" : "instagram-android";
   }
 
   return null;
 }
 
-function isSameOriginReferrer(referrer: string, currentOrigin: string): boolean {
+function isSameOriginReferrer(
+  referrer: string,
+  currentOrigin: string,
+): boolean {
   if (!referrer) return false;
 
   try {
@@ -60,7 +63,7 @@ function isTargetPath(
   id: string | number,
 ): boolean {
   const plural = `${kind}s`;
-  const escapedId = String(id).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const escapedId = String(id).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   return new RegExp(`^/(?:open/)?${plural}/${escapedId}/?$`).test(pathname);
 }
 
@@ -74,20 +77,20 @@ export function resolveAutomaticHandoffTarget({
   id,
   enabledTargets,
 }: ResolveAutomaticHandoffOptions): AppHandoffTarget | null {
-  if (!entry || entry.navigationType !== 'navigate') return null;
+  if (!entry || entry.navigationType !== "navigate") return null;
   if (entry.pathname !== currentPathname) return null;
   if (!isTargetPath(currentPathname, kind, id)) return null;
   if (isSameOriginReferrer(entry.referrer, currentOrigin)) return null;
 
   const params = new URLSearchParams(search);
-  if (params.has('noapp') || params.has('web')) return null;
+  if (params.has("noapp") || params.has("web")) return null;
 
   const target = detectTarget(userAgent);
   if (!target) return null;
 
   const enabled = new Set(
     enabledTargets
-      .split(',')
+      .split(",")
       .map((value) => value.trim().toLowerCase())
       .filter(Boolean),
   );
@@ -98,6 +101,12 @@ export function resolveAutomaticHandoffTarget({
 export function buildAppDeepLink(
   kind: AppHandoffKind,
   id: string | number,
+  guestCode?: string,
 ): string {
-  return `tixx://${kind}/${encodeURIComponent(String(id))}`;
+  const base = `tixx://${kind}/${encodeURIComponent(String(id))}`;
+  const normalizedGuestCode = guestCode?.trim();
+
+  if (kind !== "event" || !normalizedGuestCode) return base;
+
+  return `${base}?code=${encodeURIComponent(normalizedGuestCode)}`;
 }
