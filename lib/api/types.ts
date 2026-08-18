@@ -357,3 +357,60 @@ export type RsvpSubmissionErrorResponse =
   | { code: 'FORM_CHANGED'; message?: string }
   | { code: 'RATE_LIMITED'; message?: string; retryAfterSeconds?: number }
   | { code: 'VALIDATION_ERROR'; message?: string; errors: RsvpValidationErrorDetail[] };
+
+// --- Event RSVP (phone-auth signup + guest ticket claim) -----------------
+// Unrelated to the RsvpForm/RsvpSubmission types above (that's the
+// Typeform-style custom-form feature). This is the "claim a guest ticket by
+// phone OTP" flow on an event's own detail page. Mirrors @tixx/schema
+// (packages/schema/src/event-rsvp.ts) in the tixx monorepo — original source
+// of truth, kept in sync by hand since this repo can't import it directly.
+
+/** GET /events/:eventId/redeem-codes/claimable — called without auth, so
+ * only ALL_USERS-targeted codes come back. */
+export interface ClaimableRedeemCode {
+  id: number;
+  targetType: 'ticket' | 'voucher' | 'discount';
+  ticketId: number | null;
+  targetUserType: string;
+  requiresProfileImage: boolean;
+  requiresSns: boolean;
+  requiresHostApproval: boolean;
+  label: string | null;
+  description: string | null;
+  available: number;
+}
+
+/** POST /events/:eventId/rsvp request body. `marketingNightOptIn` is only
+ * valid as 1 when `marketingOptIn` or `marketingSmsOptIn` is also 1 — the
+ * API enforces this; see NIGHT_MARKETING_REQUIRES_APP_OR_SMS_OPT_IN. */
+export interface EventRsvpRequest {
+  phone: string;
+  authCode: string;
+  name?: string;
+  termsAccepted?: boolean;
+  marketingOptIn: 0 | 1;
+  marketingSmsOptIn: 0 | 1;
+  marketingEmailOptIn: 0 | 1;
+  marketingNightOptIn: 0 | 1;
+  redeemCodeId: number;
+}
+
+/** POST /events/:eventId/rsvp response. `user` is the API's full UserSchema
+ * serialization — only the fields this site actually reads are declared. */
+export interface EventRsvpResponse {
+  jwt: string;
+  user: {
+    id: number;
+    uuid: string;
+    name: string;
+    phone: string;
+  };
+  isNew: 0 | 1;
+  rsvp: {
+    eventId: number;
+    redeemCodeId: number;
+    redeemHistoryId: number;
+    eventTicketId: number;
+    status: 'issued';
+  };
+}

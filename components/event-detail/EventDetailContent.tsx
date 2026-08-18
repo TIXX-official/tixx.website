@@ -14,7 +14,6 @@ import { LocationSection } from '@/components/detail/LocationSection';
 import { ShareButton } from '@/components/detail/ShareButton';
 import { SnsLinks } from '@/components/detail/SnsLinks';
 import { Text } from '@/components/detail/Text';
-import { openAppOrFallback } from '@/lib/deepLink';
 import { dictionary } from '@/lib/dictionary';
 import { useLanguage } from '@/lib/LanguageContext';
 import type { EventDetail } from '@/lib/api/types';
@@ -23,9 +22,17 @@ import {
   parseEventDateTime,
   resolveDisplayEndDateTime,
 } from '@/lib/format/eventDateTime';
-import { hasGuestCodeTicket, resolveEventCtaState } from '@/lib/format/ticket';
+import { resolveEventCtaState } from '@/lib/format/ticket';
 
-export function EventDetailContent({ event }: { event: EventDetail }) {
+export function EventDetailContent({
+  event,
+  hasRsvpCandidate,
+}: {
+  event: EventDetail;
+  /** Whether the web RSVP page (/events/[id]/rsvp) has exactly one eligible
+   * candidate for this event right now — see EventDetailPage. */
+  hasRsvpCandidate: boolean;
+}) {
   const { language } = useLanguage();
   const t = dictionary[language].eventDetail;
 
@@ -50,7 +57,7 @@ export function EventDetailContent({ event }: { event: EventDetail }) {
   const hostCategoryLabel = dictionary[language].hostDetail.categories.Host;
 
   // TEMP: hide the "enter guest code" CTA for event 819 only, per request. Remove when no longer needed.
-  const showGuestCodeButton = event.id !== 819 && hasGuestCodeTicket(event.tickets);
+  const showGuestCodeButton = event.id !== 819 && hasRsvpCandidate;
 
   const cta = resolveEventCtaState(event.tickets);
   const ctaLabel =
@@ -166,9 +173,7 @@ export function EventDetailContent({ event }: { event: EventDetail }) {
                 <Button
                   variant='outline'
                   className={event.participantCount > 0 ? 'mt-3' : undefined}
-                  onClick={() =>
-                    openAppOrFallback(`tixx://event/${event.id}`)
-                  }
+                  href={`/events/${event.id}/rsvp`}
                 >
                   {t.enterGuestCode}
                 </Button>

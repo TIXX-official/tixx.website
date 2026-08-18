@@ -35,11 +35,3 @@ export function resolveEventCtaState(tickets: Ticket[]): EventCtaState {
 
   return { kind: 'none' };
 }
-
-// Port of the `hasGuestCodeTicket` check in apps/mobile's
-// EventDetailScreenContent.tsx.
-export function hasGuestCodeTicket(tickets: Ticket[]): boolean {
-  return tickets.some(
-    (t) => t.type === 'guest' && t.coupons.some((c) => c.code)
-  );
-}
