@@ -1,12 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/lib/LanguageContext';
 import { dictionary } from '@/lib/dictionary';
+import { trackWebEvent } from '@/lib/analytics';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -137,6 +137,7 @@ export default function Navbar() {
             </button>
             <Link
               href='/download'
+              onClick={() => void trackWebEvent('app_cta_click', { surface: 'navbar' })}
               className='hidden md:block px-6 py-2 bg-neon-lime text-black rounded-full text-sm font-bold hover:bg-[#eef540] transition-colors shadow-[0_0_15px_rgba(242,248,98,0.3)]'
             >
               {t.download}
@@ -262,7 +263,10 @@ export default function Navbar() {
               </button>
               <Link
                 href='/download'
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  void trackWebEvent('app_cta_click', { surface: 'navbar' });
+                }}
                 className='px-6 py-2 bg-neon-lime text-black rounded-full text-sm font-bold hover:bg-[#eef540] transition-colors shadow-[0_0_15px_rgba(242,248,98,0.3)] text-center'
               >
                 {t.download}

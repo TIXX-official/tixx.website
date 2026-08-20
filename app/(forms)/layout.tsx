@@ -12,6 +12,7 @@ import {
   IBM_Plex_Sans_KR,
 } from 'next/font/google';
 import '../globals.css';
+import { AnalyticsProvider } from '@/components/analytics/AnalyticsProvider';
 
 const notoSansKr = Noto_Sans_KR({
   subsets: ['latin'],
@@ -110,7 +111,7 @@ export default function FormsLayout({
   return (
     <html lang="ko" className="dark">
       <body className={`${FONT_VARIABLE_CLASSES} antialiased bg-black text-white`}>
-        {children}
+        <AnalyticsProvider>{children}</AnalyticsProvider>
       </body>
     </html>
   );

@@ -2,7 +2,9 @@
 
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { AppCTA } from '@/components/detail/AppCTA';
+import { trackWebEvent } from '@/lib/analytics';
 import type { CreateRsvpSubmissionRequest, RsvpForm, RsvpSubmissionErrorResponse } from '@/lib/api/types';
 import { RsvpSubmissionError, submitRsvpForm } from '@/lib/api/rsvp-forms';
 import { RsvpFormShell } from './RsvpFormShell';
@@ -38,6 +40,17 @@ export function RsvpFormView({ form, isPreview = false }: { form: RsvpForm; isPr
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const hasTrackedStart = useRef(false);
+  const hasTrackedView = useRef(false);
+
+  useEffect(() => {
+    if (isPreview || hasTrackedView.current) return;
+    hasTrackedView.current = true;
+    void trackWebEvent('rsvp_form_view', {
+      form_id: form.publicId,
+      layout_type: form.layoutType,
+    });
+  }, [form.layoutType, form.publicId, isPreview]);
 
   // Gate the initial reveal on every image the page needs, not just each
   // one individually — background and poster otherwise finish decoding at
@@ -117,6 +130,11 @@ export function RsvpFormView({ form, isPreview = false }: { form: RsvpForm; isPr
       return;
     }
 
+    void trackWebEvent('rsvp_form_submit_attempt', {
+      form_id: form.publicId,
+      layout_type: form.layoutType,
+    });
+
     setSubmitError(null);
     setIsSubmitting(true);
 
@@ -130,8 +148,18 @@ export function RsvpFormView({ form, isPreview = false }: { form: RsvpForm; isPr
 
     try {
       await submitRsvpForm(form.publicId, payload);
+      void trackWebEvent('rsvp_form_submit_success', {
+        form_id: form.publicId,
+        layout_type: form.layoutType,
+      });
       setSubmitted(true);
     } catch (error) {
+      void trackWebEvent('rsvp_form_submit_fail', {
+        form_id: form.publicId,
+        layout_type: form.layoutType,
+        failure_code:
+          error instanceof RsvpSubmissionError ? error.response.code : 'unknown',
+      });
       if (error instanceof RsvpSubmissionError) {
         setSubmitError(resolveErrorMessage(error.response));
         if (error.response.code === 'FORM_CHANGED') {
@@ -143,6 +171,15 @@ export function RsvpFormView({ form, isPreview = false }: { form: RsvpForm; isPr
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleStart = () => {
+    if (isPreview || hasTrackedStart.current) return;
+    hasTrackedStart.current = true;
+    void trackWebEvent('rsvp_form_start', {
+      form_id: form.publicId,
+      layout_type: form.layoutType,
+    });
   };
 
   return (
@@ -159,6 +196,16 @@ export function RsvpFormView({ form, isPreview = false }: { form: RsvpForm; isPr
           {isPreview && (
             <p className="mt-2 text-sm opacity-60">실제 방문자가 제출하면 이렇게 완료 화면이 보여요.</p>
           )}
+          <div className="mt-8 w-full max-w-sm">
+            <AppCTA
+              label="TIXX 앱에서 더 많은 이벤트 보기"
+              deepLink="tixx://"
+              sourceSurface="custom_rsvp_complete"
+              contextType="rsvp_form"
+              contextId={form.publicId}
+              disabled={isPreview}
+            />
+          </div>
         </main>
       ) : form.layoutType === 'scroll' ? (
         <RsvpScrollEngine
@@ -169,6 +216,7 @@ export function RsvpFormView({ form, isPreview = false }: { form: RsvpForm; isPr
           onComplete={handleComplete}
           isSubmitting={isSubmitting}
           submitError={submitError}
+          onStart={handleStart}
         />
       ) : (
         <RsvpStepEngine
@@ -179,6 +227,7 @@ export function RsvpFormView({ form, isPreview = false }: { form: RsvpForm; isPr
           onComplete={handleComplete}
           isSubmitting={isSubmitting}
           submitError={submitError}
+          onStart={handleStart}
         />
       )}
     </RsvpFormShell>

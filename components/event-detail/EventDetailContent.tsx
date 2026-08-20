@@ -223,14 +223,26 @@ export function EventDetailContent({
         {/* Right column: purchase-intent sidebar */}
         {ctaLabel && (
           <div className="mt-6 hidden px-4 lg:col-start-2 lg:row-start-2 lg:mt-0 lg:block lg:px-0 lg:sticky lg:top-8">
-            <AppCTA label={ctaLabel} deepLink={`tixx://event/${event.id}`} />
+            <AppCTA
+              label={ctaLabel}
+              deepLink={`tixx://event/${event.id}`}
+              sourceSurface="event_detail"
+              contextType="event"
+              contextId={event.id}
+            />
           </div>
         )}
       </div>
 
       {ctaLabel && (
         <div className="fixed bottom-0 left-0 right-0 lg:hidden">
-          <AppCTA label={ctaLabel} deepLink={`tixx://event/${event.id}`} />
+          <AppCTA
+            label={ctaLabel}
+            deepLink={`tixx://event/${event.id}`}
+            sourceSurface="event_detail"
+            contextType="event"
+            contextId={event.id}
+          />
         </div>
       )}
     </div>

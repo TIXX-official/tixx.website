@@ -8,7 +8,7 @@ import {
 } from "libphonenumber-js";
 import examples from "libphonenumber-js/examples.mobile.json";
 import Link from "next/link";
-import { type CSSProperties, useEffect, useState } from "react";
+import { type CSSProperties, useEffect, useRef, useState } from "react";
 import { AppCTA } from "@/components/detail/AppCTA";
 import { Button } from "@/components/detail/Button";
 import { Text } from "@/components/detail/Text";
@@ -23,6 +23,7 @@ import {
 import type { EventRsvpRedeemTarget } from "@/lib/api/types";
 import { dictionary } from "@/lib/dictionary";
 import { useLanguage } from "@/lib/LanguageContext";
+import { trackWebEvent } from "@/lib/analytics";
 import {
   resolveRsvpError,
   type RsvpErrorAction,
@@ -86,6 +87,8 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
   const [needsRefetch, setNeedsRefetch] = useState(false);
   const [alreadyRegistered, setAlreadyRegistered] = useState(false);
   const [isExistingUser, setIsExistingUser] = useState(false);
+  const hasTrackedStart = useRef(false);
+  const hasTrackedView = useRef(false);
   const isCodeTarget =
     redeemTarget !== null &&
     "code" in redeemTarget &&
@@ -126,6 +129,12 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
       )}
     </div>
   ) : null;
+
+  useEffect(() => {
+    if (hasTrackedView.current) return;
+    hasTrackedView.current = true;
+    void trackWebEvent("event_rsvp_view", { event_id: event.id });
+  }, [event.id]);
 
   useEffect(() => {
     if (step !== "otp-and-profile" && step !== "submitting") return;
@@ -205,7 +214,13 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
             {t.completedDescription}
           </Text>
         </div>
-        <AppCTA label={t.openApp} deepLink={`tixx://event/${event.id}`} />
+        <AppCTA
+          label={t.openApp}
+          deepLink={`tixx://event/${event.id}`}
+          sourceSurface="event_rsvp_complete"
+          contextType="event"
+          contextId={event.id}
+        />
       </main>
     );
   }
@@ -244,6 +259,9 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
         </div>
         <AppCTA
           label={t.notEligibleOpenApp}
+          sourceSurface="event_rsvp_fallback"
+          contextType="event"
+          contextId={event.id}
           deepLink={
             isCodeTarget
               ? buildAppDeepLink("event", event.id, guestCode)
@@ -268,6 +286,10 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
     getExampleNumber(country, examples)?.formatNational() ?? "";
 
   const handlePhoneInputChange = (text: string) => {
+    if (!hasTrackedStart.current) {
+      hasTrackedStart.current = true;
+      void trackWebEvent("event_rsvp_start", { event_id: event.id });
+    }
     const isInternational = text.trim().startsWith("+");
     const formatter = new AsYouType(isInternational ? undefined : country);
     setDisplayText(formatter.input(text));
@@ -352,12 +374,13 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
     setStep("submitting");
     setErrorMessage(null);
     setNeedsRefetch(false);
+    void trackWebEvent("event_rsvp_submit_attempt", { event_id: event.id });
     try {
       // rsvp.eventTicketId isn't shown on this page — completion is
       // announced generically and the ticket itself is only viewable in the
       // app (see docs/rsvp-phone-auth-frontend-implementation-plan.md §6,
       // W3 item 6).
-      await createEventRsvp(event.id, {
+      const response = await createEventRsvp(event.id, {
         phone: verifiedPhone,
         authCode,
         // event-rsvp.service.ts only applies name/termsAccepted when
@@ -370,8 +393,16 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
         marketingNightOptIn: marketingOptIn && marketingNightOptIn ? 1 : 0,
         ...redeemTargetBody,
       });
+      void trackWebEvent("event_rsvp_submit_success", {
+        event_id: event.id,
+        is_new_user: response.isNew === 1,
+      });
       setStep("completed");
     } catch (error) {
+      void trackWebEvent("event_rsvp_submit_fail", {
+        event_id: event.id,
+        failure_code: error instanceof RsvpError ? error.code : "unknown",
+      });
       const action = handleApiError(error);
       if (action !== "already_registered") {
         setStep("otp-and-profile");

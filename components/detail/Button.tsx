@@ -10,6 +10,7 @@ interface ButtonProps {
   variant?: 'primary' | 'secondary' | 'outline';
   className?: string;
   target?: string;
+  disabled?: boolean;
 }
 
 const variantClasses = {
@@ -25,9 +26,10 @@ export function Button({
   variant = 'primary',
   className,
   target,
+  disabled = false,
 }: ButtonProps) {
   const classes = cn(
-    'flex w-full items-center justify-center rounded-xl px-4 py-3.5 transition-opacity hover:opacity-85 active:opacity-70',
+    'flex w-full items-center justify-center rounded-xl px-4 py-3.5 transition-opacity hover:opacity-85 active:opacity-70 disabled:cursor-not-allowed disabled:opacity-40',
     variantClasses[variant],
     className
   );
@@ -48,7 +50,7 @@ export function Button({
   }
 
   return (
-    <button type="button" onClick={onClick} className={classes}>
+    <button type="button" onClick={onClick} className={classes} disabled={disabled}>
       {content}
     </button>
   );

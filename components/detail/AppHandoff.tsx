@@ -8,6 +8,7 @@ import {
   type InitialBrowserEntry,
   resolveAutomaticHandoffTarget,
 } from "@/lib/appHandoff";
+import { trackWebEvent } from "@/lib/analytics";
 
 declare global {
   interface Window {
@@ -64,6 +65,12 @@ export function AppHandoff({
     frame.style.display = "none";
     frame.src = buildAppDeepLink(kind, id, guestCode);
     document.body.appendChild(frame);
+
+    void trackWebEvent("automatic_app_handoff_attempt", {
+      target,
+      context_type: kind,
+      context_id: String(id),
+    });
 
     window.dispatchEvent(
       new CustomEvent("tixx:app-handoff-attempt", {

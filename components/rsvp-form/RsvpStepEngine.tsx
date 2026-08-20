@@ -20,6 +20,7 @@ interface RsvpStepEngineProps {
   isBlockValid: (block: RsvpFormBlock, value: RsvpSubmissionAnswerValue | undefined) => boolean;
   isSubmitting?: boolean;
   submitError?: string | null;
+  onStart?: () => void;
 }
 
 // One block fully occupies the screen at a time (see
@@ -35,6 +36,7 @@ export function RsvpStepEngine({
   isBlockValid,
   isSubmitting = false,
   submitError = null,
+  onStart,
 }: RsvpStepEngineProps) {
   const [stepIndex, setStepIndex] = useState(0);
   const [answers, setAnswers] = useState<RsvpAnswers>({});
@@ -65,6 +67,7 @@ export function RsvpStepEngine({
   };
 
   const setAnswer = (blockId: number, value: RsvpSubmissionAnswerValue) => {
+    onStart?.();
     setAnswers((prev) => ({ ...prev, [blockId]: value }));
   };
 

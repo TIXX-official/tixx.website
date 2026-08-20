@@ -6,6 +6,7 @@ import Footer from '@/components/Footer';
 import { LanguageProvider } from '@/lib/LanguageContext';
 import { INITIAL_ENTRY_SCRIPT } from '@/lib/appHandoff';
 import { absoluteUrl, SITE_URL } from '@/lib/siteUrl';
+import { AnalyticsProvider } from '@/components/analytics/AnalyticsProvider';
 
 const outfit = Outfit({
   subsets: ['latin'],
@@ -133,11 +134,13 @@ export default function RootLayout({
         className={`${outfit.variable} ${inter.variable} ${notoSansKr.variable} antialiased bg-black text-white`}
       >
         <script dangerouslySetInnerHTML={{ __html: INITIAL_ENTRY_SCRIPT }} />
-        <LanguageProvider>
-          <Navbar />
-          {children}
-          <Footer />
-        </LanguageProvider>
+        <AnalyticsProvider>
+          <LanguageProvider>
+            <Navbar />
+            {children}
+            <Footer />
+          </LanguageProvider>
+        </AnalyticsProvider>
       </body>
     </html>
   );
