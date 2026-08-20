@@ -13,14 +13,20 @@ import { AppCTA } from "@/components/detail/AppCTA";
 import { Button } from "@/components/detail/Button";
 import { Text } from "@/components/detail/Text";
 import { PhoneCountryPicker } from "@/components/rsvp-form/PhoneCountryPicker";
+import { ProfileImageField } from "@/components/event-rsvp/ProfileImageField";
+import { SnsProfileField } from "@/components/event-rsvp/SnsProfileField";
 import { buildAppDeepLink } from "@/lib/appHandoff";
 import {
-  checkPhoneRegistered,
   createEventRsvp,
+  getRsvpRequirements,
   issuePhoneAuthCode,
+  prepareEventRsvp,
   RsvpError,
 } from "@/lib/api/rsvp";
-import type { EventRsvpRedeemTarget } from "@/lib/api/types";
+import type {
+  EventRsvpRedeemTarget,
+  EventRsvpSnsProfile,
+} from "@/lib/api/types";
 import { dictionary } from "@/lib/dictionary";
 import { useLanguage } from "@/lib/LanguageContext";
 import { trackWebEvent } from "@/lib/analytics";
@@ -33,7 +39,13 @@ import {
   hasGuestCodeValue,
 } from "@/lib/rsvp/eventRsvpTarget";
 
-type RsvpStep = "phone" | "otp-and-profile" | "submitting" | "completed";
+type RsvpStep =
+  | "loading-requirements"
+  | "phone"
+  | "otp"
+  | "additional-info"
+  | "submitting"
+  | "completed";
 
 const RESEND_COOLDOWN_MS = 30 * 1000;
 
@@ -69,7 +81,9 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
   const { language } = useLanguage();
   const t = dictionary[language].eventRsvp;
 
-  const [step, setStep] = useState<RsvpStep>("phone");
+  const [step, setStep] = useState<RsvpStep>(
+    redeemTarget ? "loading-requirements" : "phone",
+  );
   const [country, setCountry] = useState<CountryCode>("KR");
   const [displayText, setDisplayText] = useState("");
   const [verifiedPhone, setVerifiedPhone] = useState("");
@@ -81,14 +95,33 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
   const [marketingOptIn, setMarketingOptIn] = useState(false);
   const [marketingNightOptIn, setMarketingNightOptIn] = useState(false);
   const [isRequestingCode, setIsRequestingCode] = useState(false);
+  const [isPreparing, setIsPreparing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showAppFallback, setShowAppFallback] = useState(false);
   const [eventNotFound, setEventNotFound] = useState(false);
   const [needsRefetch, setNeedsRefetch] = useState(false);
   const [alreadyRegistered, setAlreadyRegistered] = useState(false);
   const [isExistingUser, setIsExistingUser] = useState(false);
+  // Set by /rsvp/prepare — that endpoint's own requires* policy combined
+  // with the caller's saved profile, i.e. what's actually left to collect.
+  // /rsvp/requirements (loadRequirements) is only used pre-OTP to validate
+  // the target and surface eligibility errors early; its requires* flags
+  // aren't rendered directly.
+  const [missingProfileImage, setMissingProfileImage] = useState(false);
+  const [missingSns, setMissingSns] = useState(false);
+  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
+  const [snsProfile, setSnsProfile] = useState<EventRsvpSnsProfile | null>(
+    null,
+  );
+  // The guest code (trimmed) that requiresProfileImage/requiresSns above
+  // were last resolved for — lets handleSendCode notice an edited code
+  // link and re-check requirements before issuing an OTP for it.
+  const [requirementsGuestCode, setRequirementsGuestCode] = useState<
+    string | null
+  >(null);
   const hasTrackedStart = useRef(false);
   const hasTrackedView = useRef(false);
+  const hasLoadedRequirements = useRef(false);
   const isCodeTarget =
     redeemTarget !== null &&
     "code" in redeemTarget &&
@@ -137,7 +170,13 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
   }, [event.id]);
 
   useEffect(() => {
-    if (step !== "otp-and-profile" && step !== "submitting") return;
+    if (
+      step !== "otp" &&
+      step !== "additional-info" &&
+      step !== "submitting"
+    ) {
+      return;
+    }
     const interval = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(interval);
   }, [step]);
@@ -169,7 +208,11 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
     const resolved = resolveRsvpError(code, {
       target: isCodeTarget ? "code" : "redeemCodeId",
     });
-    setErrorMessage(t.errors[resolved.messageKey]);
+    const retrySuffix =
+      error instanceof RsvpError && error.retryAfterSeconds
+        ? ` (${Math.ceil(error.retryAfterSeconds / 60)}${language === "KO" ? "분 후" : "m"})`
+        : "";
+    setErrorMessage(t.errors[resolved.messageKey] + retrySuffix);
 
     if (resolved.action === "already_registered") {
       // 이 번호로 이미 티켓이 발급된 상태 — 새로고침이나 재시도로는 해결되지
@@ -199,6 +242,32 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
     }
     return resolved.action;
   };
+
+  // 문서 4.2절: OTP 발급 전 브라우저가 직접 호출해서 요구조건을 확인한다.
+  // 성공하면 requires*를 갱신하고 phone 단계로, 실패하면 기존 에러 처리로
+  // 위임하되(app_fallback/event_not_found/needsRefetch 등) phone 단계로
+  // 넘어가 에러 메시지가 보이게 한다.
+  const loadRequirements = async (): Promise<boolean> => {
+    if (!redeemTarget) return false;
+    try {
+      const body = buildEventRsvpRedeemTarget(redeemTarget, guestCode);
+      await getRsvpRequirements(event.id, body);
+      setRequirementsGuestCode(isCodeTarget ? guestCode.trim() : null);
+      return true;
+    } catch (error) {
+      handleApiError(error);
+      return false;
+    } finally {
+      setStep((current) => (current === "loading-requirements" ? "phone" : current));
+    }
+  };
+
+  useEffect(() => {
+    if (redeemTarget === null || hasLoadedRequirements.current) return;
+    hasLoadedRequirements.current = true;
+    void loadRequirements();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (step === "completed") {
     return (
@@ -272,6 +341,21 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
     );
   }
 
+  if (step === "loading-requirements") {
+    return (
+      <main
+        style={themeVars}
+        className="min-h-screen bg-black px-4 pb-32 pt-24 text-white"
+      >
+        <div className="mx-auto max-w-md text-center">
+          <Text variant="body1Regular" className="text-grayscale-300">
+            {t.loadingRequirements}
+          </Text>
+        </div>
+      </main>
+    );
+  }
+
   // Re-derived on every render from displayText/country rather than kept in
   // its own state — AsYouType is cheap and this keeps a single source of
   // truth for "what E.164 number does the current input resolve to".
@@ -322,13 +406,13 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
     setErrorMessage(null);
     setNeedsRefetch(false);
     try {
-      // Issuing the code and checking whether this number already has an
-      // account are independent — run them together rather than adding
-      // checkPhoneRegistered's latency in front of the OTP request.
-      const [result, registered] = await Promise.all([
-        issuePhoneAuthCode(currentE164),
-        checkPhoneRegistered(currentE164),
-      ]);
+      // 문서 4.2절: 게스트 코드가 편집돼 requirements 응답이 더 이상 이
+      // 코드에 대한 게 아니면 OTP 발급 전에 다시 조회한다.
+      if (isCodeTarget && guestCode.trim() !== requirementsGuestCode) {
+        const ok = await loadRequirements();
+        if (!ok) return;
+      }
+      const result = await issuePhoneAuthCode(currentE164);
       // now is otherwise only refreshed by the 1s interval below, which
       // doesn't restart on a resend within the same step — sync it here so
       // remainingMs/isResendCoolingDown never read a stale now right after
@@ -339,8 +423,7 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
       setLastIssuedAt(issuedAt);
       setNow(issuedAt);
       setAuthCode("");
-      setIsExistingUser(registered);
-      setStep("otp-and-profile");
+      setStep("otp");
     } catch (error) {
       handleApiError(error);
     } finally {
@@ -353,19 +436,15 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
   const isResendCoolingDown =
     lastIssuedAt !== null && now - lastIssuedAt < RESEND_COOLDOWN_MS;
 
-  const canSubmit =
+  const canPrepare =
+    !isPreparing &&
     !isSubmitting &&
     !isOtpExpired &&
     authCode.trim().length > 0 &&
-    (!isCodeTarget || hasGuestCodeValue(guestCode)) &&
-    (isExistingUser || (name.trim().length > 0 && termsAccepted));
+    (!isCodeTarget || hasGuestCodeValue(guestCode));
 
-  const handleSubmit = async () => {
-    if (isCodeTarget && !hasGuestCodeValue(guestCode)) {
-      setGuestCodeTouched(true);
-    }
-    if (!canSubmit || !redeemTarget) return;
-
+  const submitRsvp = async () => {
+    if (!redeemTarget) return;
     const redeemTargetBody = buildEventRsvpRedeemTarget(
       redeemTarget,
       guestCode,
@@ -391,6 +470,8 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
         marketingSmsOptIn: marketingOptIn ? 1 : 0,
         marketingEmailOptIn: marketingOptIn ? 1 : 0,
         marketingNightOptIn: marketingOptIn && marketingNightOptIn ? 1 : 0,
+        ...(missingProfileImage && profileImageUrl ? { profileImageUrl } : {}),
+        ...(missingSns && snsProfile ? { snsProfile } : {}),
         ...redeemTargetBody,
       });
       void trackWebEvent("event_rsvp_submit_success", {
@@ -404,11 +485,84 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
         failure_code: error instanceof RsvpError ? error.code : "unknown",
       });
       const action = handleApiError(error);
+      const needsAdditionalInfo =
+        !isExistingUser || missingProfileImage || missingSns;
+      if (action === "reprepare") {
+        // 호스트가 그 사이 요구조건을 바꿨을 수 있다 — 같은 OTP로 prepare를
+        // 다시 호출해 additional-info를 재구성한다(문서 10절). 여기서는
+        // 항상 additional-info로 돌아간다: 방금 이 요구조건 때문에 제출이
+        // 실패했으므로 재확인 결과도 최소 하나는 missing일 것으로 본다.
+        try {
+          const redeemTargetBody = buildEventRsvpRedeemTarget(
+            redeemTarget,
+            guestCode,
+          );
+          const result = await prepareEventRsvp(event.id, {
+            phone: verifiedPhone,
+            authCode,
+            ...redeemTargetBody,
+          });
+          setIsExistingUser(result.isExistingUser);
+          setMissingProfileImage(result.missingProfileImage);
+          setMissingSns(result.missingSns);
+          setStep("additional-info");
+        } catch (prepareError) {
+          handleApiError(prepareError);
+          setStep("otp");
+        }
+        return;
+      }
       if (action !== "already_registered") {
-        setStep("otp-and-profile");
+        setStep(needsAdditionalInfo ? "additional-info" : "otp");
       }
     }
   };
+
+  const handlePrepareAndContinue = async () => {
+    if (isCodeTarget && !hasGuestCodeValue(guestCode)) {
+      setGuestCodeTouched(true);
+      return;
+    }
+    if (!canPrepare || !redeemTarget) return;
+
+    const redeemTargetBody = buildEventRsvpRedeemTarget(
+      redeemTarget,
+      guestCode,
+    );
+    setIsPreparing(true);
+    setErrorMessage(null);
+    setNeedsRefetch(false);
+    try {
+      const result = await prepareEventRsvp(event.id, {
+        phone: verifiedPhone,
+        authCode,
+        ...redeemTargetBody,
+      });
+      setIsExistingUser(result.isExistingUser);
+      setMissingProfileImage(result.missingProfileImage);
+      setMissingSns(result.missingSns);
+
+      if (
+        !result.isExistingUser ||
+        result.missingProfileImage ||
+        result.missingSns
+      ) {
+        setStep("additional-info");
+      } else {
+        await submitRsvp();
+      }
+    } catch (error) {
+      handleApiError(error);
+    } finally {
+      setIsPreparing(false);
+    }
+  };
+
+  const canSubmit =
+    !isSubmitting &&
+    (isExistingUser || (name.trim().length > 0 && termsAccepted)) &&
+    (!missingProfileImage || Boolean(profileImageUrl)) &&
+    (!missingSns || Boolean(snsProfile));
 
   return (
     <main
@@ -474,11 +628,9 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
           </div>
         )}
 
-        {(step === "otp-and-profile" || step === "submitting") && (
+        {step === "otp" && (
           <div className="flex flex-col gap-5">
-            {!isExistingUser && (
-              <Text variant="headline2Medium">{t.profileStepTitle}</Text>
-            )}
+            <Text variant="headline2Medium">{t.otpStepTitle}</Text>
             {guestCodeField}
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2">
@@ -493,16 +645,14 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
                   }
                   placeholder={t.otpPlaceholder}
                   aria-label={t.otpPlaceholder}
-                  disabled={isSubmitting}
+                  disabled={isPreparing}
                   className={answerInputClass}
                   style={answerInputStyle}
                 />
                 <button
                   type="button"
                   onClick={() => void handleSendCode()}
-                  disabled={
-                    isRequestingCode || isResendCoolingDown || isSubmitting
-                  }
+                  disabled={isRequestingCode || isResendCoolingDown || isPreparing}
                   className="shrink-0 whitespace-nowrap px-2 py-2 text-sm underline disabled:opacity-40"
                 >
                   {t.resendCode}
@@ -514,6 +664,41 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
                   : formatRemaining(remainingMs)}
               </Text>
             </div>
+
+            {errorMessage && (
+              <Text
+                variant="caption1Regular"
+                className="text-red-400"
+                aria-live="polite"
+              >
+                {errorMessage}
+              </Text>
+            )}
+            {needsRefetch && (
+              <button
+                type="button"
+                onClick={() => window.location.reload()}
+                className="self-start text-sm underline text-grayscale-300"
+              >
+                {t.recheck}
+              </button>
+            )}
+
+            <Button
+              onClick={() => void handlePrepareAndContinue()}
+              className={
+                !canPrepare ? "pointer-events-none opacity-50" : undefined
+              }
+            >
+              {isPreparing ? t.submitting : t.otpContinue}
+            </Button>
+          </div>
+        )}
+
+        {(step === "additional-info" || step === "submitting") && (
+          <div className="flex flex-col gap-5">
+            <Text variant="headline2Medium">{t.additionalInfoStepTitle}</Text>
+            {guestCodeField}
 
             {isExistingUser ? (
               <Text variant="caption1Regular" className="text-grayscale-400">
@@ -590,6 +775,35 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
               </>
             )}
 
+            {missingProfileImage && (
+              <ProfileImageField
+                value={profileImageUrl}
+                onChange={setProfileImageUrl}
+                disabled={isSubmitting}
+                label={t.profileImageLabel}
+                uploadingLabel={t.profileImageUploadingLabel}
+                changeLabel={t.profileImageChangeLabel}
+                invalidTypeMessage={t.errors.profileImageInvalidType}
+                tooLargeMessage={t.errors.profileImageTooLarge}
+                uploadFailedMessage={t.errors.profileImageUploadFailed}
+              />
+            )}
+
+            {missingSns && (
+              <SnsProfileField
+                value={snsProfile}
+                onChange={setSnsProfile}
+                disabled={isSubmitting}
+                label={t.snsLabel}
+                handlePlaceholder={t.snsHandlePlaceholder}
+                platformLabels={{
+                  instagram: t.snsPlatformInstagram,
+                  tiktok: t.snsPlatformTiktok,
+                  youtube: t.snsPlatformYoutube,
+                }}
+              />
+            )}
+
             {errorMessage && (
               <Text
                 variant="caption1Regular"
@@ -610,7 +824,7 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
             )}
 
             <Button
-              onClick={() => void handleSubmit()}
+              onClick={() => void submitRsvp()}
               className={
                 !canSubmit ? "pointer-events-none opacity-50" : undefined
               }
