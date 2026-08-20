@@ -387,6 +387,14 @@ export interface ClaimableRedeemCode {
   available: number;
 }
 
+export type EventRsvpSnsPlatform = "instagram" | "tiktok" | "youtube";
+
+/** Leading `@` is stripped server-side; send the handle only, not a full URL. */
+export interface EventRsvpSnsProfile {
+  platform: EventRsvpSnsPlatform;
+  handle: string;
+}
+
 /** Shared fields for POST /events/:eventId/rsvp. */
 export interface EventRsvpBaseRequest {
   phone: string;
@@ -397,6 +405,10 @@ export interface EventRsvpBaseRequest {
   marketingSmsOptIn: 0 | 1;
   marketingEmailOptIn: 0 | 1;
   marketingNightOptIn: 0 | 1;
+  /** Must be a /upload response's mediaUrl under the R2 static origin's
+   * /users/ path — the server rejects any other origin/query/hash. */
+  profileImageUrl?: string;
+  snsProfile?: EventRsvpSnsProfile;
 }
 
 /** The API accepts exactly one redeem target. */
@@ -406,6 +418,45 @@ export type EventRsvpRedeemTarget =
 
 /** POST /events/:eventId/rsvp request body. */
 export type EventRsvpRequest = EventRsvpBaseRequest & EventRsvpRedeemTarget;
+
+/** POST /events/:eventId/rsvp/requirements request body. */
+export type EventRsvpRequirementsRequest = EventRsvpRedeemTarget;
+
+/** POST /events/:eventId/rsvp/requirements response — only the flags needed
+ * to decide which extra steps to show; no code id/string/label/quantity. */
+export interface EventRsvpRequirementsResponse {
+  requiresProfileImage: boolean;
+  requiresSns: boolean;
+}
+
+/** POST /events/:eventId/rsvp/prepare request body. */
+export type EventRsvpPrepareRequest = {
+  phone: string;
+  authCode: string;
+} & EventRsvpRedeemTarget;
+
+/** POST /events/:eventId/rsvp/prepare response. Validates the OTP without
+ * consuming it and reports the caller's actual missing profile/SNS info. */
+export interface EventRsvpPrepareResponse {
+  isExistingUser: boolean;
+  requiresProfileImage: boolean;
+  requiresSns: boolean;
+  missingProfileImage: boolean;
+  missingSns: boolean;
+}
+
+/** POST /upload request body (subset of FileUploadSchema this flow uses). */
+export interface FileUploadRequest {
+  folder: "users";
+  id: string;
+  mimetype: string;
+}
+
+/** POST /upload response. */
+export interface FileUploadResponse {
+  presignedUrl: string;
+  mediaUrl: string;
+}
 
 /** POST /events/:eventId/rsvp response. `user` is the API's full UserSchema
  * serialization — only the fields this site actually reads are declared. */
