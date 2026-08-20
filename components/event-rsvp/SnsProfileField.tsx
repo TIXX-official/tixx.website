@@ -1,6 +1,6 @@
 "use client";
 
-import { type CSSProperties } from "react";
+import { type CSSProperties, useState } from "react";
 import { Text } from "@/components/detail/Text";
 import type { EventRsvpSnsPlatform, EventRsvpSnsProfile } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
@@ -9,7 +9,9 @@ const inputClass =
   "w-full border-b border-current bg-transparent px-2 py-2 outline-none placeholder:text-[color:var(--rsvp-answer-placeholder-color)]";
 const inputStyle: CSSProperties = { color: "var(--rsvp-answer-color)" };
 
-const PLATFORMS: EventRsvpSnsPlatform[] = ["instagram", "tiktok", "youtube"];
+// Instagram/TikTok only — the third platform the backend still accepts
+// (youtube) isn't offered here per product decision.
+const PLATFORMS: EventRsvpSnsPlatform[] = ["instagram", "tiktok"];
 
 interface SnsProfileFieldProps {
   value: EventRsvpSnsProfile | null;
@@ -17,7 +19,7 @@ interface SnsProfileFieldProps {
   disabled?: boolean;
   label: string;
   handlePlaceholder: string;
-  platformLabels: Record<EventRsvpSnsPlatform, string>;
+  platformLabels: Partial<Record<EventRsvpSnsPlatform, string>>;
 }
 
 export function SnsProfileField({
@@ -28,18 +30,31 @@ export function SnsProfileField({
   handlePlaceholder,
   platformLabels,
 }: SnsProfileFieldProps) {
-  const platform = value?.platform ?? "instagram";
-  const handle = value?.handle ?? "";
+  // Tracked locally rather than derived from `value` — value collapses to
+  // null while the handle is still empty (nothing to submit yet), which
+  // would otherwise make a platform click before typing anything look like
+  // it did nothing, since the derived platform would snap back to the
+  // default on every render.
+  const [platform, setPlatformState] = useState<EventRsvpSnsPlatform>(
+    value?.platform ?? "instagram",
+  );
+  const [handle, setHandleState] = useState(value?.handle ?? "");
+
+  const emit = (nextPlatform: EventRsvpSnsPlatform, nextHandle: string) => {
+    onChange(nextHandle.length > 0 ? { platform: nextPlatform, handle: nextHandle } : null);
+  };
 
   const setPlatform = (next: EventRsvpSnsPlatform) => {
-    onChange(handle.trim().length > 0 ? { platform: next, handle } : null);
+    setPlatformState(next);
+    emit(next, handle);
   };
 
   const setHandle = (next: string) => {
     // Displayed without a leading @ — the server strips it too, but this
     // avoids a mismatch between what's shown and what's submitted.
     const trimmed = next.replace(/^@+/, "");
-    onChange(trimmed.length > 0 ? { platform, handle: trimmed } : null);
+    setHandleState(trimmed);
+    emit(platform, trimmed);
   };
 
   return (

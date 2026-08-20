@@ -443,7 +443,17 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
     authCode.trim().length > 0 &&
     (!isCodeTarget || hasGuestCodeValue(guestCode));
 
-  const submitRsvp = async () => {
+  // isExistingUser/missingProfileImage/missingSns are accepted as explicit
+  // params (not read off state) because callers such as
+  // handlePrepareAndContinue's auto-submit invoke this in the same tick as
+  // setIsExistingUser/setMissingProfileImage/setMissingSns — this closure
+  // would otherwise still see the *previous* render's state, since React
+  // hasn't re-rendered yet.
+  const submitRsvp = async (profile: {
+    isExistingUser: boolean;
+    missingProfileImage: boolean;
+    missingSns: boolean;
+  }) => {
     if (!redeemTarget) return;
     const redeemTargetBody = buildEventRsvpRedeemTarget(
       redeemTarget,
@@ -465,13 +475,17 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
         // event-rsvp.service.ts only applies name/termsAccepted when
         // creating a brand-new user — omitted here for existing users since
         // the name/terms step is hidden and there's nothing to send.
-        ...(isExistingUser ? {} : { name: name.trim(), termsAccepted: true }),
+        ...(profile.isExistingUser
+          ? {}
+          : { name: name.trim(), termsAccepted: true }),
         marketingOptIn: marketingOptIn ? 1 : 0,
         marketingSmsOptIn: marketingOptIn ? 1 : 0,
         marketingEmailOptIn: marketingOptIn ? 1 : 0,
         marketingNightOptIn: marketingOptIn && marketingNightOptIn ? 1 : 0,
-        ...(missingProfileImage && profileImageUrl ? { profileImageUrl } : {}),
-        ...(missingSns && snsProfile ? { snsProfile } : {}),
+        ...(profile.missingProfileImage && profileImageUrl
+          ? { profileImageUrl }
+          : {}),
+        ...(profile.missingSns && snsProfile ? { snsProfile } : {}),
         ...redeemTargetBody,
       });
       void trackWebEvent("event_rsvp_submit_success", {
@@ -486,7 +500,9 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
       });
       const action = handleApiError(error);
       const needsAdditionalInfo =
-        !isExistingUser || missingProfileImage || missingSns;
+        !profile.isExistingUser ||
+        profile.missingProfileImage ||
+        profile.missingSns;
       if (action === "resend_otp") {
         // authCode was just cleared by handleApiError — only the otp step
         // has a field to re-enter it, so additional-info would be a dead
@@ -557,7 +573,11 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
       ) {
         setStep("additional-info");
       } else {
-        await submitRsvp();
+        await submitRsvp({
+          isExistingUser: result.isExistingUser,
+          missingProfileImage: result.missingProfileImage,
+          missingSns: result.missingSns,
+        });
       }
     } catch (error) {
       handleApiError(error);
@@ -707,7 +727,9 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
 
         {(step === "additional-info" || step === "submitting") && (
           <div className="flex flex-col gap-5">
-            <Text variant="headline2Medium">{t.additionalInfoStepTitle}</Text>
+            {!isExistingUser && (
+              <Text variant="headline2Medium">{t.additionalInfoStepTitle}</Text>
+            )}
             {guestCodeField}
 
             {isExistingUser ? (
@@ -809,7 +831,6 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
                 platformLabels={{
                   instagram: t.snsPlatformInstagram,
                   tiktok: t.snsPlatformTiktok,
-                  youtube: t.snsPlatformYoutube,
                 }}
               />
             )}
@@ -834,7 +855,13 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
             )}
 
             <Button
-              onClick={() => void submitRsvp()}
+              onClick={() =>
+                void submitRsvp({
+                  isExistingUser,
+                  missingProfileImage,
+                  missingSns,
+                })
+              }
               className={
                 !canSubmit ? "pointer-events-none opacity-50" : undefined
               }
