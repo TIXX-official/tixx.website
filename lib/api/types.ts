@@ -3,20 +3,20 @@
 // (marketing/SEO site) that only needs a read-only subset of those contracts.
 
 export type EventCategory =
-  | 'party'
-  | 'venue'
-  | 'meetup'
-  | 'gig'
-  | 'popup'
-  | 'exhibition'
-  | 'festival'
-  | 'concert'
-  | 'class'
-  | 'other';
+  | "party"
+  | "venue"
+  | "meetup"
+  | "gig"
+  | "popup"
+  | "exhibition"
+  | "festival"
+  | "concert"
+  | "class"
+  | "other";
 
-export type HostCategory = 'Brand' | 'Promote' | 'Venue' | 'Host';
+export type HostCategory = "Brand" | "Promote" | "Venue" | "Host";
 
-export type TicketType = 'paid' | 'guest' | 'table';
+export type TicketType = "paid" | "guest" | "table";
 
 export interface Place {
   id: number;
@@ -54,7 +54,7 @@ export interface EventGalleryItem {
   mediaUrl: string;
   thumbnailUrl: string | null;
   mimeType: string;
-  uploaderType: 'host' | 'user';
+  uploaderType: "host" | "user";
   uploaderUserId: number;
   sortOrder: number | null;
 }
@@ -79,7 +79,7 @@ export interface Ticket {
   id: number;
   eventId: number | null;
   hostId?: number | null;
-  scopeType: 'event' | 'host';
+  scopeType: "event" | "host";
   name: string;
   type: TicketType;
   description: string | null;
@@ -200,7 +200,10 @@ export interface HostDetail {
   tickets: Ticket[];
 }
 
-export type TermsType = 'service_terms' | 'privacy_collection' | 'refund_policy';
+export type TermsType =
+  | "service_terms"
+  | "privacy_collection"
+  | "refund_policy";
 
 /** Item shape returned by GET /terms/latest and GET /terms/:id (@tixx/schema TermSchema) */
 export interface Term {
@@ -230,19 +233,19 @@ export interface TermsListItem {
 // read/submit subset this site needs.
 
 export type RsvpFormFontId =
-  | 'pretendard'
-  | 'notoSansKr'
-  | 'notoSerifKr'
-  | 'nanumMyeongjo'
-  | 'nanumGothic'
-  | 'gowunDodum'
-  | 'doHyeon'
-  | 'blackHanSans'
-  | 'jua'
-  | 'nanumPenScript'
-  | 'ibmPlexSansKr';
-export type RsvpFormSizeScale = 'sm' | 'md' | 'lg';
-export type RsvpFormAlignment = 'left' | 'center';
+  | "pretendard"
+  | "notoSansKr"
+  | "notoSerifKr"
+  | "nanumMyeongjo"
+  | "nanumGothic"
+  | "gowunDodum"
+  | "doHyeon"
+  | "blackHanSans"
+  | "jua"
+  | "nanumPenScript"
+  | "ibmPlexSansKr";
+export type RsvpFormSizeScale = "sm" | "md" | "lg";
+export type RsvpFormAlignment = "left" | "center";
 
 export interface RsvpFormTheme {
   // 폰트
@@ -271,20 +274,20 @@ export interface RsvpFormTheme {
 }
 
 export type RsvpFormBlockType =
-  | 'short_text'
-  | 'long_text'
-  | 'phone'
-  | 'choice'
-  | 'legal';
+  | "short_text"
+  | "long_text"
+  | "phone"
+  | "choice"
+  | "legal";
 
-export type RsvpLegalPurpose = 'collection' | 'marketing_sms';
+export type RsvpLegalPurpose = "collection" | "marketing_sms";
 
 export type RsvpFormBlockConfig =
-  | { type: 'short_text'; maxLength?: number }
-  | { type: 'long_text'; maxLength?: number }
-  | { type: 'phone' }
-  | { type: 'choice'; multiple: boolean; options: string[] }
-  | { type: 'legal'; purpose: RsvpLegalPurpose; content: string };
+  | { type: "short_text"; maxLength?: number }
+  | { type: "long_text"; maxLength?: number }
+  | { type: "phone" }
+  | { type: "choice"; multiple: boolean; options: string[] }
+  | { type: "legal"; purpose: RsvpLegalPurpose; content: string };
 
 export interface RsvpFormBlock {
   id: number;
@@ -301,9 +304,9 @@ export interface RsvpHostBadge {
   imageUrl: string | null;
 }
 
-export type RsvpFormStatus = 'draft' | 'published';
+export type RsvpFormStatus = "draft" | "published";
 
-export type RsvpFormLayoutType = 'step' | 'scroll';
+export type RsvpFormLayoutType = "step" | "scroll";
 
 /** GET /rsvp-forms/:id (public, unauthenticated) — only `published` forms are returned. */
 export interface RsvpForm {
@@ -353,10 +356,14 @@ export interface RsvpValidationErrorDetail {
  * internal/English description for logs — build user-facing copy from
  * `code` instead (see resolveErrorMessage in RsvpFormView.tsx). */
 export type RsvpSubmissionErrorResponse =
-  | { code: 'FORM_NOT_FOUND'; message?: string }
-  | { code: 'FORM_CHANGED'; message?: string }
-  | { code: 'RATE_LIMITED'; message?: string; retryAfterSeconds?: number }
-  | { code: 'VALIDATION_ERROR'; message?: string; errors: RsvpValidationErrorDetail[] };
+  | { code: "FORM_NOT_FOUND"; message?: string }
+  | { code: "FORM_CHANGED"; message?: string }
+  | { code: "RATE_LIMITED"; message?: string; retryAfterSeconds?: number }
+  | {
+      code: "VALIDATION_ERROR";
+      message?: string;
+      errors: RsvpValidationErrorDetail[];
+    };
 
 // --- Event RSVP (phone-auth signup + guest ticket claim) -----------------
 // Unrelated to the RsvpForm/RsvpSubmission types above (that's the
@@ -369,7 +376,7 @@ export type RsvpSubmissionErrorResponse =
  * only ALL_USERS-targeted codes come back. */
 export interface ClaimableRedeemCode {
   id: number;
-  targetType: 'ticket' | 'voucher' | 'discount';
+  targetType: "ticket" | "voucher" | "discount";
   ticketId: number | null;
   targetUserType: string;
   requiresProfileImage: boolean;
@@ -380,10 +387,8 @@ export interface ClaimableRedeemCode {
   available: number;
 }
 
-/** POST /events/:eventId/rsvp request body. `marketingNightOptIn` is only
- * valid as 1 when `marketingOptIn` or `marketingSmsOptIn` is also 1 — the
- * API enforces this; see NIGHT_MARKETING_REQUIRES_APP_OR_SMS_OPT_IN. */
-export interface EventRsvpRequest {
+/** Shared fields for POST /events/:eventId/rsvp. */
+export interface EventRsvpBaseRequest {
   phone: string;
   authCode: string;
   name?: string;
@@ -392,8 +397,15 @@ export interface EventRsvpRequest {
   marketingSmsOptIn: 0 | 1;
   marketingEmailOptIn: 0 | 1;
   marketingNightOptIn: 0 | 1;
-  redeemCodeId: number;
 }
+
+/** The API accepts exactly one redeem target. */
+export type EventRsvpRedeemTarget =
+  | { redeemCodeId: number; code?: never }
+  | { code: string; redeemCodeId?: never };
+
+/** POST /events/:eventId/rsvp request body. */
+export type EventRsvpRequest = EventRsvpBaseRequest & EventRsvpRedeemTarget;
 
 /** POST /events/:eventId/rsvp response. `user` is the API's full UserSchema
  * serialization — only the fields this site actually reads are declared. */
@@ -411,6 +423,6 @@ export interface EventRsvpResponse {
     redeemCodeId: number;
     redeemHistoryId: number;
     eventTicketId: number;
-    status: 'issued';
+    status: "issued";
   };
 }

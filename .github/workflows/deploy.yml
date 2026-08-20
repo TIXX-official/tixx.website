@@ -46,8 +46,13 @@ jobs:
       - name: Configure Docker for Artifact Registry
         run: gcloud auth configure-docker asia-northeast3-docker.pkg.dev --quiet
 
+      - name: Validate public analytics configuration
+        env:
+          NEXT_PUBLIC_AMPLITUDE_API_KEY: ${{ vars.NEXT_PUBLIC_AMPLITUDE_API_KEY }}
+        run: test -n "$NEXT_PUBLIC_AMPLITUDE_API_KEY"
+
       - name: Build image
-        run: docker build --build-arg NEXT_PUBLIC_NAVER_MAP_CLIENT_ID=aj6lau7hx3 --build-arg SITE_URL=https://tixx.im -t "${IMAGE}:${{ github.sha }}" -t "${IMAGE}:latest" .
+        run: docker build --build-arg NEXT_PUBLIC_NAVER_MAP_CLIENT_ID=aj6lau7hx3 --build-arg NEXT_PUBLIC_AMPLITUDE_API_KEY="${{ vars.NEXT_PUBLIC_AMPLITUDE_API_KEY }}" --build-arg SITE_URL=https://tixx.im -t "${IMAGE}:${{ github.sha }}" -t "${IMAGE}:latest" .
 
       - name: Push image
         run: docker push "${IMAGE}" --all-tags

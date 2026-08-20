@@ -1,3 +1,10 @@
+import {
+  type AppTrackingContext,
+  toAppTrackingProperties,
+  trackBeforeNavigation,
+  trackWebEvent,
+} from '@/lib/analytics';
+
 export const APP_STORE_URL = 'https://apps.apple.com/us/app/tixx/id6737306169';
 export const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.tixx.mobile';
 export const DOWNLOAD_PAGE_URL = '/download';
@@ -22,7 +29,11 @@ function detectPlatform(): 'ios' | 'android' | 'other' {
  * matching app store on mobile, or the marketing download page on
  * desktop.
  */
-export function openAppOrFallback(deepLinkUrl: string, timeoutMs = 1500) {
+export function openAppOrFallback(
+  deepLinkUrl: string,
+  timeoutMs = 1500,
+  trackingContext?: AppTrackingContext,
+) {
   const platform = detectPlatform();
   if (platform === 'other') {
     window.location.href = DOWNLOAD_PAGE_URL;
@@ -30,19 +41,38 @@ export function openAppOrFallback(deepLinkUrl: string, timeoutMs = 1500) {
   }
 
   const fallbackUrl = platform === 'ios' ? APP_STORE_URL : PLAY_STORE_URL;
+  const trackingProperties = trackingContext
+    ? toAppTrackingProperties(trackingContext)
+    : {};
 
   let didHide = false;
   const onVisibilityChange = () => {
-    if (document.hidden) didHide = true;
+    if (document.hidden && !didHide) {
+      didHide = true;
+      void trackWebEvent('app_open_suspected', {
+        ...trackingProperties,
+        device_os: platform,
+      });
+    }
   };
   document.addEventListener('visibilitychange', onVisibilityChange);
 
+  void trackWebEvent('app_open_attempt', {
+    ...trackingProperties,
+    device_os: platform,
+  });
   window.location.href = deepLinkUrl;
 
   setTimeout(() => {
     document.removeEventListener('visibilitychange', onVisibilityChange);
     if (!didHide) {
-      window.location.href = fallbackUrl;
+      void trackBeforeNavigation('app_store_redirect', {
+        ...trackingProperties,
+        store: platform === 'ios' ? 'app_store' : 'play_store',
+        device_os: platform,
+      }).finally(() => {
+        window.location.href = fallbackUrl;
+      });
     }
   }, timeoutMs);
 }

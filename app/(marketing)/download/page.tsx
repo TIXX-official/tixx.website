@@ -1,7 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
+import type { MouseEvent } from "react";
 import { APP_STORE_URL, PLAY_STORE_URL } from "@/lib/deepLink";
+import { trackBeforeNavigation } from "@/lib/analytics";
 
 function AppleIcon({ className }: { className?: string }) {
     return (
@@ -20,6 +22,20 @@ function GooglePlayIcon({ className }: { className?: string }) {
 }
 
 export default function DownloadPage() {
+    const handleStoreClick = (
+        event: MouseEvent<HTMLAnchorElement>,
+        store: "app_store" | "play_store",
+        destination: string,
+    ) => {
+        event.preventDefault();
+        void trackBeforeNavigation("app_store_click", {
+            surface: "download_page",
+            store,
+        }).finally(() => {
+            window.location.href = destination;
+        });
+    };
+
     return (
         <main className="min-h-screen flex flex-col items-center justify-center px-6 bg-black text-white vibe-bg">
             <div className="container mx-auto max-w-4xl text-center">
@@ -39,6 +55,7 @@ export default function DownloadPage() {
                     <div className="flex flex-col md:flex-row gap-6 justify-center">
                         <a
                             href={APP_STORE_URL}
+                            onClick={(event) => handleStoreClick(event, "app_store", APP_STORE_URL)}
                             className="flex items-center justify-center gap-4 px-8 py-6 bg-zinc-900 rounded-2xl border border-zinc-800 hover:border-neon-lime hover:bg-zinc-800 transition-all group w-full md:w-64"
                         >
                             <AppleIcon className="w-8 h-8 text-white group-hover:text-neon-lime transition-colors" />
@@ -50,6 +67,7 @@ export default function DownloadPage() {
 
                         <a
                             href={PLAY_STORE_URL}
+                            onClick={(event) => handleStoreClick(event, "play_store", PLAY_STORE_URL)}
                             className="flex items-center justify-center gap-4 px-8 py-6 bg-zinc-900 rounded-2xl border border-zinc-800 hover:border-neon-lime hover:bg-zinc-800 transition-all group w-full md:w-64"
                         >
                             <GooglePlayIcon className="w-8 h-8 text-white group-hover:text-neon-lime transition-colors" />

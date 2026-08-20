@@ -215,6 +215,9 @@ export function HostDetailContent({
               <AppCTA
                 label={ctaLabel}
                 deepLink={`tixx://host/${host.id}`}
+                sourceSurface="host_detail"
+                contextType="host"
+                contextId={host.id}
               />
             )}
           </div>
@@ -226,6 +229,9 @@ export function HostDetailContent({
           <AppCTA
             label={ctaLabel}
             deepLink={`tixx://host/${host.id}`}
+            sourceSurface="host_detail"
+            contextType="host"
+            contextId={host.id}
           />
         </div>
       )}

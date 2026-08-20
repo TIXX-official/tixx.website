@@ -1,34 +1,36 @@
-'use client';
+"use client";
 
-import { Eye, Heart } from 'lucide-react';
-import Image from 'next/image';
-import { AppCTA } from '@/components/detail/AppCTA';
-import { Divider } from '@/components/detail/Divider';
-import { ExpandableCard } from '@/components/detail/ExpandableCard';
-import { AvatarStack } from '@/components/detail/AvatarStack';
-import { Button } from '@/components/detail/Button';
-import { GalleryGrid } from '@/components/detail/GalleryGrid';
-import { HashtagList } from '@/components/detail/HashtagList';
-import { HostInlineCard } from '@/components/detail/HostInlineCard';
-import { LocationSection } from '@/components/detail/LocationSection';
-import { ShareButton } from '@/components/detail/ShareButton';
-import { SnsLinks } from '@/components/detail/SnsLinks';
-import { Text } from '@/components/detail/Text';
-import { dictionary } from '@/lib/dictionary';
-import { useLanguage } from '@/lib/LanguageContext';
-import type { EventDetail } from '@/lib/api/types';
+import { Eye, Heart } from "lucide-react";
+import Image from "next/image";
+import { AppCTA } from "@/components/detail/AppCTA";
+import { Divider } from "@/components/detail/Divider";
+import { ExpandableCard } from "@/components/detail/ExpandableCard";
+import { AvatarStack } from "@/components/detail/AvatarStack";
+import { Button } from "@/components/detail/Button";
+import { GalleryGrid } from "@/components/detail/GalleryGrid";
+import { HashtagList } from "@/components/detail/HashtagList";
+import { HostInlineCard } from "@/components/detail/HostInlineCard";
+import { LocationSection } from "@/components/detail/LocationSection";
+import { ShareButton } from "@/components/detail/ShareButton";
+import { SnsLinks } from "@/components/detail/SnsLinks";
+import { Text } from "@/components/detail/Text";
+import { dictionary } from "@/lib/dictionary";
+import { useLanguage } from "@/lib/LanguageContext";
+import type { EventDetail } from "@/lib/api/types";
 import {
   formatEventDateRangeLabel,
   parseEventDateTime,
   resolveDisplayEndDateTime,
-} from '@/lib/format/eventDateTime';
-import { resolveEventCtaState } from '@/lib/format/ticket';
+} from "@/lib/format/eventDateTime";
+import { resolveEventCtaState } from "@/lib/format/ticket";
 
 export function EventDetailContent({
   event,
+  guestCode,
   hasRsvpCandidate,
 }: {
   event: EventDetail;
+  guestCode?: string;
   /** Whether the web RSVP page (/events/[id]/rsvp) has exactly one eligible
    * candidate for this event right now — see EventDetailPage. */
   hasRsvpCandidate: boolean;
@@ -50,40 +52,43 @@ export function EventDetailContent({
 
   const categoryLabel = t.categories[event.category] ?? event.category;
   const hashtags = event.eventHashtags.map(
-    (h) => (language === 'KO' ? h.hashtag?.korName : h.hashtag?.key) ?? h.tag,
+    (h) => (language === "KO" ? h.hashtag?.korName : h.hashtag?.key) ?? h.tag,
   );
   // The event's embedded `host` is a bare summary (id/name/imageUrl) with no
   // category — mirrors the mobile app's fallback ('hosts.categories.Host').
   const hostCategoryLabel = dictionary[language].hostDetail.categories.Host;
 
-  // TEMP: hide the "enter guest code" CTA for event 819 only, per request. Remove when no longer needed.
-  const showGuestCodeButton = event.id !== 819 && hasRsvpCandidate;
+  const normalizedGuestCode = guestCode?.trim() || undefined;
+  const showGuestCodeButton = Boolean(normalizedGuestCode) || hasRsvpCandidate;
+  const guestCodeHref = normalizedGuestCode
+    ? `/events/${event.id}/rsvp?code=${encodeURIComponent(normalizedGuestCode)}`
+    : `/events/${event.id}/rsvp`;
 
   const cta = resolveEventCtaState(event.tickets);
   const ctaLabel =
-    cta.kind === 'buy'
+    cta.kind === "buy"
       ? t.buyTicket
-      : cta.kind === 'claim'
+      : cta.kind === "claim"
         ? t.claimTicket
-        : cta.kind === 'waitlist'
+        : cta.kind === "waitlist"
           ? t.joinWaitlist
           : null;
 
   return (
-    <div className='mx-auto max-w-6xl px-0 pb-28 pt-24 lg:px-6 lg:pb-16'>
-      <div className='lg:grid lg:grid-cols-[1.5fr_1fr] lg:gap-10 lg:items-start'>
+    <div className="mx-auto max-w-6xl px-0 pb-28 pt-24 lg:px-6 lg:pb-16">
+      <div className="lg:grid lg:grid-cols-[1.5fr_1fr] lg:gap-10 lg:items-start">
         {/* Hero + header block (full width on both breakpoints) */}
-        <div className='lg:col-span-2 lg:flex lg:flex-row lg:items-start lg:gap-8'>
-          <div className='relative aspect-[4/5] w-full sm:aspect-video lg:aspect-[4/5] lg:w-full lg:max-w-[460px] lg:flex-shrink-0 lg:rounded-2xl lg:overflow-hidden'>
+        <div className="lg:col-span-2 lg:flex lg:flex-row lg:items-start lg:gap-8">
+          <div className="relative aspect-[4/5] w-full sm:aspect-video lg:aspect-[4/5] lg:w-full lg:max-w-[460px] lg:flex-shrink-0 lg:rounded-2xl lg:overflow-hidden">
             <Image
               src={event.imageUrl}
               alt={event.name}
               fill
               priority
-              sizes='(min-width: 1024px) 460px, 100vw'
-              className='object-cover'
+              sizes="(min-width: 1024px) 460px, 100vw"
+              className="object-cover"
             />
-            <div className='absolute right-3 top-3'>
+            <div className="absolute right-3 top-3">
               <ShareButton
                 title={event.name}
                 sharePath={`/open/events/${event.id}`}
@@ -93,47 +98,47 @@ export function EventDetailContent({
             </div>
           </div>
 
-          <div className='px-4 pt-4 lg:flex-1 lg:min-w-0 lg:px-0 lg:pt-0'>
-            <div className='flex flex-row items-center gap-4'>
-              <div className='flex flex-row items-center gap-1'>
-                <Eye size={16} className='text-grayscale-300' />
+          <div className="px-4 pt-4 lg:flex-1 lg:min-w-0 lg:px-0 lg:pt-0">
+            <div className="flex flex-row items-center gap-4">
+              <div className="flex flex-row items-center gap-1">
+                <Eye size={16} className="text-grayscale-300" />
                 <Text
-                  as='span'
-                  variant='caption1Regular'
-                  className='text-grayscale-300'
+                  as="span"
+                  variant="caption1Regular"
+                  className="text-grayscale-300"
                 >
                   {event.viewCount.toLocaleString(
-                    language === 'KO' ? 'ko-KR' : 'en-US',
+                    language === "KO" ? "ko-KR" : "en-US",
                   )}
                 </Text>
               </div>
-              <div className='flex flex-row items-center gap-1'>
-                <Heart size={16} className='text-grayscale-300' />
+              <div className="flex flex-row items-center gap-1">
+                <Heart size={16} className="text-grayscale-300" />
                 <Text
-                  as='span'
-                  variant='caption1Regular'
-                  className='text-grayscale-300'
+                  as="span"
+                  variant="caption1Regular"
+                  className="text-grayscale-300"
                 >
                   {event.wishCount.toLocaleString(
-                    language === 'KO' ? 'ko-KR' : 'en-US',
+                    language === "KO" ? "ko-KR" : "en-US",
                   )}
                 </Text>
               </div>
             </div>
             <Text
-              as='h1'
-              className='mt-3 mb-2 text-[28px] leading-9 font-semibold lg:text-[32px]'
+              as="h1"
+              className="mt-3 mb-2 text-[28px] leading-9 font-semibold lg:text-[32px]"
             >
               {event.name}
             </Text>
-            <Text variant='body3RegularLarge' className='text-grayscale-300'>
+            <Text variant="body3RegularLarge" className="text-grayscale-300">
               {formattedDate} · {formattedTime}
             </Text>
-            <div className='mt-4'>
+            <div className="mt-4">
               <HashtagList categoryLabel={categoryLabel} hashtags={hashtags} />
             </div>
-            {event.host.name && event.host.name !== 'ㅤ' && (
-              <div className='mt-5'>
+            {event.host.name && event.host.name !== "ㅤ" && (
+              <div className="mt-5">
                 <HostInlineCard
                   host={event.host}
                   categoryLabel={hostCategoryLabel}
@@ -145,20 +150,20 @@ export function EventDetailContent({
         </div>
 
         {/* Left column: browsing content */}
-        <div className='mt-6 flex flex-col gap-6 px-4 lg:col-start-1 lg:px-0'>
+        <div className="mt-6 flex flex-col gap-6 px-4 lg:col-start-1 lg:px-0">
           <Divider />
           {(event.participantCount > 0 || showGuestCodeButton) && (
             <section>
               {event.participantCount > 0 && (
                 <>
-                  <div className='mb-3 flex flex-row items-center gap-2'>
-                    <Text variant='headline2Medium'>{t.guestList}</Text>
+                  <div className="mb-3 flex flex-row items-center gap-2">
+                    <Text variant="headline2Medium">{t.guestList}</Text>
                     <Text
-                      variant='headline2Medium'
-                      className='text-grayscale-300'
+                      variant="headline2Medium"
+                      className="text-grayscale-300"
                     >
                       {event.participantCount.toLocaleString(
-                        language === 'KO' ? 'ko-KR' : 'en-US',
+                        language === "KO" ? "ko-KR" : "en-US",
                       )}
                     </Text>
                   </div>
@@ -171,11 +176,11 @@ export function EventDetailContent({
               )}
               {showGuestCodeButton && (
                 <Button
-                  variant='outline'
-                  className={event.participantCount > 0 ? 'mt-3' : undefined}
-                  href={`/events/${event.id}/rsvp`}
+                  variant="outline"
+                  className={event.participantCount > 0 ? "mt-3" : undefined}
+                  href={guestCodeHref}
                 >
-                  {t.enterGuestCode}
+                  {normalizedGuestCode ? t.enterGuestCode : t.claimGuestTicket}
                 </Button>
               )}
             </section>
@@ -207,7 +212,7 @@ export function EventDetailContent({
 
           {event.eventGallery.length > 0 && (
             <section>
-              <Text variant='headline2Medium' className='mb-3'>
+              <Text variant="headline2Medium" className="mb-3">
                 {t.album}
               </Text>
               <GalleryGrid items={event.eventGallery} videoLabel={t.video} />
@@ -217,20 +222,26 @@ export function EventDetailContent({
 
         {/* Right column: purchase-intent sidebar */}
         {ctaLabel && (
-          <div className='mt-6 hidden px-4 lg:col-start-2 lg:row-start-2 lg:mt-0 lg:block lg:px-0 lg:sticky lg:top-8'>
+          <div className="mt-6 hidden px-4 lg:col-start-2 lg:row-start-2 lg:mt-0 lg:block lg:px-0 lg:sticky lg:top-8">
             <AppCTA
               label={ctaLabel}
               deepLink={`tixx://event/${event.id}`}
+              sourceSurface="event_detail"
+              contextType="event"
+              contextId={event.id}
             />
           </div>
         )}
       </div>
 
       {ctaLabel && (
-        <div className='fixed bottom-0 left-0 right-0 lg:hidden'>
+        <div className="fixed bottom-0 left-0 right-0 lg:hidden">
           <AppCTA
             label={ctaLabel}
             deepLink={`tixx://event/${event.id}`}
+            sourceSurface="event_detail"
+            contextType="event"
+            contextId={event.id}
           />
         </div>
       )}

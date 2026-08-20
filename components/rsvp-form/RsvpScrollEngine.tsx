@@ -17,6 +17,7 @@ interface RsvpScrollEngineProps {
   isBlockValid: (block: RsvpFormBlock, value: RsvpSubmissionAnswerValue | undefined) => boolean;
   isSubmitting?: boolean;
   submitError?: string | null;
+  onStart?: () => void;
 }
 
 // All blocks are stacked on one page (see docs/rsvp-form-feature-plan.md
@@ -32,12 +33,14 @@ export function RsvpScrollEngine({
   isBlockValid,
   isSubmitting = false,
   submitError = null,
+  onStart,
 }: RsvpScrollEngineProps) {
   const [answers, setAnswers] = useState<RsvpAnswers>({});
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
   const blockRefs = useRef<Record<number, HTMLDivElement | null>>({});
 
   const setAnswer = (blockId: number, value: RsvpSubmissionAnswerValue) => {
+    onStart?.();
     setAnswers((prev) => ({ ...prev, [blockId]: value }));
   };
 

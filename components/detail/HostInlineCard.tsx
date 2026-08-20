@@ -1,7 +1,10 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import type { HostSummary } from '@/lib/api/types';
 import { Text } from './Text';
+import { trackWebEvent } from '@/lib/analytics';
 
 export function HostInlineCard({
   host,
@@ -31,6 +34,13 @@ export function HostInlineCard({
       </Link>
       <Link
         href="/download"
+        onClick={() =>
+          void trackWebEvent('app_cta_click', {
+            surface: 'host_inline_card',
+            context_type: 'host',
+            context_id: host.id,
+          })
+        }
         className="flex-shrink-0 rounded-lg bg-grayscale-100 px-3 py-[5px]"
       >
         <Text as="span" variant="body3Medium" className="text-grayscale-900">
