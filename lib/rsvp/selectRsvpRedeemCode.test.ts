@@ -63,17 +63,27 @@ describe('selectRsvpCandidates', () => {
     expect(selectRsvpCandidates(codes, tickets)).toEqual([]);
   });
 
-  it('excludes codes requiring profile image, SNS, or host approval', () => {
+  it('excludes codes requiring host approval', () => {
     const tickets = [ticket()];
-    expect(
-      selectRsvpCandidates([code({ requiresProfileImage: true })], tickets)
-    ).toEqual([]);
-    expect(
-      selectRsvpCandidates([code({ requiresSns: true })], tickets)
-    ).toEqual([]);
     expect(
       selectRsvpCandidates([code({ requiresHostApproval: true })], tickets)
     ).toEqual([]);
+  });
+
+  it('includes codes requiring a profile image or SNS — the RSVP flow collects those instead of rejecting the candidate', () => {
+    const tickets = [ticket()];
+    expect(
+      selectRsvpCandidates([code({ requiresProfileImage: true })], tickets)
+    ).toHaveLength(1);
+    expect(
+      selectRsvpCandidates([code({ requiresSns: true })], tickets)
+    ).toHaveLength(1);
+    expect(
+      selectRsvpCandidates(
+        [code({ requiresProfileImage: true, requiresSns: true })],
+        tickets
+      )
+    ).toHaveLength(1);
   });
 
   it('returns zero, one, or multiple candidates depending on the input', () => {
