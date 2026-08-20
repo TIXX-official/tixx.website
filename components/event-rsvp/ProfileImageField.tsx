@@ -6,6 +6,7 @@ import {
   requestProfileImageUpload,
   uploadToPresignedUrl,
 } from "@/lib/api/rsvp";
+import { centerCropAndCompress } from "@/lib/rsvp/cropProfileImage";
 
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
@@ -59,14 +60,18 @@ export function ProfileImageField({
     setError(null);
     setIsUploading(true);
     try {
+      // Center-crop to a square and re-compress before upload, matching the
+      // mobile app's profile image pipeline (1:1 crop, max 1024px, quality
+      // 0.8 — see lib/rsvp/cropProfileImage.ts).
+      const { blob, mimetype } = await centerCropAndCompress(file);
       // Generated in the browser, not derived from the (not-yet-known) user
       // id — guide §7 "프로필 이미지 업로드".
       const uploadId = `rsvp-${crypto.randomUUID()}`;
       const { presignedUrl, mediaUrl } = await requestProfileImageUpload(
         uploadId,
-        file.type,
+        mimetype,
       );
-      await uploadToPresignedUrl(presignedUrl, file);
+      await uploadToPresignedUrl(presignedUrl, blob);
       onChange(mediaUrl);
     } catch {
       setError(uploadFailedMessage);

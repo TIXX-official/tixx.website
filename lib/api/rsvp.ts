@@ -144,12 +144,13 @@ export function requestProfileImageUpload(
   return postJson('/upload', body);
 }
 
-// Uploads the file directly to R2 via the presigned URL. Throws a plain
-// Error (not RsvpError) on failure — this isn't a TIXX API call and has no
-// stable error code to surface.
+// Uploads the file directly to R2 via the presigned URL. Accepts a Blob (not
+// just File) so a canvas-recompressed image can be uploaded without wrapping
+// it in a File first. Throws a plain Error (not RsvpError) on failure — this
+// isn't a TIXX API call and has no stable error code to surface.
 export async function uploadToPresignedUrl(
   presignedUrl: string,
-  file: File
+  file: Blob
 ): Promise<void> {
   const res = await fetch(presignedUrl, {
     method: 'PUT',
