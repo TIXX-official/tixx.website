@@ -25,12 +25,41 @@ describe("resolveRsvpError", () => {
     expect(resolveRsvpError("RSVP_REDEEM_CODE_NOT_FOR_ALL_USERS").action).toBe(
       "app_fallback",
     );
-    expect(resolveRsvpError("RSVP_REDEEM_CODE_REQUIRES_PROFILE").action).toBe(
+  });
+
+  it("maps the normalized requirements/prepare unavailable code to app_fallback", () => {
+    expect(resolveRsvpError("RSVP_REDEEM_CODE_NOT_AVAILABLE").action).toBe(
       "app_fallback",
     );
-    expect(resolveRsvpError("RSVP_REDEEM_CODE_REQUIRES_SOCIAL").action).toBe(
-      "app_fallback",
-    );
+    expect(
+      resolveRsvpError("RSVP_REDEEM_CODE_NOT_AVAILABLE", { target: "code" }),
+    ).toEqual({ messageKey: "invalidGuestCode", action: "stay" });
+  });
+
+  it("maps the requirements rate-limit code to the shared rate-limit message", () => {
+    expect(resolveRsvpError("RSVP_REQUIREMENTS_RATE_LIMITED")).toEqual({
+      messageKey: "rateLimit",
+      action: "stay",
+    });
+  });
+
+  it("maps missing/invalid profile-image and SNS codes to their own messages", () => {
+    expect(resolveRsvpError("RSVP_PROFILE_IMAGE_REQUIRED")).toEqual({
+      messageKey: "profileImageRequired",
+      action: "reprepare",
+    });
+    expect(resolveRsvpError("RSVP_PROFILE_IMAGE_URL_INVALID")).toEqual({
+      messageKey: "profileImageInvalid",
+      action: "stay",
+    });
+    expect(resolveRsvpError("RSVP_SNS_PROFILE_REQUIRED")).toEqual({
+      messageKey: "snsProfileRequired",
+      action: "reprepare",
+    });
+    expect(resolveRsvpError("INVALID_RSVP_SNS_HANDLE")).toEqual({
+      messageKey: "invalidSnsHandle",
+      action: "stay",
+    });
   });
 
   it("maps stale-redeem-code codes to refetch", () => {

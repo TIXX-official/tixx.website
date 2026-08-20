@@ -2,8 +2,10 @@ import type { ClaimableRedeemCode, Ticket } from '@/lib/api/types';
 
 /** Filters claimable redeem codes down to the ones eligible for the public
  * web RSVP flow — mirrors the mobile app's event-detail matching logic
- * (guide §4): a guest ticket, open to all users, with none of the
- * profile/SNS/host-approval requirements that only the app flow supports. */
+ * (guide §4): a guest ticket, open to all users, without a host-approval
+ * requirement. requiresProfileImage/requiresSns are no longer exclusion
+ * conditions — the RSVP flow now collects that info itself (guide §4/§7)
+ * instead of hard-rejecting the candidate. */
 export function selectRsvpCandidates(
   codes: ClaimableRedeemCode[],
   tickets: Ticket[]
@@ -14,8 +16,6 @@ export function selectRsvpCandidates(
       code.targetType === 'ticket' &&
       ticket?.type === 'guest' &&
       code.targetUserType === 'ALL_USERS' &&
-      !code.requiresProfileImage &&
-      !code.requiresSns &&
       !code.requiresHostApproval
     );
   });
