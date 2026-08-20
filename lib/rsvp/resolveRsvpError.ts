@@ -2,6 +2,9 @@ export type RsvpErrorAction =
   | "stay"
   | "resend_otp"
   | "refetch"
+  // The requirements/prepare snapshot the caller acted on is stale — same
+  // OTP, re-call prepare and rebuild the additional-info step (guide §10).
+  | "reprepare"
   | "app_fallback"
   | "event_not_found"
   | "already_registered";
@@ -23,7 +26,11 @@ export interface RsvpErrorResolution {
     | "rateLimit"
     | "alreadyRegistered"
     | "soldOut"
-    | "generic";
+    | "generic"
+    | "profileImageRequired"
+    | "profileImageInvalid"
+    | "snsProfileRequired"
+    | "invalidSnsHandle";
   action: RsvpErrorAction;
 }
 
@@ -67,14 +74,6 @@ const CODE_MAP: Record<string, RsvpErrorResolution> = {
     messageKey: "notEligibleForWeb",
     action: "app_fallback",
   },
-  RSVP_REDEEM_CODE_REQUIRES_PROFILE: {
-    messageKey: "notEligibleForWeb",
-    action: "app_fallback",
-  },
-  RSVP_REDEEM_CODE_REQUIRES_SOCIAL: {
-    messageKey: "notEligibleForWeb",
-    action: "app_fallback",
-  },
   RSVP_REDEEM_CODE_REQUIRES_HOST_APPROVAL: {
     messageKey: "notClaimableNow",
     action: "refetch",
@@ -85,6 +84,31 @@ const CODE_MAP: Record<string, RsvpErrorResolution> = {
     action: "already_registered",
   },
   RSVP_SOLD_OUT: { messageKey: "soldOut", action: "refetch" },
+  // Normalized failure for /rsvp/requirements and /rsvp/prepare (guide §11):
+  // invalid code, event mismatch, non-guest-ticket, non-ALL_USERS, inactive,
+  // sold-out, and host-approval-required targets all collapse to this one
+  // code so the reason isn't leaked to the caller.
+  RSVP_REDEEM_CODE_NOT_AVAILABLE: {
+    messageKey: "notEligibleForWeb",
+    action: "app_fallback",
+  },
+  RSVP_REQUIREMENTS_RATE_LIMITED: { messageKey: "rateLimit", action: "stay" },
+  RSVP_PROFILE_IMAGE_REQUIRED: {
+    messageKey: "profileImageRequired",
+    action: "reprepare",
+  },
+  RSVP_PROFILE_IMAGE_URL_INVALID: {
+    messageKey: "profileImageInvalid",
+    action: "stay",
+  },
+  RSVP_SNS_PROFILE_REQUIRED: {
+    messageKey: "snsProfileRequired",
+    action: "reprepare",
+  },
+  INVALID_RSVP_SNS_HANDLE: {
+    messageKey: "invalidSnsHandle",
+    action: "stay",
+  },
 };
 
 // A code entered from a link is the redeem target itself. Refreshing the
@@ -113,14 +137,6 @@ const CODE_TARGET_MAP: Record<string, RsvpErrorResolution> = {
     messageKey: "notEligibleForWeb",
     action: "app_fallback",
   },
-  RSVP_REDEEM_CODE_REQUIRES_PROFILE: {
-    messageKey: "notEligibleForWeb",
-    action: "app_fallback",
-  },
-  RSVP_REDEEM_CODE_REQUIRES_SOCIAL: {
-    messageKey: "notEligibleForWeb",
-    action: "app_fallback",
-  },
   RSVP_REDEEM_CODE_REQUIRES_HOST_APPROVAL: {
     messageKey: "notClaimableNow",
     action: "stay",
@@ -130,6 +146,10 @@ const CODE_TARGET_MAP: Record<string, RsvpErrorResolution> = {
     action: "stay",
   },
   RSVP_SOLD_OUT: { messageKey: "soldOut", action: "stay" },
+  RSVP_REDEEM_CODE_NOT_AVAILABLE: {
+    messageKey: "invalidGuestCode",
+    action: "stay",
+  },
 };
 
 // RedemptionService (apps/api/src/redemption/redemption.service.ts) actually
