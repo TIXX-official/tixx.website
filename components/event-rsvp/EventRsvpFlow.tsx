@@ -818,6 +818,9 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
                 invalidTypeMessage={t.errors.profileImageInvalidType}
                 tooLargeMessage={t.errors.profileImageTooLarge}
                 uploadFailedMessage={t.errors.profileImageUploadFailed}
+                cropTitle={t.profileImageCropTitle}
+                cropConfirmLabel={t.profileImageCropConfirm}
+                cropCancelLabel={t.profileImageCropCancel}
               />
             )}
 
