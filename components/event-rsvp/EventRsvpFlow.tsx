@@ -487,6 +487,14 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
       const action = handleApiError(error);
       const needsAdditionalInfo =
         !isExistingUser || missingProfileImage || missingSns;
+      if (action === "resend_otp") {
+        // authCode was just cleared by handleApiError — only the otp step
+        // has a field to re-enter it, so additional-info would be a dead
+        // end. Collected name/profile-image/SNS state is left untouched, so
+        // it's still there once prepare succeeds again.
+        setStep("otp");
+        return;
+      }
       if (action === "reprepare") {
         // 호스트가 그 사이 요구조건을 바꿨을 수 있다 — 같은 OTP로 prepare를
         // 다시 호출해 additional-info를 재구성한다(문서 10절). 여기서는
@@ -560,6 +568,8 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
 
   const canSubmit =
     !isSubmitting &&
+    !isOtpExpired &&
+    authCode.trim().length > 0 &&
     (isExistingUser || (name.trim().length > 0 && termsAccepted)) &&
     (!missingProfileImage || Boolean(profileImageUrl)) &&
     (!missingSns || Boolean(snsProfile));
