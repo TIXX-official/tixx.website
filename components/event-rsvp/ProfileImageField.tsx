@@ -1,6 +1,7 @@
 "use client";
 
-import { type CSSProperties, useEffect, useRef, useState } from "react";
+import { Camera } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import type { Area } from "react-easy-crop";
 import { Text } from "@/components/detail/Text";
 import { ProfileImageCropModal } from "@/components/event-rsvp/ProfileImageCropModal";
@@ -13,8 +14,6 @@ import { cropImageToBlob } from "@/lib/rsvp/cropProfileImage";
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
-const inputStyle: CSSProperties = { color: "var(--rsvp-answer-color)" };
-
 interface ProfileImageFieldProps {
   /** mediaUrl of the last successful upload, or null if none yet. */
   value: string | null;
@@ -22,7 +21,6 @@ interface ProfileImageFieldProps {
   disabled?: boolean;
   label: string;
   uploadingLabel: string;
-  changeLabel: string;
   invalidTypeMessage: string;
   tooLargeMessage: string;
   uploadFailedMessage: string;
@@ -37,7 +35,6 @@ export function ProfileImageField({
   disabled,
   label,
   uploadingLabel,
-  changeLabel,
   invalidTypeMessage,
   tooLargeMessage,
   uploadFailedMessage,
@@ -111,35 +108,44 @@ export function ProfileImageField({
   };
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col items-start gap-2">
       <Text variant="body3Regular" className="text-grayscale-300">
         {label}
       </Text>
-      {value && (
-        // eslint-disable-next-line @next/next/no-img-element -- remote R2 URL, no next/image domain config for it
-        <img
-          src={value}
-          alt=""
-          className="h-24 w-24 rounded-full object-cover"
-        />
-      )}
+      <button
+        type="button"
+        onClick={() => inputRef.current?.click()}
+        disabled={disabled || isUploading}
+        aria-label={label}
+        className="relative h-24 w-24 shrink-0 rounded-full disabled:opacity-50"
+      >
+        {value ? (
+          // eslint-disable-next-line @next/next/no-img-element -- remote R2 URL, no next/image domain config for it
+          <img
+            src={value}
+            alt=""
+            className="h-24 w-24 rounded-full object-cover"
+          />
+        ) : (
+          <div className="flex h-24 w-24 items-center justify-center rounded-full bg-grayscale-800">
+            <Camera className="h-8 w-8 text-grayscale-400" />
+          </div>
+        )}
+        <span className="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full border-2 border-black bg-grayscale-700">
+          <Camera className="h-3.5 w-3.5 text-grayscale-200" />
+        </span>
+      </button>
       <input
         ref={inputRef}
         type="file"
         accept={ALLOWED_MIME_TYPES.join(",")}
         onChange={handleFileChange}
         disabled={disabled || isUploading}
-        className="w-full border-b border-current bg-transparent px-2 py-2 outline-none disabled:opacity-50"
-        style={inputStyle}
+        className="hidden"
       />
       {isUploading && (
         <Text variant="caption1Regular" className="text-grayscale-400">
           {uploadingLabel}
-        </Text>
-      )}
-      {!isUploading && value && (
-        <Text variant="caption1Regular" className="text-grayscale-400">
-          {changeLabel}
         </Text>
       )}
       {error && (

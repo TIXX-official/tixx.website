@@ -814,7 +814,6 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
                 disabled={isSubmitting}
                 label={t.profileImageLabel}
                 uploadingLabel={t.profileImageUploadingLabel}
-                changeLabel={t.profileImageChangeLabel}
                 invalidTypeMessage={t.errors.profileImageInvalidType}
                 tooLargeMessage={t.errors.profileImageTooLarge}
                 uploadFailedMessage={t.errors.profileImageUploadFailed}
