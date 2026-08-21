@@ -20,6 +20,11 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         const savedLanguage = localStorage.getItem('language') as Language;
         if (savedLanguage) {
             setLanguage(savedLanguage);
+        } else if (typeof navigator !== 'undefined') {
+            const systemLanguage = navigator.language || navigator.languages?.[0];
+            if (systemLanguage) {
+                setLanguage(systemLanguage.toLowerCase().startsWith('ko') ? 'KO' : 'EN');
+            }
         }
         setMounted(true);
     }, []);
