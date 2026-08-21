@@ -120,20 +120,22 @@ export function ProfileImageField({
         className="relative h-24 w-24 shrink-0 rounded-full disabled:opacity-50"
       >
         {value ? (
-          // eslint-disable-next-line @next/next/no-img-element -- remote R2 URL, no next/image domain config for it
-          <img
-            src={value}
-            alt=""
-            className="h-24 w-24 rounded-full object-cover"
-          />
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element -- remote R2 URL, no next/image domain config for it */}
+            <img
+              src={value}
+              alt=""
+              className="h-24 w-24 rounded-full object-cover"
+            />
+            <span className="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full border-2 border-black bg-grayscale-700">
+              <Camera className="h-3.5 w-3.5 text-grayscale-200" />
+            </span>
+          </>
         ) : (
           <div className="flex h-24 w-24 items-center justify-center rounded-full bg-grayscale-800">
             <Camera className="h-8 w-8 text-grayscale-400" />
           </div>
         )}
-        <span className="absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full border-2 border-black bg-grayscale-700">
-          <Camera className="h-3.5 w-3.5 text-grayscale-200" />
-        </span>
       </button>
       <input
         ref={inputRef}
