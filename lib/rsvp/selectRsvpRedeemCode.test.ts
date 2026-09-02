@@ -99,4 +99,28 @@ describe('selectRsvpCandidates', () => {
       )
     ).toHaveLength(2);
   });
+
+  it('orders candidates by event ticket order, not API response order', () => {
+    const tickets = [ticket({ id: 20 }), ticket({ id: 10 })];
+    const codes = [
+      code({ id: 1, ticketId: 10 }),
+      code({ id: 2, ticketId: 20 }),
+    ];
+
+    expect(selectRsvpCandidates(codes, tickets).map((item) => item.id)).toEqual([
+      2, 1,
+    ]);
+  });
+
+  it('preserves API order for multiple candidates on the same ticket', () => {
+    const tickets = [ticket({ id: 10 })];
+    const codes = [
+      code({ id: 2, ticketId: 10 }),
+      code({ id: 1, ticketId: 10 }),
+    ];
+
+    expect(selectRsvpCandidates(codes, tickets).map((item) => item.id)).toEqual([
+      2, 1,
+    ]);
+  });
 });

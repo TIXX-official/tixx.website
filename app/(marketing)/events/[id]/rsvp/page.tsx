@@ -54,10 +54,11 @@ export default async function EventRsvpPage({
     // only source of truth for whether the claim actually succeeded.
     const claimableCodes = await getClaimableRedeemCodes(id).catch(() => []);
     const candidates = selectRsvpCandidates(claimableCodes, event.tickets);
-    // Exactly one eligible code is required to proceed — zero means nothing
-    // claimable here, two or more means the picking policy is not decided.
-    redeemTarget =
-      candidates.length === 1 ? { redeemCodeId: candidates[0].id } : null;
+    // Candidate order follows event.tickets, matching the mobile app. The
+    // RSVP response remains the source of truth if availability changed.
+    redeemTarget = candidates[0]
+      ? { redeemCodeId: candidates[0].id }
+      : null;
   }
 
   return (

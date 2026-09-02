@@ -26,15 +26,11 @@ export async function EventDetailPage({
   const jsonLd = buildEventJsonLd(event, absoluteUrl(`/events/${id}`));
 
   const normalizedGuestCode = guestCode?.trim() || undefined;
-  // A code link is already an explicit redeem target. Avoid selecting a
-  // public claimable candidate because the code path must submit { code }
-  // rather than mixing it with redeemCodeId.
-  let hasRsvpCandidate = false;
-  if (!normalizedGuestCode) {
-    const claimableCodes = await getClaimableRedeemCodes(id).catch(() => []);
-    hasRsvpCandidate =
-      selectRsvpCandidates(claimableCodes, event.tickets).length === 1;
-  }
+  // Code links expose both the public RSVP and code-registration actions.
+  // Each action still submits exactly one redeem target on the RSVP page.
+  const claimableCodes = await getClaimableRedeemCodes(id).catch(() => []);
+  const hasRsvpCandidate =
+    selectRsvpCandidates(claimableCodes, event.tickets).length > 0;
 
   return (
     <>

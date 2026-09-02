@@ -23,6 +23,7 @@ import {
   resolveDisplayEndDateTime,
 } from "@/lib/format/eventDateTime";
 import { resolveEventCtaState } from "@/lib/format/ticket";
+import { buildEventDetailRsvpActions } from "@/lib/rsvp/eventDetailRsvpActions";
 
 export function EventDetailContent({
   event,
@@ -31,7 +32,7 @@ export function EventDetailContent({
 }: {
   event: EventDetail;
   guestCode?: string;
-  /** Whether the web RSVP page (/events/[id]/rsvp) has exactly one eligible
+  /** Whether the web RSVP page (/events/[id]/rsvp) has at least one eligible
    * candidate for this event right now — see EventDetailPage. */
   hasRsvpCandidate: boolean;
 }) {
@@ -58,11 +59,12 @@ export function EventDetailContent({
   // category — mirrors the mobile app's fallback ('hosts.categories.Host').
   const hostCategoryLabel = dictionary[language].hostDetail.categories.Host;
 
-  const normalizedGuestCode = guestCode?.trim() || undefined;
-  const showGuestCodeButton = Boolean(normalizedGuestCode) || hasRsvpCandidate;
-  const guestCodeHref = normalizedGuestCode
-    ? `/events/${event.id}/rsvp?code=${encodeURIComponent(normalizedGuestCode)}`
-    : `/events/${event.id}/rsvp`;
+  const guestRegistrationActions = buildEventDetailRsvpActions({
+    eventId: event.id,
+    guestCode,
+    hasRsvpCandidate,
+  });
+  const showGuestRegistrationActions = guestRegistrationActions.length > 0;
 
   const cta = resolveEventCtaState(event.tickets);
   const ctaLabel =
@@ -152,7 +154,7 @@ export function EventDetailContent({
         {/* Left column: browsing content */}
         <div className="mt-6 flex flex-col gap-6 px-4 lg:col-start-1 lg:px-0">
           <Divider />
-          {(event.participantCount > 0 || showGuestCodeButton) && (
+          {(event.participantCount > 0 || showGuestRegistrationActions) && (
             <section>
               {event.participantCount > 0 && (
                 <>
@@ -174,14 +176,24 @@ export function EventDetailContent({
                   />
                 </>
               )}
-              {showGuestCodeButton && (
-                <Button
-                  variant="outline"
-                  className={event.participantCount > 0 ? "mt-3" : undefined}
-                  href={guestCodeHref}
+              {showGuestRegistrationActions && (
+                <div
+                  className={`flex flex-col gap-2 ${
+                    event.participantCount > 0 ? "mt-3" : ""
+                  }`}
                 >
-                  {normalizedGuestCode ? t.enterGuestCode : t.claimGuestTicket}
-                </Button>
+                  {guestRegistrationActions.map((action) => (
+                    <Button
+                      key={action.kind}
+                      variant="outline"
+                      href={action.href}
+                    >
+                      {action.kind === "public"
+                        ? t.claimGuestTicket
+                        : t.enterGuestCode}
+                    </Button>
+                  ))}
+                </div>
               )}
             </section>
           )}
