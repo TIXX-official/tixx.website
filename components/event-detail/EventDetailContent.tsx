@@ -29,12 +29,16 @@ export function EventDetailContent({
   event,
   guestCode,
   hasRsvpCandidate,
+  isRsvp,
 }: {
   event: EventDetail;
   guestCode?: string;
   /** Whether the web RSVP page (/events/[id]/rsvp) has at least one eligible
    * candidate for this event right now — see EventDetailPage. */
   hasRsvpCandidate: boolean;
+  /** rsvp-type event: the RSVP CTA always shows and links to /rsvp without a
+   * guest code (attendance registration takes no redeem target). */
+  isRsvp: boolean;
 }) {
   const { language } = useLanguage();
   const t = dictionary[language].eventDetail;
@@ -63,6 +67,7 @@ export function EventDetailContent({
     eventId: event.id,
     guestCode,
     hasRsvpCandidate,
+    isRsvp,
   });
   const showGuestRegistrationActions = guestRegistrationActions.length > 0;
 
@@ -188,9 +193,9 @@ export function EventDetailContent({
                       variant="outline"
                       href={action.href}
                     >
-                      {action.kind === "public"
-                        ? t.claimGuestTicket
-                        : t.enterGuestCode}
+                      {action.kind === "code"
+                        ? t.enterGuestCode
+                        : t.claimGuestTicket}
                     </Button>
                   ))}
                 </div>
