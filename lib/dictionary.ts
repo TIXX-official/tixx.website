@@ -343,7 +343,10 @@ export const dictionary = {
       alreadyRegisteredTitle: "이미 게스트로 등록하셨어요",
       completedDescription:
         "앱에서 같은 휴대폰 번호로 로그인하면 발급된 티켓을 확인할 수 있어요.",
+      completedDescriptionRsvp:
+        "앱에서 같은 휴대폰 번호로 로그인하면 참석 정보를 확인할 수 있어요.",
       openApp: "앱에서 티켓 확인하기",
+      openAppRsvp: "앱에서 확인하기",
       notEligibleTitle: "앱에서만 등록할 수 있어요",
       notEligibleDescription: "이 이벤트는 앱에서만 게스트로 등록할 수 있어요.",
       notEligibleOpenApp: "앱에서 등록하기",
@@ -744,7 +747,10 @@ export const dictionary = {
       alreadyRegisteredTitle: "You already registered as a guest",
       completedDescription:
         "Sign in to the app with the same phone number to view your issued ticket.",
+      completedDescriptionRsvp:
+        "Sign in to the app with the same phone number to see your RSVP.",
       openApp: "View ticket in the app",
+      openAppRsvp: "Open in the app",
       notEligibleTitle: "This can only be registered in the app",
       notEligibleDescription:
         "This event can only be registered as a guest in the app.",
