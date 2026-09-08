@@ -79,6 +79,17 @@ const CODE_MAP: Record<string, RsvpErrorResolution> = {
     action: "refetch",
   },
   RSVP_REDEEM_RESULT_INVALID: { messageKey: "generic", action: "refetch" },
+  // The event's type changed between page load and submit: a ticket-type
+  // event that got no redeem target, or an rsvp-type event that got one.
+  // Reloading re-reads event.type and rebuilds the request accordingly.
+  RSVP_REDEEM_TARGET_REQUIRED: {
+    messageKey: "redeemCodeStale",
+    action: "refetch",
+  },
+  RSVP_REDEEM_TARGET_NOT_ALLOWED: {
+    messageKey: "redeemCodeStale",
+    action: "refetch",
+  },
   RSVP_ALREADY_CLAIMED: {
     messageKey: "alreadyRegistered",
     action: "already_registered",
