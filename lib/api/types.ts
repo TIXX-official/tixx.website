@@ -401,12 +401,16 @@ export interface EventRsvpSnsProfile {
   handle: string;
 }
 
+export type EventRsvpResponseValue = "going" | "maybe" | "cant_go";
+
 /** Shared fields for POST /events/:eventId/rsvp. */
 export interface EventRsvpBaseRequest {
   phone: string;
   authCode: string;
   name?: string;
   termsAccepted?: boolean;
+  /** Attendance response for rsvp-type events. Omit for ticket events. */
+  response?: EventRsvpResponseValue;
   marketingOptIn: 0 | 1;
   marketingSmsOptIn: 0 | 1;
   marketingEmailOptIn: 0 | 1;
@@ -503,7 +507,7 @@ export interface EventRsvpResponse {
         type: "rsvp";
         eventId: number;
         rsvpResponseId: number;
-        response: "going";
+        response: EventRsvpResponseValue;
         status: "registered";
       };
 }

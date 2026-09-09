@@ -305,6 +305,7 @@ export const dictionary = {
     },
     eventRsvp: {
       pageTitle: "게스트 등록",
+      rsvpPageTitle: "참석 응답",
       loadingRequirements: "등록 가능 여부를 확인하고 있어요...",
       phoneStepTitle: "휴대폰 번호로 인증해요",
       phoneStepDescription: "인증번호를 받을 번호를 입력해주세요.",
@@ -314,6 +315,11 @@ export const dictionary = {
       otpStepTitle: "인증번호를 입력해주세요",
       otpPlaceholder: "인증번호 6자리",
       otpContinue: "다음",
+      rsvpResponseStepTitle: "참석 여부를 선택해주세요",
+      rsvpResponseStepDescription: "이 이벤트에 대한 참석 여부를 알려주세요.",
+      rsvpGoing: "참석",
+      rsvpMaybe: "미정",
+      rsvpCantGo: "불참",
       additionalInfoStepTitle: "이름과 약관 동의가 필요해요",
       existingUserNotice:
         "이미 가입된 번호예요. 인증만 완료하면 게스트로 등록돼요.",
@@ -708,6 +714,7 @@ export const dictionary = {
     },
     eventRsvp: {
       pageTitle: "Guest Registration",
+      rsvpPageTitle: "Attendance Response",
       loadingRequirements: "Checking eligibility...",
       phoneStepTitle: "Verify your phone number",
       phoneStepDescription: "Enter the number to receive a verification code.",
@@ -717,6 +724,11 @@ export const dictionary = {
       otpStepTitle: "Enter the verification code",
       otpPlaceholder: "6-digit code",
       otpContinue: "Continue",
+      rsvpResponseStepTitle: "Choose your attendance",
+      rsvpResponseStepDescription: "Let us know whether you plan to attend.",
+      rsvpGoing: "Going",
+      rsvpMaybe: "Maybe",
+      rsvpCantGo: "Can't go",
       additionalInfoStepTitle: "We need your name and agreement to the terms",
       existingUserNotice:
         "This number is already registered. Just verify the code to register as a guest.",

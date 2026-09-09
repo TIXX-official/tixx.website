@@ -26,6 +26,7 @@ import {
 import type {
   EventRsvpMaybeRedeemTarget,
   EventRsvpRedeemTarget,
+  EventRsvpResponseValue,
   EventRsvpSnsProfile,
   EventType,
 } from "@/lib/api/types";
@@ -45,6 +46,7 @@ type RsvpStep =
   | "loading-requirements"
   | "phone"
   | "otp"
+  | "rsvp-response"
   | "additional-info"
   | "submitting"
   | "completed";
@@ -98,6 +100,8 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
   const [displayText, setDisplayText] = useState("");
   const [verifiedPhone, setVerifiedPhone] = useState("");
   const [authCode, setAuthCode] = useState("");
+  const [rsvpResponse, setRsvpResponse] =
+    useState<EventRsvpResponseValue>("going");
   const [expiredAt, setExpiredAt] = useState<number | null>(null);
   const [lastIssuedAt, setLastIssuedAt] = useState<number | null>(null);
   const [name, setName] = useState("");
@@ -498,6 +502,7 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
         marketingSmsOptIn: marketingOptIn ? 1 : 0,
         marketingEmailOptIn: marketingOptIn ? 1 : 0,
         marketingNightOptIn: marketingOptIn && marketingNightOptIn ? 1 : 0,
+        ...(isRsvp ? { response: rsvpResponse } : {}),
         ...(profile.missingProfileImage && profileImageUrl
           ? { profileImageUrl }
           : {}),
@@ -576,6 +581,11 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
       setMissingProfileImage(result.missingProfileImage);
       setMissingSns(result.missingSns);
 
+      if (isRsvp) {
+        setStep("rsvp-response");
+        return;
+      }
+
       if (
         !result.isExistingUser ||
         result.missingProfileImage ||
@@ -596,6 +606,21 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
     }
   };
 
+  const handleRsvpResponseContinue = async () => {
+    if (!isRsvp || isSubmitting) return;
+
+    if (!isExistingUser || missingProfileImage || missingSns) {
+      setStep("additional-info");
+      return;
+    }
+
+    await submitRsvp({
+      isExistingUser,
+      missingProfileImage,
+      missingSns,
+    });
+  };
+
   const canSubmit =
     !isSubmitting &&
     !isOtpExpired &&
@@ -614,7 +639,7 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
           {event.name}
         </Text>
         <Text variant="body3Regular" className="mb-8 text-grayscale-400">
-          {t.pageTitle}
+          {isRsvp ? t.rsvpPageTitle : t.pageTitle}
         </Text>
 
         {step === "phone" && (
@@ -731,6 +756,61 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
               }
             >
               {isPreparing ? t.submitting : t.otpContinue}
+            </Button>
+          </div>
+        )}
+
+        {step === "rsvp-response" && (
+          <div className="flex flex-col gap-5">
+            <Text variant="headline2Medium">{t.rsvpResponseStepTitle}</Text>
+            <Text variant="body3Regular" className="text-grayscale-400">
+              {t.rsvpResponseStepDescription}
+            </Text>
+
+            <div
+              role="radiogroup"
+              aria-label={t.rsvpResponseStepTitle}
+              className="flex flex-col gap-2"
+            >
+              {(
+                [
+                  ["going", t.rsvpGoing],
+                  ["maybe", t.rsvpMaybe],
+                  ["cant_go", t.rsvpCantGo],
+                ] as const
+              ).map(([value, label]) => {
+                const selected = rsvpResponse === value;
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    onClick={() => setRsvpResponse(value)}
+                    className={`rounded-xl border px-4 py-3 text-left transition-colors ${
+                      selected
+                        ? "border-white bg-white text-black"
+                        : "border-grayscale-700 text-white"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {errorMessage && (
+              <Text
+                variant="caption1Regular"
+                className="text-red-400"
+                aria-live="polite"
+              >
+                {errorMessage}
+              </Text>
+            )}
+
+            <Button onClick={() => void handleRsvpResponseContinue()}>
+              {t.otpContinue}
             </Button>
           </div>
         )}

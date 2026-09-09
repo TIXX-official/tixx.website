@@ -82,6 +82,7 @@ describe("createEventRsvp", () => {
         marketingSmsOptIn: 0,
         marketingEmailOptIn: 0,
         marketingNightOptIn: 0,
+        response: "maybe",
       }),
     ).resolves.toEqual(response);
 
@@ -89,7 +90,45 @@ describe("createEventRsvp", () => {
     const body = JSON.parse(String(request.body)) as Record<string, unknown>;
     expect(body).not.toHaveProperty("redeemCodeId");
     expect(body).not.toHaveProperty("code");
+    expect(body.response).toBe("maybe");
   });
+
+  it.each(["going", "maybe", "cant_go"] as const)(
+    "forwards the %s RSVP response",
+    async (responseValue) => {
+      const fetchMock = vi.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          jwt: "jwt-token",
+          user: { id: 1, uuid: "u", name: "Guest", phone: "+821012345678" },
+          isNew: 0,
+          rsvp: {
+            type: "rsvp",
+            eventId: 100,
+            rsvpResponseId: 42,
+            response: responseValue,
+            status: "registered",
+          },
+        }),
+      });
+      vi.stubGlobal("fetch", fetchMock);
+
+      await createEventRsvp(100, {
+        phone: "+821012345678",
+        authCode: "123456",
+        marketingOptIn: 0,
+        marketingSmsOptIn: 0,
+        marketingEmailOptIn: 0,
+        marketingNightOptIn: 0,
+        response: responseValue,
+      });
+
+      const request = fetchMock.mock.calls[0][1] as RequestInit;
+      const body = JSON.parse(String(request.body)) as Record<string, unknown>;
+      expect(body.response).toBe(responseValue);
+    },
+  );
 
   it("submits a code target without sending redeemCodeId", async () => {
     const fetchMock = vi.fn().mockResolvedValue({
