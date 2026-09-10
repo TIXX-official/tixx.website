@@ -24,8 +24,11 @@ import {
   RsvpError,
 } from "@/lib/api/rsvp";
 import type {
+  EventRsvpMaybeRedeemTarget,
   EventRsvpRedeemTarget,
+  EventRsvpResponseValue,
   EventRsvpSnsProfile,
+  EventType,
 } from "@/lib/api/types";
 import { dictionary } from "@/lib/dictionary";
 import { useLanguage } from "@/lib/LanguageContext";
@@ -43,6 +46,7 @@ type RsvpStep =
   | "loading-requirements"
   | "phone"
   | "otp"
+  | "rsvp-response"
   | "additional-info"
   | "submitting"
   | "completed";
@@ -72,8 +76,11 @@ function formatRemaining(ms: number): string {
 }
 
 interface EventRsvpFlowProps {
-  event: { id: number; name: string };
-  /** Null means no public RSVP target was resolved and the flow falls back. */
+  event: { id: number; name: string; type: EventType };
+  /** For a ticket-type event, null means no public RSVP target was resolved
+   * and the flow falls back to the app. For an rsvp-type event it is always
+   * null (attendance registration takes no redeem target) and the flow runs
+   * without one. */
   redeemTarget: EventRsvpRedeemTarget | null;
 }
 
@@ -81,13 +88,20 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
   const { language } = useLanguage();
   const t = dictionary[language].eventRsvp;
 
+  // rsvp-type events register attendance directly: no redeem/guest code, no
+  // pre-OTP requirements check, no profile/SNS step, and the server rejects
+  // any redeem target with RSVP_REDEEM_TARGET_NOT_ALLOWED.
+  const isRsvp = event.type === "rsvp";
+
   const [step, setStep] = useState<RsvpStep>(
-    redeemTarget ? "loading-requirements" : "phone",
+    !isRsvp && redeemTarget ? "loading-requirements" : "phone",
   );
   const [country, setCountry] = useState<CountryCode>("KR");
   const [displayText, setDisplayText] = useState("");
   const [verifiedPhone, setVerifiedPhone] = useState("");
   const [authCode, setAuthCode] = useState("");
+  const [rsvpResponse, setRsvpResponse] =
+    useState<EventRsvpResponseValue>("going");
   const [expiredAt, setExpiredAt] = useState<number | null>(null);
   const [lastIssuedAt, setLastIssuedAt] = useState<number | null>(null);
   const [name, setName] = useState("");
@@ -247,8 +261,16 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
   // 성공하면 requires*를 갱신하고 phone 단계로, 실패하면 기존 에러 처리로
   // 위임하되(app_fallback/event_not_found/needsRefetch 등) phone 단계로
   // 넘어가 에러 메시지가 보이게 한다.
+  // Builds the redeem-target portion of a prepare/rsvp request body: the
+  // resolved { redeemCodeId } / { code } for a ticket-type event, or nothing
+  // at all for an rsvp-type event.
+  const buildRedeemTargetBody = (): EventRsvpMaybeRedeemTarget =>
+    isRsvp || !redeemTarget
+      ? {}
+      : buildEventRsvpRedeemTarget(redeemTarget, guestCode);
+
   const loadRequirements = async (): Promise<boolean> => {
-    if (!redeemTarget) return false;
+    if (isRsvp || !redeemTarget) return false;
     try {
       const body = buildEventRsvpRedeemTarget(redeemTarget, guestCode);
       await getRsvpRequirements(event.id, body);
@@ -263,7 +285,8 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
   };
 
   useEffect(() => {
-    if (redeemTarget === null || hasLoadedRequirements.current) return;
+    if (isRsvp || redeemTarget === null || hasLoadedRequirements.current)
+      return;
     hasLoadedRequirements.current = true;
     void loadRequirements();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -280,11 +303,11 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
             {alreadyRegistered ? t.alreadyRegisteredTitle : t.completedTitle}
           </Text>
           <Text variant="body1Regular" className="mb-8 text-grayscale-300">
-            {t.completedDescription}
+            {isRsvp ? t.completedDescriptionRsvp : t.completedDescription}
           </Text>
         </div>
         <AppCTA
-          label={t.openApp}
+          label={isRsvp ? t.openAppRsvp : t.openApp}
           deepLink={`tixx://event/${event.id}`}
           sourceSurface="event_rsvp_complete"
           contextType="event"
@@ -312,7 +335,7 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
     );
   }
 
-  if (redeemTarget === null || showAppFallback) {
+  if ((redeemTarget === null && !isRsvp) || showAppFallback) {
     return (
       <main
         style={themeVars}
@@ -454,21 +477,18 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
     missingProfileImage: boolean;
     missingSns: boolean;
   }) => {
-    if (!redeemTarget) return;
-    const redeemTargetBody = buildEventRsvpRedeemTarget(
-      redeemTarget,
-      guestCode,
-    );
+    if (!redeemTarget && !isRsvp) return;
+    const redeemTargetBody = buildRedeemTargetBody();
 
     setStep("submitting");
     setErrorMessage(null);
     setNeedsRefetch(false);
     void trackWebEvent("event_rsvp_submit_attempt", { event_id: event.id });
     try {
-      // rsvp.eventTicketId isn't shown on this page — completion is
-      // announced generically and the ticket itself is only viewable in the
-      // app (see docs/rsvp-phone-auth-frontend-implementation-plan.md §6,
-      // W3 item 6).
+      // Nothing from `response.rsvp` is shown on this page (it's a
+      // ticket|rsvp union) — completion is announced generically and the
+      // ticket/attendance is only viewable in the app (see
+      // docs/rsvp-phone-auth-frontend-implementation-plan.md §6, W3 item 6).
       const response = await createEventRsvp(event.id, {
         phone: verifiedPhone,
         authCode,
@@ -482,6 +502,7 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
         marketingSmsOptIn: marketingOptIn ? 1 : 0,
         marketingEmailOptIn: marketingOptIn ? 1 : 0,
         marketingNightOptIn: marketingOptIn && marketingNightOptIn ? 1 : 0,
+        ...(isRsvp ? { response: rsvpResponse } : {}),
         ...(profile.missingProfileImage && profileImageUrl
           ? { profileImageUrl }
           : {}),
@@ -517,10 +538,7 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
         // 항상 additional-info로 돌아간다: 방금 이 요구조건 때문에 제출이
         // 실패했으므로 재확인 결과도 최소 하나는 missing일 것으로 본다.
         try {
-          const redeemTargetBody = buildEventRsvpRedeemTarget(
-            redeemTarget,
-            guestCode,
-          );
+          const redeemTargetBody = buildRedeemTargetBody();
           const result = await prepareEventRsvp(event.id, {
             phone: verifiedPhone,
             authCode,
@@ -547,12 +565,9 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
       setGuestCodeTouched(true);
       return;
     }
-    if (!canPrepare || !redeemTarget) return;
+    if (!canPrepare || (!redeemTarget && !isRsvp)) return;
 
-    const redeemTargetBody = buildEventRsvpRedeemTarget(
-      redeemTarget,
-      guestCode,
-    );
+    const redeemTargetBody = buildRedeemTargetBody();
     setIsPreparing(true);
     setErrorMessage(null);
     setNeedsRefetch(false);
@@ -565,6 +580,11 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
       setIsExistingUser(result.isExistingUser);
       setMissingProfileImage(result.missingProfileImage);
       setMissingSns(result.missingSns);
+
+      if (isRsvp) {
+        setStep("rsvp-response");
+        return;
+      }
 
       if (
         !result.isExistingUser ||
@@ -586,6 +606,21 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
     }
   };
 
+  const handleRsvpResponseContinue = async () => {
+    if (!isRsvp || isSubmitting) return;
+
+    if (!isExistingUser || missingProfileImage || missingSns) {
+      setStep("additional-info");
+      return;
+    }
+
+    await submitRsvp({
+      isExistingUser,
+      missingProfileImage,
+      missingSns,
+    });
+  };
+
   const canSubmit =
     !isSubmitting &&
     !isOtpExpired &&
@@ -604,7 +639,7 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
           {event.name}
         </Text>
         <Text variant="body3Regular" className="mb-8 text-grayscale-400">
-          {t.pageTitle}
+          {isRsvp ? t.rsvpPageTitle : t.pageTitle}
         </Text>
 
         {step === "phone" && (
@@ -721,6 +756,61 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
               }
             >
               {isPreparing ? t.submitting : t.otpContinue}
+            </Button>
+          </div>
+        )}
+
+        {step === "rsvp-response" && (
+          <div className="flex flex-col gap-5">
+            <Text variant="headline2Medium">{t.rsvpResponseStepTitle}</Text>
+            <Text variant="body3Regular" className="text-grayscale-400">
+              {t.rsvpResponseStepDescription}
+            </Text>
+
+            <div
+              role="radiogroup"
+              aria-label={t.rsvpResponseStepTitle}
+              className="flex flex-col gap-2"
+            >
+              {(
+                [
+                  ["going", t.rsvpGoing],
+                  ["maybe", t.rsvpMaybe],
+                  ["cant_go", t.rsvpCantGo],
+                ] as const
+              ).map(([value, label]) => {
+                const selected = rsvpResponse === value;
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    onClick={() => setRsvpResponse(value)}
+                    className={`rounded-xl border px-4 py-3 text-left transition-colors ${
+                      selected
+                        ? "border-white bg-white text-black"
+                        : "border-grayscale-700 text-white"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {errorMessage && (
+              <Text
+                variant="caption1Regular"
+                className="text-red-400"
+                aria-live="polite"
+              >
+                {errorMessage}
+              </Text>
+            )}
+
+            <Button onClick={() => void handleRsvpResponseContinue()}>
+              {t.otpContinue}
             </Button>
           </div>
         )}

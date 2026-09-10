@@ -102,6 +102,21 @@ describe("resolveRsvpError", () => {
     });
   });
 
+  it("maps redeem-target mismatch codes (event type changed) to refetch", () => {
+    expect(resolveRsvpError("RSVP_REDEEM_TARGET_REQUIRED")).toEqual({
+      messageKey: "redeemCodeStale",
+      action: "refetch",
+    });
+    expect(resolveRsvpError("RSVP_REDEEM_TARGET_NOT_ALLOWED")).toEqual({
+      messageKey: "redeemCodeStale",
+      action: "refetch",
+    });
+    expect(
+      resolveRsvpError("RSVP_REDEEM_TARGET_NOT_ALLOWED", { target: "code" })
+        .action,
+    ).toBe("refetch");
+  });
+
   it("maps EVENT_NOT_FOUND to a dedicated event_not_found action", () => {
     expect(resolveRsvpError("EVENT_NOT_FOUND").action).toBe("event_not_found");
   });

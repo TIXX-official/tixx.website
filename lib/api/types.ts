@@ -18,6 +18,11 @@ export type HostCategory = "Brand" | "Promote" | "Venue" | "Host";
 
 export type TicketType = "paid" | "guest" | "table";
 
+// "ticket": guests claim a Guest EventTicket (redeem code / guest code flow).
+// "rsvp": guests just register attendance ("going") — no redeem code, no
+// ticket issued. Mirrors EventType in @tixx/schema (packages/schema/src/events.ts).
+export type EventType = "ticket" | "rsvp";
+
 export interface Place {
   id: number;
   name: string;
@@ -109,6 +114,7 @@ export interface VenueSummary {
 /** GET /events/:id */
 export interface EventDetail {
   id: number;
+  type: EventType;
   hostId: number;
   placeId: number;
   name: string;
@@ -395,12 +401,16 @@ export interface EventRsvpSnsProfile {
   handle: string;
 }
 
+export type EventRsvpResponseValue = "going" | "maybe" | "cant_go";
+
 /** Shared fields for POST /events/:eventId/rsvp. */
 export interface EventRsvpBaseRequest {
   phone: string;
   authCode: string;
   name?: string;
   termsAccepted?: boolean;
+  /** Attendance response for rsvp-type events. Omit for ticket events. */
+  response?: EventRsvpResponseValue;
   marketingOptIn: 0 | 1;
   marketingSmsOptIn: 0 | 1;
   marketingEmailOptIn: 0 | 1;
@@ -411,13 +421,24 @@ export interface EventRsvpBaseRequest {
   snsProfile?: EventRsvpSnsProfile;
 }
 
-/** The API accepts exactly one redeem target. */
+/** A ticket-type event needs exactly one redeem target (redeemCodeId or
+ * code). */
 export type EventRsvpRedeemTarget =
   | { redeemCodeId: number; code?: never }
   | { code: string; redeemCodeId?: never };
 
+/** An rsvp-type event takes no redeem target — it registers attendance
+ * directly, and the API rejects any target with RSVP_REDEEM_TARGET_NOT_ALLOWED. */
+export type EventRsvpNoRedeemTarget = { redeemCodeId?: never; code?: never };
+
+/** The API accepts at most one redeem target. Which variant is required is
+ * decided by the event's `type`, read server-side from the DB. */
+export type EventRsvpMaybeRedeemTarget =
+  | EventRsvpRedeemTarget
+  | EventRsvpNoRedeemTarget;
+
 /** POST /events/:eventId/rsvp request body. */
-export type EventRsvpRequest = EventRsvpBaseRequest & EventRsvpRedeemTarget;
+export type EventRsvpRequest = EventRsvpBaseRequest & EventRsvpMaybeRedeemTarget;
 
 /** POST /events/:eventId/rsvp/requirements request body. */
 export type EventRsvpRequirementsRequest = EventRsvpRedeemTarget;
@@ -433,7 +454,7 @@ export interface EventRsvpRequirementsResponse {
 export type EventRsvpPrepareRequest = {
   phone: string;
   authCode: string;
-} & EventRsvpRedeemTarget;
+} & EventRsvpMaybeRedeemTarget;
 
 /** POST /events/:eventId/rsvp/prepare response. Validates the OTP without
  * consuming it and reports the caller's actual missing profile/SNS info. */
@@ -459,7 +480,11 @@ export interface FileUploadResponse {
 }
 
 /** POST /events/:eventId/rsvp response. `user` is the API's full UserSchema
- * serialization — only the fields this site actually reads are declared. */
+ * serialization — only the fields this site actually reads are declared.
+ * `rsvp` is a `type`-discriminated union: "ticket" for a claimed Guest
+ * EventTicket, "rsvp" for a plain attendance registration on an rsvp-type
+ * event. This site only reads `isNew`, so it never has to narrow it, but the
+ * shape is kept accurate. */
 export interface EventRsvpResponse {
   jwt: string;
   user: {
@@ -469,11 +494,20 @@ export interface EventRsvpResponse {
     phone: string;
   };
   isNew: 0 | 1;
-  rsvp: {
-    eventId: number;
-    redeemCodeId: number;
-    redeemHistoryId: number;
-    eventTicketId: number;
-    status: "issued";
-  };
+  rsvp:
+    | {
+        type: "ticket";
+        eventId: number;
+        redeemCodeId: number;
+        redeemHistoryId: number;
+        eventTicketId: number;
+        status: "issued";
+      }
+    | {
+        type: "rsvp";
+        eventId: number;
+        rsvpResponseId: number;
+        response: EventRsvpResponseValue;
+        status: "registered";
+      };
 }

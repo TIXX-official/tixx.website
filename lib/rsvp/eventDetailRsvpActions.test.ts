@@ -45,4 +45,15 @@ describe('buildEventDetailRsvpActions', () => {
       })
     ).toEqual([]);
   });
+
+  it('returns a single attendance action for an rsvp-type event, ignoring any guest code', () => {
+    expect(
+      buildEventDetailRsvpActions({
+        eventId: 100,
+        guestCode: 'VIP-2026',
+        hasRsvpCandidate: false,
+        isRsvp: true,
+      })
+    ).toEqual([{ kind: 'rsvp', href: '/events/100/rsvp' }]);
+  });
 });

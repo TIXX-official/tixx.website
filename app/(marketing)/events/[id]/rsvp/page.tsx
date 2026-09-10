@@ -42,28 +42,32 @@ export default async function EventRsvpPage({
     throw error;
   }
 
-  const guestCode = normalizeGuestCode(code);
-  let redeemTarget: EventRsvpRedeemTarget | null = guestCode
-    ? { code: guestCode }
-    : null;
+  // An rsvp-type event registers attendance directly — it has no redeem/guest
+  // codes, so skip guest-code and claimable-candidate resolution entirely
+  // (a stray ?code= on one would be rejected by the API anyway).
+  let redeemTarget: EventRsvpRedeemTarget | null = null;
+  if (event.type !== "rsvp") {
+    const guestCode = normalizeGuestCode(code);
+    redeemTarget = guestCode ? { code: guestCode } : null;
 
-  if (!redeemTarget) {
-    // Never cached (getClaimableRedeemCodes uses revalidate: 0) — quantity
-    // moves in real time between this read and the eventual RSVP submit, so
-    // this list only picks a candidate to submit; the RSVP response is the
-    // only source of truth for whether the claim actually succeeded.
-    const claimableCodes = await getClaimableRedeemCodes(id).catch(() => []);
-    const candidates = selectRsvpCandidates(claimableCodes, event.tickets);
-    // Candidate order follows event.tickets, matching the mobile app. The
-    // RSVP response remains the source of truth if availability changed.
-    redeemTarget = candidates[0]
-      ? { redeemCodeId: candidates[0].id }
-      : null;
+    if (!redeemTarget) {
+      // Never cached (getClaimableRedeemCodes uses revalidate: 0) — quantity
+      // moves in real time between this read and the eventual RSVP submit, so
+      // this list only picks a candidate to submit; the RSVP response is the
+      // only source of truth for whether the claim actually succeeded.
+      const claimableCodes = await getClaimableRedeemCodes(id).catch(() => []);
+      const candidates = selectRsvpCandidates(claimableCodes, event.tickets);
+      // Candidate order follows event.tickets, matching the mobile app. The
+      // RSVP response remains the source of truth if availability changed.
+      redeemTarget = candidates[0]
+        ? { redeemCodeId: candidates[0].id }
+        : null;
+    }
   }
 
   return (
     <EventRsvpFlow
-      event={{ id: event.id, name: event.name }}
+      event={{ id: event.id, name: event.name, type: event.type }}
       redeemTarget={redeemTarget}
     />
   );

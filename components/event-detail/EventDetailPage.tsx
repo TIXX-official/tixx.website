@@ -26,11 +26,17 @@ export async function EventDetailPage({
   const jsonLd = buildEventJsonLd(event, absoluteUrl(`/events/${id}`));
 
   const normalizedGuestCode = guestCode?.trim() || undefined;
+  const isRsvp = event.type === "rsvp";
   // Code links expose both the public RSVP and code-registration actions.
   // Each action still submits exactly one redeem target on the RSVP page.
-  const claimableCodes = await getClaimableRedeemCodes(id).catch(() => []);
-  const hasRsvpCandidate =
-    selectRsvpCandidates(claimableCodes, event.tickets).length > 0;
+  // An rsvp-type event has no redeem codes at all — its RSVP CTA always
+  // shows (see EventDetailContent), so skip the claimable lookup entirely.
+  let hasRsvpCandidate = false;
+  if (!isRsvp) {
+    const claimableCodes = await getClaimableRedeemCodes(id).catch(() => []);
+    hasRsvpCandidate =
+      selectRsvpCandidates(claimableCodes, event.tickets).length > 0;
+  }
 
   return (
     <>
@@ -48,6 +54,7 @@ export async function EventDetailPage({
         event={event}
         guestCode={normalizedGuestCode}
         hasRsvpCandidate={hasRsvpCandidate}
+        isRsvp={isRsvp}
       />
     </>
   );
