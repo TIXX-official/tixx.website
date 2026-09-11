@@ -2,6 +2,7 @@
 
 import { Eye, Heart } from "lucide-react";
 import Image from "next/image";
+import { Suspense } from "react";
 import { AppCTA } from "@/components/detail/AppCTA";
 import { Divider } from "@/components/detail/Divider";
 import { ExpandableCard } from "@/components/detail/ExpandableCard";
@@ -11,6 +12,7 @@ import { GalleryGrid } from "@/components/detail/GalleryGrid";
 import { HashtagList } from "@/components/detail/HashtagList";
 import { HostInlineCard } from "@/components/detail/HostInlineCard";
 import { LocationSection } from "@/components/detail/LocationSection";
+import { RsvpCompleteModalGate } from "@/components/event-detail/RsvpCompleteModal";
 import { ShareButton } from "@/components/detail/ShareButton";
 import { SnsLinks } from "@/components/detail/SnsLinks";
 import { Text } from "@/components/detail/Text";
@@ -262,6 +264,10 @@ export function EventDetailContent({
           />
         </div>
       )}
+
+      <Suspense fallback={null}>
+        <RsvpCompleteModalGate eventId={event.id} />
+      </Suspense>
     </div>
   );
 }

@@ -7,7 +7,9 @@ import {
   type CountryCode,
 } from "libphonenumber-js";
 import examples from "libphonenumber-js/examples.mobile.json";
+import { Check, Clock, X } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { type CSSProperties, useEffect, useRef, useState } from "react";
 import { AppCTA } from "@/components/detail/AppCTA";
 import { Button } from "@/components/detail/Button";
@@ -48,8 +50,7 @@ type RsvpStep =
   | "otp"
   | "rsvp-response"
   | "additional-info"
-  | "submitting"
-  | "completed";
+  | "submitting";
 
 const RESEND_COOLDOWN_MS = 30 * 1000;
 
@@ -87,11 +88,21 @@ interface EventRsvpFlowProps {
 export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
   const { language } = useLanguage();
   const t = dictionary[language].eventRsvp;
+  const router = useRouter();
 
   // rsvp-type events register attendance directly: no redeem/guest code, no
   // pre-OTP requirements check, no profile/SNS step, and the server rejects
   // any redeem target with RSVP_REDEEM_TARGET_NOT_ALLOWED.
   const isRsvp = event.type === "rsvp";
+
+  // Registration is complete (or the visitor already registered) — send them
+  // back to the event detail page, which shows the completion state as a
+  // modal (RsvpCompleteModal) instead of taking over this whole route.
+  const goToCompletedOnDetail = (already: boolean) => {
+    router.push(
+      `/events/${event.id}?guestRegistered=1&already=${already ? 1 : 0}&rsvp=${isRsvp ? 1 : 0}`,
+    );
+  };
 
   const [step, setStep] = useState<RsvpStep>(
     !isRsvp && redeemTarget ? "loading-requirements" : "phone",
@@ -114,7 +125,6 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
   const [showAppFallback, setShowAppFallback] = useState(false);
   const [eventNotFound, setEventNotFound] = useState(false);
   const [needsRefetch, setNeedsRefetch] = useState(false);
-  const [alreadyRegistered, setAlreadyRegistered] = useState(false);
   const [isExistingUser, setIsExistingUser] = useState(false);
   // Set by /rsvp/prepare — that endpoint's own requires* policy combined
   // with the caller's saved profile, i.e. what's actually left to collect.
@@ -230,9 +240,9 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
 
     if (resolved.action === "already_registered") {
       // 이 번호로 이미 티켓이 발급된 상태 — 새로고침이나 재시도로는 해결되지
-      // 않으므로 실제로 등록을 마쳤을 때와 같은 완료 화면으로 보낸다.
-      setAlreadyRegistered(true);
-      setStep("completed");
+      // 않으므로 실제로 등록을 마쳤을 때와 같은 완료 화면(상세화면의 모달)으로
+      // 보낸다.
+      goToCompletedOnDetail(true);
       return resolved.action;
     }
     if (resolved.action === "app_fallback") {
@@ -291,31 +301,6 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
     void loadRequirements();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  if (step === "completed") {
-    return (
-      <main
-        style={themeVars}
-        className="min-h-screen bg-black px-4 pb-32 pt-24 text-white"
-      >
-        <div className="mx-auto max-w-md text-center">
-          <Text as="h1" variant="h1Semibold" className="mb-3">
-            {alreadyRegistered ? t.alreadyRegisteredTitle : t.completedTitle}
-          </Text>
-          <Text variant="body1Regular" className="mb-8 text-grayscale-300">
-            {isRsvp ? t.completedDescriptionRsvp : t.completedDescription}
-          </Text>
-        </div>
-        <AppCTA
-          label={isRsvp ? t.openAppRsvp : t.openApp}
-          deepLink={`tixx://event/${event.id}`}
-          sourceSurface="event_rsvp_complete"
-          contextType="event"
-          contextId={event.id}
-        />
-      </main>
-    );
-  }
 
   if (eventNotFound) {
     return (
@@ -513,7 +498,7 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
         event_id: event.id,
         is_new_user: response.isNew === 1,
       });
-      setStep("completed");
+      goToCompletedOnDetail(false);
     } catch (error) {
       void trackWebEvent("event_rsvp_submit_fail", {
         event_id: event.id,
@@ -770,15 +755,15 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
             <div
               role="radiogroup"
               aria-label={t.rsvpResponseStepTitle}
-              className="flex flex-col gap-2"
+              className="flex flex-row gap-2"
             >
               {(
                 [
-                  ["going", t.rsvpGoing],
-                  ["maybe", t.rsvpMaybe],
-                  ["cant_go", t.rsvpCantGo],
+                  ["going", t.rsvpGoing, Check],
+                  ["maybe", t.rsvpMaybe, Clock],
+                  ["cant_go", t.rsvpCantGo, X],
                 ] as const
-              ).map(([value, label]) => {
+              ).map(([value, label, Icon]) => {
                 const selected = rsvpResponse === value;
                 return (
                   <button
@@ -787,13 +772,16 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
                     role="radio"
                     aria-checked={selected}
                     onClick={() => setRsvpResponse(value)}
-                    className={`rounded-xl border px-4 py-3 text-left transition-colors ${
+                    className={`flex flex-1 flex-col items-center gap-1 rounded-full border px-3 py-4 transition-colors ${
                       selected
                         ? "border-white bg-white text-black"
                         : "border-grayscale-700 text-white"
                     }`}
                   >
-                    {label}
+                    <Icon size={20} aria-hidden="true" />
+                    <Text as="span" variant="body3Medium">
+                      {label}
+                    </Text>
                   </button>
                 );
               })}
