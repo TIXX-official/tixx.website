@@ -60,13 +60,19 @@ function RsvpCompleteModal({
             {isRsvp ? t.completedDescriptionRsvp : t.completedDescription}
           </Text>
         </div>
-        <AppCTA
-          label={isRsvp ? t.openAppRsvp : t.openApp}
-          deepLink={`tixx://event/${eventId}`}
-          sourceSurface="event_rsvp_complete"
-          contextType="event"
-          contextId={eventId}
-        />
+        {/* AppCTA's own padding collapses to 0 at the lg breakpoint (it
+            assumes a full-width mobile footer vs. a desktop sidebar with
+            parent-provided spacing) — neither fits this small card, so
+            padding is forced here regardless of viewport. */}
+        <div className="px-6 pb-6">
+          <AppCTA
+            label={isRsvp ? t.openAppRsvp : t.openApp}
+            deepLink={`tixx://event/${eventId}`}
+            sourceSurface="event_rsvp_complete"
+            contextType="event"
+            contextId={eventId}
+          />
+        </div>
       </div>
     </div>
   );
