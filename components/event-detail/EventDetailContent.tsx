@@ -26,6 +26,7 @@ import {
 } from "@/lib/format/eventDateTime";
 import { resolveEventCtaState } from "@/lib/format/ticket";
 import { buildEventDetailRsvpActions } from "@/lib/rsvp/eventDetailRsvpActions";
+import { useHasTicketHolderSession } from "@/lib/rsvp/ticketHolderSession";
 
 export function EventDetailContent({
   event,
@@ -44,6 +45,14 @@ export function EventDetailContent({
 }) {
   const { language } = useLanguage();
   const t = dictionary[language].eventDetail;
+
+  // This site has no login/session, so a ticket-holders-only guest list
+  // can't be gated the way the app does (checking real ticket ownership) —
+  // it only opens up once this browser tab has confirmed registering for
+  // the event this session (see ticketHolderSession.ts).
+  const hasTicketHolderSession = useHasTicketHolderSession(event.id);
+  const canViewGuestList =
+    event.guestListVisibility === "ALL_MEMBERS" || hasTicketHolderSession;
 
   const startDateTime = parseEventDateTime(event.startDate, event.startTime);
   const rawEndDateTime = parseEventDateTime(event.endDate, event.endTime);
@@ -72,6 +81,7 @@ export function EventDetailContent({
     isRsvp,
   });
   const showGuestRegistrationActions = guestRegistrationActions.length > 0;
+  const showGuestList = event.participantCount > 0 && canViewGuestList;
 
   const cta = resolveEventCtaState(event.tickets);
   const ctaLabel =
@@ -161,9 +171,9 @@ export function EventDetailContent({
         {/* Left column: browsing content */}
         <div className="mt-6 flex flex-col gap-6 px-4 lg:col-start-1 lg:px-0">
           <Divider />
-          {(event.participantCount > 0 || showGuestRegistrationActions) && (
+          {(showGuestList || showGuestRegistrationActions) && (
             <section>
-              {event.participantCount > 0 && (
+              {showGuestList && (
                 <>
                   <div className="mb-3 flex flex-row items-center gap-2">
                     <Text variant="headline2Medium">{t.guestList}</Text>
@@ -186,7 +196,7 @@ export function EventDetailContent({
               {showGuestRegistrationActions && (
                 <div
                   className={`flex flex-col gap-2 ${
-                    event.participantCount > 0 ? "mt-3" : ""
+                    showGuestList ? "mt-3" : ""
                   }`}
                 >
                   {guestRegistrationActions.map((action) => (

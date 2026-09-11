@@ -122,6 +122,12 @@ export function isFullParticipant(
   return "userId" in participant;
 }
 
+// Mirrors GuestListVisibility in @tixx/schema. This site has no login/session
+// of its own, so it can't verify ticket ownership the way the app does —
+// TICKET_HOLDERS_ONLY events instead rely on a per-tab sessionStorage flag
+// set right after a visitor registers on web (see lib/rsvp/ticketHolderSession.ts).
+export type GuestListVisibility = "TICKET_HOLDERS_ONLY" | "ALL_MEMBERS";
+
 export interface VenueSummary {
   id: number;
   name: string;
@@ -165,6 +171,7 @@ export interface EventDetail {
   isWished: boolean;
   participants: Participant[];
   participantCount: number;
+  guestListVisibility: GuestListVisibility;
   venue: VenueSummary | null;
 }
 

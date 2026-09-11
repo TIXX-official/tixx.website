@@ -43,6 +43,7 @@ import {
   buildEventRsvpRedeemTarget,
   hasGuestCodeValue,
 } from "@/lib/rsvp/eventRsvpTarget";
+import { markTicketHolderSession } from "@/lib/rsvp/ticketHolderSession";
 
 type RsvpStep =
   | "loading-requirements"
@@ -97,8 +98,12 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
 
   // Registration is complete (or the visitor already registered) — send them
   // back to the event detail page, which shows the completion state as a
-  // modal (RsvpCompleteModal) instead of taking over this whole route.
+  // modal (RsvpCompleteModal) instead of taking over this whole route. Also
+  // marks this session as a confirmed ticket holder for the event, since
+  // this site has no login to check ticket ownership any other way (see
+  // ticketHolderSession.ts).
   const goToCompletedOnDetail = (already: boolean) => {
+    markTicketHolderSession(event.id);
     router.push(
       `/events/${event.id}?guestRegistered=1&already=${already ? 1 : 0}&rsvp=${isRsvp ? 1 : 0}`,
     );
