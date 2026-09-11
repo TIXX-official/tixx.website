@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
-import type { Participant } from '@/lib/api/types';
+import { isFullParticipant, type Participant } from '@/lib/api/types';
 
 const MAX_VISIBLE = 10;
 
@@ -24,14 +24,14 @@ export function AvatarStack({
     <div className="flex flex-row items-center">
       {visible.map((p, index) => (
         <div
-          key={p.userId}
+          key={isFullParticipant(p) ? p.userId : index}
           className="relative h-10 w-10 overflow-hidden rounded-full border-2 border-grayscale-900 bg-grayscale-700"
           style={{ marginLeft: index === 0 ? 0 : -10 }}
         >
           {p.profileImageUrl && (
             <Image
               src={p.profileImageUrl}
-              alt={p.nickname}
+              alt={isFullParticipant(p) ? p.nickname : ''}
               fill
               sizes="40px"
               className={cn('object-cover', blurred && 'blur-sm')}

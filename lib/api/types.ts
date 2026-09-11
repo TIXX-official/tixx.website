@@ -97,10 +97,29 @@ export interface Ticket {
   coupons: Coupon[];
 }
 
-export interface Participant {
+// Mirrors EventDetailParticipantResponseSchema (packages/schema/src/events.ts):
+// a full record for participants the viewer may see by name, or a
+// name-less preview (no userId/nickname) for participants hidden by the
+// event's guest-list privacy rules. rsvpResponse is "going" | "maybe" |
+// null — cant_go responders are never included in this list at all.
+export interface FullParticipant {
   userId: number;
   nickname: string;
   profileImageUrl: string | null;
+  rsvpResponse: "going" | "maybe" | null;
+}
+
+export interface PreviewParticipant {
+  profileImageUrl: string | null;
+  rsvpResponse: "going" | "maybe" | null;
+}
+
+export type Participant = FullParticipant | PreviewParticipant;
+
+export function isFullParticipant(
+  participant: Participant,
+): participant is FullParticipant {
+  return "userId" in participant;
 }
 
 export interface VenueSummary {
