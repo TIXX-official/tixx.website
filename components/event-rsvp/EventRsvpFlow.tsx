@@ -6,11 +6,18 @@ import {
   getExampleNumber,
   type CountryCode,
 } from "libphonenumber-js";
+import { motion, useReducedMotion } from "framer-motion";
+import { Check, X } from "lucide-react";
 import examples from "libphonenumber-js/examples.mobile.json";
-import { Check, Clock, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { type CSSProperties, useEffect, useRef, useState } from "react";
+import {
+  type CSSProperties,
+  type SVGProps,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { AppCTA } from "@/components/detail/AppCTA";
 import { Button } from "@/components/detail/Button";
 import { Text } from "@/components/detail/Text";
@@ -70,6 +77,30 @@ const answerInputClass =
   "w-full border-b border-current bg-transparent px-2 py-2 outline-none placeholder:text-[color:var(--rsvp-answer-placeholder-color)]";
 const answerInputStyle: CSSProperties = { color: "var(--rsvp-answer-color)" };
 
+function QuestionMarkIcon({
+  size = 24,
+  strokeWidth = 2.5,
+  ...props
+}: SVGProps<SVGSVGElement> & { size?: number }) {
+  return (
+    <svg
+      {...props}
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+    >
+      <path
+        d="M9 9a3 3 0 1 1 4.9 2.32C12.84 12.2 12 12.61 12 14"
+        stroke="currentColor"
+        strokeWidth={strokeWidth}
+        strokeLinecap="round"
+      />
+      <circle cx="12" cy="18" r="1.2" fill="currentColor" />
+    </svg>
+  );
+}
+
 function formatRemaining(ms: number): string {
   const totalSeconds = Math.max(0, Math.floor(ms / 1000));
   const minutes = Math.floor(totalSeconds / 60);
@@ -90,6 +121,7 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
   const { language } = useLanguage();
   const t = dictionary[language].eventRsvp;
   const router = useRouter();
+  const prefersReducedMotion = useReducedMotion();
 
   // rsvp-type events register attendance directly: no redeem/guest code, no
   // pre-OTP requirements check, no profile/SNS step, and the server rejects
@@ -760,34 +792,77 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
             <div
               role="radiogroup"
               aria-label={t.rsvpResponseStepTitle}
-              className="flex flex-row gap-2"
+              className="flex items-start justify-around gap-3 py-3"
             >
               {(
                 [
                   ["going", t.rsvpGoing, Check],
-                  ["maybe", t.rsvpMaybe, Clock],
+                  ["maybe", t.rsvpMaybe, QuestionMarkIcon],
                   ["cant_go", t.rsvpCantGo, X],
                 ] as const
               ).map(([value, label, Icon]) => {
                 const selected = rsvpResponse === value;
                 return (
-                  <button
+                  <motion.button
                     key={value}
                     type="button"
                     role="radio"
                     aria-checked={selected}
                     onClick={() => setRsvpResponse(value)}
-                    className={`flex flex-1 flex-col items-center gap-1 rounded-full border px-3 py-4 transition-colors ${
-                      selected
-                        ? "border-white bg-white text-black"
-                        : "border-grayscale-700 text-white"
-                    }`}
+                    initial={false}
+                    animate={{ scale: selected ? 1.05 : 1 }}
+                    whileTap={prefersReducedMotion ? undefined : { scale: 0.94 }}
+                    transition={
+                      prefersReducedMotion
+                        ? { duration: 0 }
+                        : { type: "spring", stiffness: 260, damping: 15, mass: 0.7 }
+                    }
+                    className="group flex min-w-20 flex-col items-center gap-3 rounded-xl py-1 focus-visible:outline-none"
                   >
-                    <Icon size={20} aria-hidden="true" />
-                    <Text as="span" variant="body3Medium">
+                    <span className="relative flex size-[78px] items-center justify-center rounded-full group-focus-visible:ring-2 group-focus-visible:ring-white group-focus-visible:ring-offset-4 group-focus-visible:ring-offset-black">
+                      <motion.span
+                        aria-hidden="true"
+                        initial={false}
+                        animate={{
+                          opacity: selected ? 0.4 : 0,
+                          scale: selected ? 1 : 0.88,
+                        }}
+                        transition={{ duration: prefersReducedMotion ? 0 : 0.22 }}
+                        className="absolute inset-0 rounded-full border border-point-500"
+                      />
+                      <motion.span
+                        initial={false}
+                        animate={{
+                          backgroundColor: selected ? "#f2f862" : "#242424",
+                          borderColor: selected ? "#f2f862" : "#3a3a3a",
+                          boxShadow: selected
+                            ? "0 7px 26px rgba(242, 248, 98, 0.22)"
+                            : "0 0 0 rgba(242, 248, 98, 0)",
+                        }}
+                        transition={{ duration: prefersReducedMotion ? 0 : 0.22 }}
+                        className="relative flex size-[68px] items-center justify-center rounded-full border"
+                      >
+                        <motion.span
+                          initial={false}
+                          animate={{
+                            color: selected ? "#111111" : "#ffffff",
+                            opacity: selected ? 1 : 0.72,
+                          }}
+                          transition={{ duration: prefersReducedMotion ? 0 : 0.22 }}
+                        >
+                          <Icon aria-hidden="true" size={26} strokeWidth={2.5} />
+                        </motion.span>
+                      </motion.span>
+                    </span>
+                    <motion.span
+                      initial={false}
+                      animate={{ color: selected ? "#ffffff" : "#a0a2a2" }}
+                      transition={{ duration: prefersReducedMotion ? 0 : 0.22 }}
+                      className="text-sm font-medium"
+                    >
                       {label}
-                    </Text>
-                  </button>
+                    </motion.span>
+                  </motion.button>
                 );
               })}
             </div>
@@ -802,7 +877,10 @@ export function EventRsvpFlow({ event, redeemTarget }: EventRsvpFlowProps) {
               </Text>
             )}
 
-            <Button onClick={() => void handleRsvpResponseContinue()}>
+            <Button
+              variant="secondary"
+              onClick={() => void handleRsvpResponseContinue()}
+            >
               {t.otpContinue}
             </Button>
           </div>
